@@ -29,14 +29,23 @@ class Window(
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, profile.contextForwardCompat.toGLFWValue())
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_CORE_PROFILE, profile.contextCore.toGLFWValue())
 
-        pointer = GLFW.glfwCreateWindow(1366, 768, "${profile.appName} ${profile.appVersion}", 0L, 0L)
+        pointer = GLFW.glfwCreateWindow(
+            768, 768,
+            "${profile.appName} ${profile.appVersion}",
+            0L, 0L
+        )
 
         this.makeCurrent()
     }
 
+    var destroyed = false
+
     override fun destroy()
     {
-        GLFW.glfwDestroyWindow(pointer)
+        if (!destroyed)
+            GLFW.glfwDestroyWindow(pointer)
+
+        destroyed = true
     }
 
     fun makeCurrent()
