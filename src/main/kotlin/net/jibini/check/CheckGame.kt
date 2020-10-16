@@ -1,35 +1,33 @@
 package net.jibini.check
 
-import net.jibini.check.graphics.Destroyable
-
 /**
  * A primary game object which defines initialization and entry points for the game's execution
  */
-interface CheckGame : Destroyable
+interface CheckGame
 {
     /**
      * Basic information required to start up the game engine
      */
     val profile: Profile
 
+    /**
+     * Set up and register update tasks with the engine lifecycle
+     */
     fun start()
-
-    fun update()
 
     /**
      * Basic information required to start up the game engine
      */
-    interface Profile
-    {
+    class Profile(
         /**
          * Name of the application; used for window titles and logging
          */
-        val appName: String
+        val appName: String,
 
         /**
          * Version of the application; used for window titles and logging
          */
-        val appVersion: String
+        val appVersion: String,
 
         /**
          * Version of OpenGL context to initialize (in form XY, where X is major version and Y is minor version);
@@ -41,16 +39,16 @@ interface CheckGame : Destroyable
          * @see contextCore
          * @see contextForwardCompat
          */
-        val contextVersion: Int
+        val contextVersion: Int,
 
         /**
          * Whether the OpenGL context should be set to a core profile
          */
-        val contextCore: Boolean
+        val contextCore: Boolean,
 
         /**
          * Whether the OpenGL context should be set to a forward compatible profile
          */
         val contextForwardCompat: Boolean
-    }
+    )
 }

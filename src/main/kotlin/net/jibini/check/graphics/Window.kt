@@ -2,7 +2,6 @@ package net.jibini.check.graphics
 
 import net.jibini.check.CheckGame
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL
 
 class Window(
     profile: CheckGame.Profile

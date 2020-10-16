@@ -1,9 +1,12 @@
 package net.jibini.check
 
 import net.jibini.check.engine.EngineObjects
+import net.jibini.check.engine.FeatureSet
+import net.jibini.check.engine.LifeCycle
 import net.jibini.check.graphics.Window
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
+import org.lwjgl.opengl.GL11
 import org.slf4j.LoggerFactory
 import kotlin.concurrent.thread
 
@@ -30,9 +33,8 @@ object Check
         {
             if (Thread.currentThread() != contextInitThread)
                 // Warn about GLFW's required thread safety protocol
-                log.warn("Applications should all be booted from the same thread; on some systems, it may also be " +
-                        "necessary for that thread to be the main thread " +
-                        "(https://www.glfw.org/docs/3.3.2/intro_guide.html#thread_safety)")
+                log.warn("Applications should all be booted from the same thread; on some systems, it may also be necessary for that" +
+                            " thread to be the main thread  (https://www.glfw.org/docs/3.3.2/intro_guide.html#thread_safety)")
         } else
         {
             contextInitThread = Thread.currentThread()
@@ -57,6 +59,9 @@ object Check
         val window = Window(game.profile)
         EngineObjects.placeInstance(window, game)
 
+        val featureSet = FeatureSet()
+        EngineObjects.placeInstance(featureSet, game)
+
         GLFW.glfwMakeContextCurrent(0L)
 
         thread(name = "${game.profile.appName}$postfix") {
@@ -65,17 +70,22 @@ object Check
             window.makeCurrent()
             GL.createCapabilities()
 
+            val lifeCycle = LifeCycle()
+            EngineObjects.placeInstance(lifeCycle, game)
+
             game.start()
 
-            while (!window.shouldClose)
-            {
-                game.update()
-                window.swapBuffers()
-            }
+            lifeCycle.registerTask({
+                GL11.glClear(featureSet.clearFlags)
+                GL11.glLoadIdentity()
+            }, 0)
+
+            lifeCycle.registerTask { window.swapBuffers() }
+
+            lifeCycle.start { !window.shouldClose }
 
             log.debug("Breaking application engine thread")
 
-            game.destroy()
             window.destroy()
 
             instanceCount[game.profile.appName] = instanceCount[game.profile.appName]!! - 1
