@@ -3,6 +3,7 @@ package net.jibini.check
 import net.jibini.check.engine.impl.EngineObjects
 import net.jibini.check.engine.FeatureSet
 import net.jibini.check.engine.LifeCycle
+import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.graphics.Window
 import org.lwjgl.glfw.GLFW
@@ -67,6 +68,11 @@ object Check
         val window = Window(game.profile)
         EngineObjects.placeInstance(window, game)
 
+        // Enable VSync because screen tearing on high FPS
+        GLFW.glfwSwapInterval(1)
+        // Enable MSAA (16X)
+        GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 16)
+
         // Create and place game's feature set
         val featureSet = FeatureSet()
         EngineObjects.placeInstance(featureSet, game)
@@ -85,6 +91,10 @@ object Check
             // Create and place game's lifecycle
             val lifeCycle = LifeCycle()
             EngineObjects.placeInstance(lifeCycle, game)
+
+            // Create and place game's renderer
+            val renderer = Renderer()
+            EngineObjects.placeInstance(renderer, game)
 
             // Initialize the game
             game.start()

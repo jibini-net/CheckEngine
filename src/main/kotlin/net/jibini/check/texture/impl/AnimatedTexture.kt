@@ -88,7 +88,7 @@ class AnimatedTexture(
                             val green = colorEntry.getAttribute("green").toInt()
                             val blue = colorEntry.getAttribute("blue").toInt()
 
-                            backgroundColor = Color(red, green, blue)
+                            backgroundColor = Color(red, green, blue, 0)
 
                             break
                         }
@@ -132,12 +132,14 @@ class AnimatedTexture(
             if (master == null)
             {
                 master = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
-                master.createGraphics().color = backgroundColor
-                master.createGraphics().fillRect(0, 0, master.width, master.height)
+
+                val graphics = master.createGraphics()
+                graphics.color = backgroundColor
+                graphics.fillRect(0, 0, master.width, master.height)
 
 //                hasBackground = image.width == width && image.height == height
 
-                master.createGraphics().drawImage(image, 0, 0, null)
+                graphics.drawImage(image, 0, 0, null)
             } else
             {
                 var x = 0
@@ -178,9 +180,12 @@ class AnimatedTexture(
                     master = BufferedImage(model, raster, alpha, null)
                 } else if (disposal == "restoreToBackgroundColor" && backgroundColor != null)
                 {
+                    val graphics = master.createGraphics()
+                    graphics.color = backgroundColor
+
 //                    if (!hasBackground || frameIndex > 1)
 //                    {
-                        master.createGraphics().fillRect(
+                        graphics.clearRect(
                             lastX,
                             lastY,
                             frames[frameIndex - 1].width,
@@ -250,7 +255,7 @@ class AnimatedTexture(
     override val pointer: Int
         get()
         {
-            return animation[minOf(currentFrameIndex, animation.size)].texture.pointer
+            return animation[minOf(currentFrameIndex, animation.size - 1)].texture.pointer
         }
 
     class ImageFrame(

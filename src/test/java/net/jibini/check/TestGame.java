@@ -3,6 +3,7 @@ package net.jibini.check;
 import net.jibini.check.engine.EngineObject;
 import net.jibini.check.engine.FeatureSet;
 import net.jibini.check.engine.LifeCycle;
+import net.jibini.check.graphics.Renderer;
 import net.jibini.check.graphics.Window;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
@@ -12,15 +13,18 @@ import org.lwjgl.opengl.GL11;
 public class TestGame implements CheckGame
 {
     @EngineObject
-    public Window window;
+    public FeatureSet featureSet;
 
     @EngineObject
-    public FeatureSet featureSet;
+    public Window window;
 
     @EngineObject
     public LifeCycle lifeCycle;
 
-    private Texture gendrauTexture;
+    @EngineObject
+    public Renderer renderer;
+
+    private Texture[] texture;
 
     /**
      * Application entry point; calls the engine boot methods and polls for controller/keyboard/mouse inputs on the
@@ -47,11 +51,33 @@ public class TestGame implements CheckGame
     public void start()
     {
         featureSet.enableDepthTest()
-                .enable2DTextures();
-
+                .enable2DTextures()
+                .enableTransparency();
         lifeCycle.registerTask(this::update);
 
-        gendrauTexture = Texture.from(Resource.fromClasspath("fancy_square.gif"));
+        texture = new Texture[] {
+                Texture.from(Resource.fromClasspath("characters/allie.gif")),
+                Texture.from(Resource.fromClasspath("characters/becky.gif")),
+                Texture.from(Resource.fromClasspath("characters/foley.gif")),
+                Texture.from(Resource.fromClasspath("characters/forbes.gif")),
+                Texture.from(Resource.fromClasspath("characters/forbes_axe.gif")),
+                Texture.from(Resource.fromClasspath("characters/forbes_beard.gif")),
+                Texture.from(Resource.fromClasspath("characters/gendrau.gif")),
+                Texture.from(Resource.fromClasspath("characters/hunt.gif")),
+                Texture.from(Resource.fromClasspath("characters/hunt_sunglasses.gif")),
+                Texture.from(Resource.fromClasspath("characters/jason.gif")),
+                Texture.from(Resource.fromClasspath("characters/joe_gow.gif")),
+                Texture.from(Resource.fromClasspath("characters/kasi.gif")),
+                Texture.from(Resource.fromClasspath("characters/lei_wang.gif")),
+                Texture.from(Resource.fromClasspath("characters/maraist.gif")),
+                Texture.from(Resource.fromClasspath("characters/mathias.gif")),
+                Texture.from(Resource.fromClasspath("characters/petullo.gif")),
+                Texture.from(Resource.fromClasspath("characters/senger.gif")),
+                Texture.from(Resource.fromClasspath("characters/zebrof.gif")),
+                Texture.from(Resource.fromClasspath("characters/zheng.gif")),
+
+                Texture.from(Resource.fromClasspath("test.gif"))
+        };
     }
 
     /**
@@ -63,34 +89,16 @@ public class TestGame implements CheckGame
      */
     public void update()
     {
-        gendrauTexture.bind();
-
-        float baseX = gendrauTexture.getTextureCoordinates().getBaseX();
-        float baseY = gendrauTexture.getTextureCoordinates().getBaseY();
-        float dx = gendrauTexture.getTextureCoordinates().getDeltaX();
-        float dy = gendrauTexture.getTextureCoordinates().getDeltaY();
-
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glTexCoord2f(baseX, baseY + dy);
-        GL11.glVertex2f(-1.0f, -0.5f);
-        GL11.glTexCoord2f(baseX + dx, baseY + dy);
-        GL11.glVertex2f(0.0f, -0.5f);
-        GL11.glTexCoord2f(baseX + dx, baseY);
-        GL11.glVertex2f(0.0f, 0.5f);
-        GL11.glTexCoord2f(baseX, baseY);
-        GL11.glVertex2f(-1.0f, 0.5f);
-        GL11.glEnd();
-
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glTexCoord2f(0.0f, 1.0f);
-        GL11.glVertex2f(0.0f, -0.5f);
-        GL11.glTexCoord2f(1.0f, 1.0f);
-        GL11.glVertex2f(1.0f, -0.5f);
-        GL11.glTexCoord2f(1.0f, 0.0f);
-        GL11.glVertex2f(1.0f, 0.5f);
-        GL11.glTexCoord2f(0.0f, 0.0f);
-        GL11.glVertex2f(0.0f, 0.5f);
-        GL11.glEnd();
+        for (int i = 0; i < texture.length; i++)
+        {
+            texture[i].bind();
+            //noinspection IntegerDivisionInFloatingPointContext
+            renderer.drawRectangle(
+                    -1.0f + 0.4f * (i % 5),
+                    -1.0f + 0.4f * (i / 5),
+                    0.4f, 0.4f
+            );
+        }
     }
 
     /**
