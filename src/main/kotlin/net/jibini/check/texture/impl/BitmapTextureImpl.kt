@@ -1,18 +1,23 @@
 package net.jibini.check.texture.impl
 
+import net.jibini.check.graphics.Pointer
+import net.jibini.check.graphics.impl.AbstractAutoDestroyable
+import net.jibini.check.graphics.impl.PointerImpl
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.TextureCoordinates
 import org.lwjgl.opengl.GL11
 import java.nio.ByteBuffer
 
-class BitmapTexture(
-    width: Int = TextureMap.MAP_DIMENSION,
-    height: Int = TextureMap.MAP_DIMENSION
-) : Texture()
+class BitmapTextureImpl(
+    pointer: Int = GL11.glGenTextures(),
+
+    width: Int = TextureSpriteMapImpl.MAP_DIMENSION,
+    height: Int = TextureSpriteMapImpl.MAP_DIMENSION
+) : AbstractAutoDestroyable(), Texture, Pointer<Int> by PointerImpl(pointer)
 {
     init
     {
-        val bound = bound
+        val bound = Texture.bound
         bind()
 
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT)
@@ -34,7 +39,7 @@ class BitmapTexture(
 
     override fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
     {
-        val bound = bound
+        val bound = Texture.bound
         bind()
 
         GL11.glTexSubImage2D(
@@ -52,4 +57,9 @@ class BitmapTexture(
         0.0f, 0.0f,
         1.0f, 1.0f
     )
+
+    override fun destroy()
+    {
+        GL11.glDeleteTextures(pointer)
+    }
 }

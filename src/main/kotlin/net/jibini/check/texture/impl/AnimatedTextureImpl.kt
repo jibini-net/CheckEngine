@@ -2,8 +2,6 @@ package net.jibini.check.texture.impl
 
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.TextureCoordinates
-import net.jibini.check.texture.impl.BufferedImageTexture.Companion.toUnsignedBytes
-import org.slf4j.LoggerFactory
 import org.w3c.dom.NamedNodeMap
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -16,9 +14,10 @@ import javax.imageio.metadata.IIOMetadataNode
 import javax.imageio.stream.ImageInputStream
 import kotlin.concurrent.thread
 
-class AnimatedTexture(
+//TODO CLEANUP AND REWRITE
+class AnimatedTextureImpl(
     stream: ImageInputStream
-) : Texture(0)
+) : Texture
 {
     private var currentFrameIndex = 0
 
@@ -222,14 +221,14 @@ class AnimatedTexture(
 
         for ((i, frame) in frames.withIndex())
         {
-            animation += AnimationFrame(TextureMapRegistry.claimSprite(width), frame.delay * 10)
-            animation[i].texture.putData(0, 0, width, height, frame.image.toUnsignedBytes())
+            animation += AnimationFrame(TextureSpriteMapImpl.claimSprite(width), frame.delay * 10)
+            animation[i].texture.putData(0, 0, frame.image)
         }
 
         thread(name = "Animation", isDaemon = true) {
-            val log = LoggerFactory.getLogger(javaClass)
+//            val log = LoggerFactory.getLogger(javaClass)
 
-            log.debug("Started new animation choreography daemon")
+//            log.debug("Started new animation choreography daemon")
 
             while (true)
             {

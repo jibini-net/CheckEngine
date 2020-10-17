@@ -2,16 +2,15 @@ package net.jibini.check.texture
 
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.resource.Resource
-import net.jibini.check.texture.impl.AnimatedTexture
-import net.jibini.check.texture.impl.BufferedImageTexture
+import net.jibini.check.texture.impl.AnimatedTextureImpl
+import net.jibini.check.texture.impl.BitmapTextureImpl
+import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
-import org.slf4j.LoggerFactory
+import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 
-abstract class Texture(
-    override val pointer: Int = GL11.glGenTextures()
-) : Pointer<Int>()
+interface Texture : Pointer<Int>
 {
     /**
      * Changes the OpenGL texture bind state if it is not already correct
@@ -24,33 +23,40 @@ abstract class Texture(
     /**
      * Returns the base texture coordinate and directional offsets
      */
-    abstract val textureCoordinates: TextureCoordinates
+    val textureCoordinates: TextureCoordinates
 
-    override fun destroy()
+    fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
+
+    fun putData(offsetX: Int, offsetY: Int, data: BufferedImage)
     {
-        GL11.glDeleteTextures(pointer)
+        this.putData(offsetX, offsetY, data.width, data.height, data.toUnsignedBytes())
     }
-
-    abstract fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
 
     companion object
     {
-        private val log = LoggerFactory.getLogger(Texture::class.java)
-
         private val boundPerThread = mutableMapOf<Thread, Texture>()
+        private val boundPointerPerThread = mutableMapOf<Thread, Int>()
 
         val bound: Texture?
             get() = boundPerThread[Thread.currentThread()]
 
+        private val boundPointer: Int
+            get() = boundPointerPerThread[Thread.currentThread()] ?: 0
+
         private fun bind(texture: Texture)
         {
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.pointer)
+            if (texture.pointer != boundPointer)
+            {
+                boundPointerPerThread[Thread.currentThread()] = texture.pointer
+
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.pointer)
+            }
 
             boundPerThread[Thread.currentThread()] = texture
         }
 
         @JvmStatic
-        fun from(resource: Resource): Texture
+        fun load(resource: Resource): Texture
         {
             val stream = ImageIO.createImageInputStream(resource.stream)
             val readers = ImageIO.getImageReaders(stream)
@@ -65,17 +71,53 @@ abstract class Texture(
                 {
                     animate = true
 
-                    log.debug("Animated image detected; handling individual frames")
+                    break
                 }
             }
 
             return if (animate)
             {
-                AnimatedTexture(stream)
+                AnimatedTextureImpl(stream)
             } else
             {
-                BufferedImageTexture(ImageIO.read(stream))
+                val image = ImageIO.read(stream)
+                val texture = BitmapTextureImpl(image.width, image.height)
+
+                texture.putData(0, 0, image)
+
+                texture
             }
+        }
+
+        fun BufferedImage.toUnsignedBytes(): ByteBuffer
+        {
+            val image = this
+
+            val pixels = IntArray(image.width * image.height)
+
+            image.getRGB(0, 0, image.width, image.height, pixels, 0, image.width)
+
+            val hasAlpha = image.colorModel.hasAlpha()
+            val buffer = BufferUtils.createByteBuffer(image.width * image.height * 4)
+
+            for (y in 0 until image.height)
+                for (x in 0 until image.width)
+                {
+                    val pixel = pixels[y * image.width + x]
+
+                    buffer.put(((pixel shr 16) and 0xFF).toByte())
+                    buffer.put(((pixel shr  8) and 0xFF).toByte())
+                    buffer.put(((pixel       ) and 0xFF).toByte())
+
+                    if (hasAlpha)
+                        buffer.put(((pixel shr 24) and 0xFF).toByte())
+                    else
+                        buffer.put(0xFF.toByte())
+                }
+
+            buffer.flip()
+
+            return buffer
         }
     }
 }

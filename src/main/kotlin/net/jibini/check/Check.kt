@@ -4,8 +4,8 @@ import net.jibini.check.engine.impl.EngineObjects
 import net.jibini.check.engine.FeatureSet
 import net.jibini.check.engine.LifeCycle
 import net.jibini.check.graphics.Renderer
-import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.graphics.Window
+import net.jibini.check.graphics.impl.AbstractAutoDestroyable
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
@@ -70,8 +70,6 @@ object Check
 
         // Enable VSync because screen tearing on high FPS
         GLFW.glfwSwapInterval(1)
-        // Enable MSAA (16X)
-        GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 16)
 
         // Create and place game's feature set
         val featureSet = FeatureSet()
@@ -114,7 +112,9 @@ object Check
             log.debug("Breaking application engine thread")
 
             // Destroy all destroyable objects created on this thread
-            DestroyableRegistry.flushRegistered()
+            AbstractAutoDestroyable.flushRegistered()
+
+            window.destroy()
 
             // Remove this game from the tracked instances
             instanceCount[game.profile.appName] = instanceCount[game.profile.appName]!! - 1

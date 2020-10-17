@@ -5,7 +5,7 @@ import org.lwjgl.glfw.GLFW
 
 class Window(
     profile: CheckGame.Profile
-) : Pointer<Long>(), Destroyable
+) : Pointer<Long>, Destroyable
 {
     override val pointer: Long
 
@@ -23,6 +23,8 @@ class Window(
     {
         GLFW.glfwDefaultWindowHints()
 
+        GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 16)
+
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, profile.contextVersion / 10)
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, profile.contextVersion % 10)
 
@@ -38,7 +40,7 @@ class Window(
         this.makeCurrent()
     }
 
-    var destroyed = false
+    private var destroyed = false
 
     override fun destroy()
     {

@@ -8,7 +8,6 @@ import net.jibini.check.graphics.Window;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 
 public class TestGame implements CheckGame
 {
@@ -56,25 +55,27 @@ public class TestGame implements CheckGame
         lifeCycle.registerTask(this::update);
 
         texture = new Texture[] {
-                Texture.from(Resource.fromClasspath("characters/allie.gif")),
-                Texture.from(Resource.fromClasspath("characters/becky.gif")),
-                Texture.from(Resource.fromClasspath("characters/foley.gif")),
-                Texture.from(Resource.fromClasspath("characters/forbes.gif")),
-                Texture.from(Resource.fromClasspath("characters/forbes_axe.gif")),
-                Texture.from(Resource.fromClasspath("characters/forbes_beard.gif")),
-                Texture.from(Resource.fromClasspath("characters/gendrau.gif")),
-                Texture.from(Resource.fromClasspath("characters/hunt.gif")),
-                Texture.from(Resource.fromClasspath("characters/hunt_sunglasses.gif")),
-                Texture.from(Resource.fromClasspath("characters/jason.gif")),
-                Texture.from(Resource.fromClasspath("characters/joe_gow.gif")),
-                Texture.from(Resource.fromClasspath("characters/kasi.gif")),
-                Texture.from(Resource.fromClasspath("characters/lei_wang.gif")),
-                Texture.from(Resource.fromClasspath("characters/maraist.gif")),
-                Texture.from(Resource.fromClasspath("characters/mathias.gif")),
-                Texture.from(Resource.fromClasspath("characters/petullo.gif")),
-                Texture.from(Resource.fromClasspath("characters/senger.gif")),
-                Texture.from(Resource.fromClasspath("characters/zebrof.gif")),
-                Texture.from(Resource.fromClasspath("characters/zheng.gif"))
+                Texture.load(Resource.fromClasspath("characters/allie.gif")),
+                Texture.load(Resource.fromClasspath("characters/becky.gif")),
+                Texture.load(Resource.fromClasspath("characters/foley.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes_axe.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes_beard.gif")),
+                Texture.load(Resource.fromClasspath("characters/gendrau.gif")),
+                Texture.load(Resource.fromClasspath("characters/hunt.gif")),
+                Texture.load(Resource.fromClasspath("characters/hunt_sunglasses.gif")),
+                Texture.load(Resource.fromClasspath("characters/jason.gif")),
+                Texture.load(Resource.fromClasspath("characters/joe_gow.gif")),
+                Texture.load(Resource.fromClasspath("characters/kasi.gif")),
+                Texture.load(Resource.fromClasspath("characters/lei_wang.gif")),
+                Texture.load(Resource.fromClasspath("characters/maraist.gif")),
+                Texture.load(Resource.fromClasspath("characters/mathias.gif")),
+                Texture.load(Resource.fromClasspath("characters/petullo.gif")),
+                Texture.load(Resource.fromClasspath("characters/senger.gif")),
+                Texture.load(Resource.fromClasspath("characters/zebrof.gif")),
+                Texture.load(Resource.fromClasspath("characters/zheng.gif")),
+
+                Texture.load(Resource.fromClasspath("test.gif"))
         };
     }
 

@@ -1,5 +1,7 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val lwjglNatives : String
     get() {
         val currentOperatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
@@ -38,6 +40,17 @@ java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
+
+tasks.withType(KotlinCompile::class).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+
+        @Suppress("SuspiciousCollectionReassignment")
+        freeCompilerArgs += "-include-runtime"
+    }
+}
+
+tasks.withType()
 
 dependencies {
     // Kotlin platform and reflection libraries

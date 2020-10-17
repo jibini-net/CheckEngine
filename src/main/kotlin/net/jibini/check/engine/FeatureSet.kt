@@ -11,14 +11,14 @@ class FeatureSet
         clearFlags = clearFlags or GL11.GL_DEPTH_BUFFER_BIT
         GL11.glEnable(GL11.GL_DEPTH_TEST)
 
-        return this;
+        return this
     }
 
     fun enable2DTextures(): FeatureSet
     {
         GL11.glEnable(GL11.GL_TEXTURE_2D)
 
-        return this;
+        return this
     }
 
     fun enableTransparency(): FeatureSet
