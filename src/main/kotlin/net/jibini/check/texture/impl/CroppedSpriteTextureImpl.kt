@@ -13,7 +13,7 @@ class CroppedSpriteTextureImpl(
     private val sheetDimension: Int,
 
     private val index: Int
-) : Texture by DecoratedTextureImpl(internal)
+) : Texture by internal
 {
     override fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
     {
