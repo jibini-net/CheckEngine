@@ -229,7 +229,7 @@ class AnimatedTexture(
         thread(name = "Animation", isDaemon = true) {
             val log = LoggerFactory.getLogger(javaClass)
 
-            log.debug("Starting new animation choreography daemon")
+            log.debug("Started new animation choreography daemon")
 
             while (true)
             {

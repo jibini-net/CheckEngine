@@ -74,9 +74,7 @@ public class TestGame implements CheckGame
                 Texture.from(Resource.fromClasspath("characters/petullo.gif")),
                 Texture.from(Resource.fromClasspath("characters/senger.gif")),
                 Texture.from(Resource.fromClasspath("characters/zebrof.gif")),
-                Texture.from(Resource.fromClasspath("characters/zheng.gif")),
-
-                Texture.from(Resource.fromClasspath("test.gif"))
+                Texture.from(Resource.fromClasspath("characters/zheng.gif"))
         };
     }
 
