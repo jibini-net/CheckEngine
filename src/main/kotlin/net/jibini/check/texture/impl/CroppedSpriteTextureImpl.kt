@@ -17,9 +17,11 @@ class CroppedSpriteTextureImpl(
 {
     override fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
     {
+        // Calculate pixel offsets
         val cropX = (index % (sheetDimension / dimension)) * dimension
         val cropY = (index / (sheetDimension / dimension)) * dimension
 
+        // Call decorated instance with offsets
         internal.putData(
             offsetX + cropX,
             offsetY + cropY,
@@ -31,12 +33,14 @@ class CroppedSpriteTextureImpl(
 
     override fun putData(offsetX: Int, offsetY: Int, data: BufferedImage)
     {
+        // Use internal method (not decorated)
         this.putData(offsetX, offsetY, data.width, data.height, data.toUnsignedBytes())
     }
 
     private val increment = dimension.toFloat() / sheetDimension
 
     override val textureCoordinates = TextureCoordinates(
+        // Calculate texture coordinate offsets
         (index % (sheetDimension / dimension)).toFloat() * increment,
         (index / (sheetDimension / dimension)).toFloat() * increment,
 

@@ -45,6 +45,7 @@ interface Texture : Pointer<Int>
 
         private fun bind(texture: Texture)
         {
+            // Only change bind if the currently bound state is different
             if (texture.pointer != boundPointer)
             {
                 boundPointerPerThread[Thread.currentThread()] = texture.pointer
@@ -58,6 +59,7 @@ interface Texture : Pointer<Int>
         @JvmStatic
         fun load(resource: Resource): Texture
         {
+            // Open texture resource and get readers
             val stream = ImageIO.createImageInputStream(resource.stream)
             val readers = ImageIO.getImageReaders(stream)
 
@@ -67,6 +69,7 @@ interface Texture : Pointer<Int>
             {
                 val reader = readers.next()
 
+                // If any reader is for GIFs, it should animate
                 if (reader.formatName == "gif")
                 {
                     animate = true
@@ -75,11 +78,13 @@ interface Texture : Pointer<Int>
                 }
             }
 
+            // Use correct implementation for file format
             return if (animate)
             {
                 AnimatedTextureImpl(stream)
             } else
             {
+                // Read in buffered image and pass to texture
                 val image = ImageIO.read(stream)
                 val texture = BitmapTextureImpl(image.width, image.height)
 
@@ -91,30 +96,37 @@ interface Texture : Pointer<Int>
 
         fun BufferedImage.toUnsignedBytes(): ByteBuffer
         {
+            // Created because this method was refactored
             val image = this
-
+            // Allocate array for all image pixels
             val pixels = IntArray(image.width * image.height)
 
+            // Read pixel data into array as integers (4 bytes)
             image.getRGB(0, 0, image.width, image.height, pixels, 0, image.width)
 
+            // Check alpha channel and allocate buffer
             val hasAlpha = image.colorModel.hasAlpha()
             val buffer = BufferUtils.createByteBuffer(image.width * image.height * 4)
 
             for (y in 0 until image.height)
                 for (x in 0 until image.width)
                 {
+                    // Get current pixel
                     val pixel = pixels[y * image.width + x]
 
+                    // Shift through bytes and push them on buffer
                     buffer.put(((pixel shr 16) and 0xFF).toByte())
                     buffer.put(((pixel shr  8) and 0xFF).toByte())
                     buffer.put(((pixel       ) and 0xFF).toByte())
 
+                    // Default to opaque if alpha doesn't exist
                     if (hasAlpha)
                         buffer.put(((pixel shr 24) and 0xFF).toByte())
                     else
                         buffer.put(0xFF.toByte())
                 }
 
+            // Flip buffer; very important for OpenGL operations
             buffer.flip()
 
             return buffer

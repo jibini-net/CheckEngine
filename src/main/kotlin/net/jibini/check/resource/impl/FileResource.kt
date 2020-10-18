@@ -8,5 +8,6 @@ class FileResource(
     file: File
 ) : Resource()
 {
+    // Open file resource stream
     override val stream = FileInputStream(file)
 }

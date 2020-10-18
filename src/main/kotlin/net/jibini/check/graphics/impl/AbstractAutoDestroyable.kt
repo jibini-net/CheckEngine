@@ -8,6 +8,7 @@ abstract class AbstractAutoDestroyable : Destroyable
 {
     init
     {
+        // Register self to be auto-destroyed
         forThread += this
 
         log.debug("Registered destroyable object $this")
@@ -26,6 +27,7 @@ abstract class AbstractAutoDestroyable : Destroyable
         {
             log.info("Flushing cached destroyable objects for this thread")
 
+            // Destroy all registered items safely
             for (item in forThread)
                 try
                 {

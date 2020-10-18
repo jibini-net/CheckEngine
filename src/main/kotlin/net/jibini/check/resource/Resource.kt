@@ -14,16 +14,21 @@ abstract class Resource
     val textContents: String
         get()
         {
+            // Prepare to read all lines
             val stringBuilder = StringBuilder()
             val reader = stream.bufferedReader()
 
+            // Read first line
             var line = reader.readLine()
 
+            // Loop until line is null
             while (line != null)
             {
+                // Append line value
                 stringBuilder.append(line)
                     .append('\n')
 
+                // Read next line
                 line = reader.readLine()
             }
 

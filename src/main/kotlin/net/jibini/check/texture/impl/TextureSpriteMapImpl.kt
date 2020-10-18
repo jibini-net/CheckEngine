@@ -41,15 +41,17 @@ class TextureSpriteMapImpl(
         @Suppress("UnnecessaryVariable")
         fun sheetsFor(dimension: Int): MutableList<TextureSpriteMapImpl>
         {
+            // Get sprite sheets for the current thread
             val threadMap = mappedSheets.getOrPut(Thread.currentThread()) {
                 log.info("Creating knit sprite sheets for current thread")
-
+                // Create if missing
                 mutableMapOf()
             }
 
+            // Get sprite sheets for the given sprite size
             val sheetGroup = threadMap.getOrPut(dimension) {
                 log.info("Creating first sprite sheet for sprite size $dimension")
-
+                // Create if missing
                 mutableListOf(TextureSpriteMapImpl(dimension))
             }
 
@@ -58,11 +60,15 @@ class TextureSpriteMapImpl(
 
         fun claimSprite(dimension: Int): Texture
         {
+            // Get latest sheet for sprite size
             val sheets = sheetsFor(dimension)
+            // Allocate the next sprite
             val texture = sheets.last().next
 
+            // Check if last sheet is now full
             if (sheets.last().full)
             {
+                // If now full, allocate a new sprite sheet
                 log.info("Creating next sprite sheet for sprite size $dimension")
                 sheets += TextureSpriteMapImpl(dimension)
             }

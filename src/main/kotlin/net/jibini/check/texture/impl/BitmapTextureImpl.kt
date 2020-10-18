@@ -17,15 +17,18 @@ class BitmapTextureImpl(
 {
     init
     {
+        // Store currently bound texture
         val bound = Texture.bound
         bind()
 
+        // Set coordinate clamp/wrap properties
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT)
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT)
-
+        // Set min/magnification filters
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST)
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST)
 
+        // Allocate video memory to the texture
         GL11.glTexImage2D(
             GL11.GL_TEXTURE_2D, 0,
             GL11.GL_RGBA,
@@ -34,14 +37,17 @@ class BitmapTextureImpl(
             0L
         )
 
+        // Rebind previously bound texture
         bound?.bind()
     }
 
     override fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
     {
+        // Store currently bound texture
         val bound = Texture.bound
         bind()
 
+        // Set the video memory for the given texture segment
         GL11.glTexSubImage2D(
             GL11.GL_TEXTURE_2D, 0,
             offsetX, offsetY,
@@ -50,6 +56,7 @@ class BitmapTextureImpl(
             data
         )
 
+        // Rebind previously bound texture
         bound?.bind()
     }
 
