@@ -55,27 +55,22 @@ public class TestGame implements CheckGame
         lifeCycle.registerTask(this::update);
 
         texture = new Texture[] {
-                Texture.load(Resource.fromClasspath("characters/allie.gif")),
-                Texture.load(Resource.fromClasspath("characters/becky.gif")),
-                Texture.load(Resource.fromClasspath("characters/foley.gif")),
-                Texture.load(Resource.fromClasspath("characters/forbes.gif")),
-                Texture.load(Resource.fromClasspath("characters/forbes_axe.gif")),
-                Texture.load(Resource.fromClasspath("characters/forbes_beard.gif")),
-                Texture.load(Resource.fromClasspath("characters/gendrau.gif")),
-                Texture.load(Resource.fromClasspath("characters/hunt.gif")),
-                Texture.load(Resource.fromClasspath("characters/hunt_sunglasses.gif")),
-                Texture.load(Resource.fromClasspath("characters/jason.gif")),
-                Texture.load(Resource.fromClasspath("characters/joe_gow.gif")),
-                Texture.load(Resource.fromClasspath("characters/kasi.gif")),
-                Texture.load(Resource.fromClasspath("characters/lei_wang.gif")),
-                Texture.load(Resource.fromClasspath("characters/maraist.gif")),
-                Texture.load(Resource.fromClasspath("characters/mathias.gif")),
-                Texture.load(Resource.fromClasspath("characters/petullo.gif")),
-                Texture.load(Resource.fromClasspath("characters/senger.gif")),
-                Texture.load(Resource.fromClasspath("characters/zebrof.gif")),
-                Texture.load(Resource.fromClasspath("characters/zheng.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_beard_right.gif")),
 
-                Texture.load(Resource.fromClasspath("test.gif"))
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_left.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_right.gif")),
+
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_back_left.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_back_right.gif")),
+
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_left.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_right.gif")),
+
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_back_right.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_back_left.gif")),
+
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_right.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_left.gif"))
         };
     }
 
