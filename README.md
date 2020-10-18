@@ -1,4 +1,4 @@
-# Check Engine <img width="30px" src="https://i.imgur.com/zCbt199.png" />
+# Check Engine <img width="20px" src="https://i.imgur.com/zCbt199.png" />
 
 A simple 2D game engine developed for the Makeshift group at University of Wisconsin-La Crosse.
 
