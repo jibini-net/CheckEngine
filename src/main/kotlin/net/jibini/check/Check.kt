@@ -6,6 +6,7 @@ import net.jibini.check.engine.LifeCycle
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.AbstractAutoDestroyable
+import net.jibini.check.input.Keyboard
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
@@ -68,6 +69,10 @@ object Check
         val window = Window(game.profile)
         EngineObjects.placeInstance(window, game)
 
+        // Create and place game's keyboard
+        val keyboard = Keyboard(window)
+        EngineObjects.placeInstance(keyboard, game)
+
         // Enable VSync because screen tearing on high FPS
         GLFW.glfwSwapInterval(1)
 
@@ -101,6 +106,20 @@ object Check
             lifeCycle.registerTask({
                 GL11.glClear(featureSet.clearFlags)
                 GL11.glLoadIdentity()
+
+                val w = IntArray(1)
+                val h = IntArray(1)
+
+                GLFW.glfwGetWindowSize(window.pointer, w, h)
+
+                GL11.glViewport(0, 0, w[0], h[0])
+
+                val widthRatio = w[0].toDouble() / h[0]
+
+                GL11.glMatrixMode(GL11.GL_PROJECTION)
+                GL11.glLoadIdentity()
+                GL11.glOrtho(-widthRatio, widthRatio, -1.0, 1.0, -100.0, 100.0)
+                GL11.glMatrixMode(GL11.GL_MODELVIEW)
             }, 0)
 
             // Register the OpenGL/GLFW window buffer swap

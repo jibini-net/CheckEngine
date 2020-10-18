@@ -4,6 +4,7 @@ import net.jibini.check.graphics.Pointer
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.impl.AnimatedTextureImpl
 import net.jibini.check.texture.impl.BitmapTextureImpl
+import net.jibini.check.texture.impl.FlippedTextureImpl
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.awt.image.BufferedImage
@@ -18,6 +19,11 @@ interface Texture : Pointer<Int>
     fun bind()
     {
         bind(this)
+    }
+
+    fun flip(horizontal: Boolean, vertical: Boolean): Texture
+    {
+        return FlippedTextureImpl(this, horizontal, vertical)
     }
 
     /**
@@ -43,7 +49,7 @@ interface Texture : Pointer<Int>
         private val boundPointer: Int
             get() = boundPointerPerThread[Thread.currentThread()] ?: 0
 
-        private fun bind(texture: Texture)
+        fun bind(texture: Texture)
         {
             // Only change bind if the currently bound state is different
             if (texture.pointer != boundPointer)

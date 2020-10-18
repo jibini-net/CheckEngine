@@ -41,9 +41,9 @@ class CroppedSpriteTextureImpl(
 
     override val textureCoordinates = TextureCoordinates(
         // Calculate texture coordinate offsets
-        (index % (sheetDimension / dimension)).toFloat() * increment,
-        (index / (sheetDimension / dimension)).toFloat() * increment,
+        (index % (sheetDimension / dimension)).toFloat() * increment + 0.001f,
+        (index / (sheetDimension / dimension)).toFloat() * increment + 0.001f,
 
-        increment, increment
+        increment - 0.002f, increment - 0.002f
     )
 }
