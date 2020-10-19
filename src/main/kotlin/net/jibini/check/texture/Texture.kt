@@ -8,6 +8,7 @@ import net.jibini.check.texture.impl.FlippedTextureImpl
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.awt.image.BufferedImage
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 
@@ -133,7 +134,8 @@ interface Texture : Pointer<Int>
                 }
 
             // Flip buffer; very important for OpenGL operations
-            buffer.flip()
+            // Cast to a buffer as a JDK 9/later workaround
+            (buffer as Buffer).flip()
 
             return buffer
         }
