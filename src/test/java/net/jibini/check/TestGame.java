@@ -1,8 +1,8 @@
 package net.jibini.check;
 
+import net.jibini.check.annotation.EngineObject;
 import net.jibini.check.character.Humanoid;
 import net.jibini.check.character.Player;
-import net.jibini.check.engine.EngineObject;
 import net.jibini.check.engine.FeatureSet;
 import net.jibini.check.engine.LifeCycle;
 import net.jibini.check.graphics.Renderer;

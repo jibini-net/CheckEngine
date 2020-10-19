@@ -1,6 +1,6 @@
 package net.jibini.check.engine.impl
 
-import net.jibini.check.engine.EngineObject
+import net.jibini.check.annotation.EngineObject
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty

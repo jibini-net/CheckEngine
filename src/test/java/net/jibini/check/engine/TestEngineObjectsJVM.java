@@ -1,5 +1,6 @@
 package net.jibini.check.engine;
 
+import net.jibini.check.annotation.EngineObject;
 import net.jibini.check.engine.impl.EngineObjects;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
