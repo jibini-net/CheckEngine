@@ -21,7 +21,7 @@ interface Texture : Pointer<Int>
         bind(this)
     }
 
-    fun flip(horizontal: Boolean, vertical: Boolean): Texture
+    fun flip(horizontal: Boolean = true, vertical: Boolean = false): Texture
     {
         return FlippedTextureImpl(this, horizontal, vertical)
     }

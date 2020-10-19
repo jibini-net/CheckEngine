@@ -1,16 +1,16 @@
 package net.jibini.check;
 
+import net.jibini.check.character.Humanoid;
+import net.jibini.check.character.Player;
 import net.jibini.check.engine.EngineObject;
 import net.jibini.check.engine.FeatureSet;
 import net.jibini.check.engine.LifeCycle;
-import net.jibini.check.engine.timing.DeltaTimer;
 import net.jibini.check.graphics.Renderer;
 import net.jibini.check.graphics.Window;
 import net.jibini.check.input.Keyboard;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 public class TestGame implements CheckGame
 {
@@ -29,19 +29,12 @@ public class TestGame implements CheckGame
     @EngineObject
     public Renderer renderer;
 
-    private static final int STAND = 0;
-    private static final int WALK = 1;
-    private static final int ATTACK = 2;
+//    private final DeltaTimer attackTimer = new DeltaTimer(false);
+//
+//    private final double attackTime = 0.6;
+//    private final double attackReTriggerTime = 0.5;
 
-    private static final int RIGHT = 0;
-    private static final int LEFT = 1;
-
-    private DeltaTimer timer = new DeltaTimer();
-
-    private Texture[][] textures;
-    private double x = 0, y = 0;
-    private int characterState = RIGHT;
-    private int characterAnim = STAND;
+    private Humanoid forbes;
 
     /**
      * Application entry point; calls the engine boot methods and polls for controller/keyboard/mouse inputs on the
@@ -72,20 +65,31 @@ public class TestGame implements CheckGame
                 .enableTransparency();
         lifeCycle.registerTask(this::update);
 
-        textures = new Texture[][] {
-                {
-                        Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_right.gif")),
-                        Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_left.gif"))
-                },
-                {
-                        Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_right.gif")),
-                        Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_left.gif"))
-                },
-                {
-                        Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_right.gif")),
-                        Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_left.gif"))
-                }
-        };
+        forbes = new Player(
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_right.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_left.gif")),
+
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_right.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_left.gif")),
+
+                keyboard
+        );
+
+//        keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, () ->
+//        {
+//            if (attackTimer.getDelta() > attackReTriggerTime)
+//            {
+//                if (attackTimer.getDelta() > attackTime)
+//                {
+//                    if (textures[ATTACK][LEFT ] instanceof AnimatedTextureImpl)
+//                        ((AnimatedTextureImpl) textures[ATTACK][LEFT ]).setCurrentFrameIndex(0);
+//                    if (textures[ATTACK][RIGHT] instanceof AnimatedTextureImpl)
+//                        ((AnimatedTextureImpl) textures[ATTACK][RIGHT]).setCurrentFrameIndex(0);
+//                }
+//
+//                attackTimer.reset();
+//            }
+//        });
     }
 
     /**
@@ -97,50 +101,9 @@ public class TestGame implements CheckGame
      */
     public void update()
     {
-        double delta = timer.getDelta() / 2;
+        forbes.update();
 
-        boolean space = keyboard.isPressed(GLFW.GLFW_KEY_SPACE);
-
-        boolean w = keyboard.isPressed(GLFW.GLFW_KEY_W);
-        boolean a = keyboard.isPressed(GLFW.GLFW_KEY_A);
-        boolean s = keyboard.isPressed(GLFW.GLFW_KEY_S);
-        boolean d = keyboard.isPressed(GLFW.GLFW_KEY_D);
-
-        characterAnim = STAND;
-        if ((w ^ s) || (a ^ d))
-            characterAnim = WALK;
-
-        if (space)
-        {
-            characterAnim = ATTACK;
-            delta /= 2.4;
-        }
-
-        if (w)
-            y += delta;
-        if (s)
-            y -= delta;
-
-        if (a)
-        {
-            x -= delta;
-
-            characterState = LEFT;
-        }
-
-        if (d)
-        {
-            x += delta;
-
-            characterState = RIGHT;
-        }
-
-        textures[characterAnim][characterState].bind();
-
-        renderer.drawRectangle(
-                (float)x, (float)y,
-                0.4f, 0.4f
-        );
+        forbes.render(renderer);
     }
 
     /**

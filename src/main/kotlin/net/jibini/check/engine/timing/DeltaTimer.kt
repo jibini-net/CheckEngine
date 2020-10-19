@@ -1,6 +1,8 @@
 package net.jibini.check.engine.timing
 
-class DeltaTimer
+class DeltaTimer(
+    private val autoReset: Boolean = true
+)
 {
     private var last: Long = System.nanoTime()
 
@@ -10,8 +12,14 @@ class DeltaTimer
             val current = System.nanoTime()
             val difference = current - last
 
-            last = current
+            if (autoReset)
+                reset()
 
             return difference.toDouble() / 1000000000.0
         }
+
+    fun reset()
+    {
+        last = System.nanoTime()
+    }
 }

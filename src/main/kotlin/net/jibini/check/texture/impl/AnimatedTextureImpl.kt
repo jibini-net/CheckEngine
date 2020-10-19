@@ -1,5 +1,6 @@
 package net.jibini.check.texture.impl
 
+import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.TextureCoordinates
 import java.awt.image.BufferedImage
@@ -13,9 +14,10 @@ class AnimatedTextureImpl(
     stream: ImageInputStream
 ) : Texture
 {
-    private var currentFrameIndex = 0
+    var currentFrameIndex = 0
 
     private val animation = mutableListOf<AnimationFrame>()
+    private val timer = DeltaTimer(false)
 
     class AnimationFrame(
         val texture: Texture,
@@ -26,6 +28,8 @@ class AnimatedTextureImpl(
     {
         currentFrameIndex++
         currentFrameIndex %= animation.size
+
+        timer.reset()
     }
 
     init
@@ -73,29 +77,22 @@ class AnimatedTextureImpl(
 
         // Close reader to avoid memory leak
         reader.dispose()
-
-        // Infinitely animate the texture
-        //TODO MOVE INTO SINGLE THREAD WITH DELTA TIMES
-        thread(name = "Animation", isDaemon = true) {
-            while (true)
-                for (anim in animation)
-                {
-                    Thread.sleep(anim.time.toLong())
-                    nextFrame()
-
-                    Thread.yield()
-                }
-        }
     }
 
     override val textureCoordinates: TextureCoordinates
-        get() = animation[currentFrameIndex % animation.size].texture.textureCoordinates
+        get()
+        {
+            if (timer.delta * 1000 >= animation[currentFrameIndex].time)
+                nextFrame()
+
+            return animation[currentFrameIndex].texture.textureCoordinates
+        }
 
     override fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
     {
-        animation[currentFrameIndex % animation.size].texture.putData(offsetX, offsetY, width, height, data)
+        animation[currentFrameIndex].texture.putData(offsetX, offsetY, width, height, data)
     }
 
     override val pointer: Int
-        get() = animation[currentFrameIndex % animation.size].texture.pointer
+        get() = animation[currentFrameIndex].texture.pointer
 }

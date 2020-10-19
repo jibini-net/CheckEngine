@@ -22,3 +22,9 @@ Project contributors (appended chronologically)
   * Enemy/tile design
   * Enemy/tile sprite animation
   * Sprite sheet animations
+  
+[<img align="right" width="50px" src="https://avatars3.githubusercontent.com/u/16676716"/> Jackson Goth](https://github.com/JacksonGoth2)
+=======
+
+  * Level loading/save systems
+  * Level design
