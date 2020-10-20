@@ -16,6 +16,11 @@ class Player(
     @EngineObject
     private lateinit var keyboard: Keyboard
 
+    init
+    {
+        keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, this::attack)
+    }
+
     override fun update()
     {
         super.update()

@@ -13,12 +13,10 @@ abstract class Humanoid(
 {
     private val stand = 0
     private val walk = 1
-//    private val ATTACK = 2
 
-    private val right = 0
-    private val left = 1
+    var characterState = RIGHT
 
-    private var characterState = right
+    var attack: Attack? = null
 
     private val textures: Array<Array<Texture>> = arrayOf(
         arrayOf(idleRight, idleLeft),
@@ -27,11 +25,15 @@ abstract class Humanoid(
 
     var renderTexture = idleRight
 
+    var attackMovementModifier = 1.0
+
     private val timer = DeltaTimer()
 
     override fun update()
     {
         renderTexture.bind()
+
+        attack?.update()
 
         renderer.drawRectangle(
             x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32),
@@ -41,7 +43,7 @@ abstract class Humanoid(
 
     fun walk(x: Double, y: Double)
     {
-        val delta = timer.delta / 2
+        val delta = timer.delta / 2 * attackMovementModifier
 
         var characterAnim: Int = stand
         if (x != 0.0 || y != 0.0) characterAnim = walk
@@ -50,10 +52,21 @@ abstract class Humanoid(
         this.x += delta * x
 
         if (x < 0.0)
-            characterState = left
+            characterState = LEFT
         else if (x > 0.0)
-            characterState = right
+            characterState = RIGHT
 
         renderTexture = textures[characterAnim][characterState]
+    }
+
+    fun attack()
+    {
+        attack?.trigger(this)
+    }
+
+    companion object
+    {
+        const val RIGHT = 0
+        const val LEFT = 1
     }
 }
