@@ -8,9 +8,9 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.*
 import kotlin.reflect.jvm.isAccessible
 
 object EngineObjectsImpl
@@ -66,21 +66,37 @@ object EngineObjectsImpl
 
         log.debug("Placing cached object instances in annotated fields . . .")
 
-        for (place in objects)
-            for (placeIn in objects)
-            {
-                if (placeIn == place)
-                    continue
-
-                placeInstance(place, placeIn)
-            }
+        for (placeIn in objects)
+            placeAll(placeIn)
     }
+
+    fun placeAll(placeIn: Any)
+    {
+        for (place in objects)
+        {
+            if (placeIn == place)
+                continue
+
+            placeInstance(place, placeIn)
+        }
+    }
+
+    private val KClass<*>.allMemberProperties: List<KProperty1<*, *>>
+        get()
+        {
+            val returned = this.declaredMemberProperties.toMutableList()
+
+            for (superClass in this.allSuperclasses)
+                returned.addAll(superClass.declaredMemberProperties)
+
+            return returned
+        }
 
     @JvmStatic
     fun placeInstance(instance: Any, placeIn: Any)
     {
         // Scan all properties to find engine object fields
-        for (prop in placeIn::class.declaredMemberProperties)
+        for (prop in placeIn::class.allMemberProperties)
             // Make sure has annotation and is right type
             if (prop.hasAnnotation<EngineObject>() && prop.returnType.classifier is KClass<*>
                 && instance::class.isSubclassOf(prop.returnType.classifier as KClass<*>))

@@ -1,7 +1,6 @@
 package net.jibini.check.character
 
 import net.jibini.check.engine.timing.DeltaTimer
-import net.jibini.check.graphics.Renderer
 import net.jibini.check.texture.Texture
 
 abstract class Humanoid(
@@ -30,7 +29,7 @@ abstract class Humanoid(
 
     private val timer = DeltaTimer()
 
-    override fun render(renderer: Renderer)
+    override fun update()
     {
         renderTexture.bind()
 
