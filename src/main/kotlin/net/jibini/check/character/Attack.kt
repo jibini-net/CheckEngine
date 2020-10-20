@@ -14,19 +14,22 @@ class Attack(
     private val coolDown: Double = 0.35,
     private val restartAnimationOnReTrigger: Boolean = false,
 
-    var damageAmount: Double = 1.0
+    var damageAmount: Double = 1.0,
+    var movementModifier: Double = 0.5
 ) : EngineAware(), Updatable
 {
     private val attackTimer = DeltaTimer(false)
 
     private var triggered: Humanoid? = null
 
+    var effectiveMovementModifier: Double = 1.0
+
     override fun update()
     {
         if (triggered == null)
             return
 
-        triggered?.attackMovementModifier = 1.0
+        effectiveMovementModifier = 1.0
 
         if (attackTimer.delta < animationTime)
         {
@@ -37,7 +40,7 @@ class Attack(
                 Humanoid.LEFT -> textureLeft.bind()
             }
 
-            triggered?.attackMovementModifier = 0.5
+            effectiveMovementModifier = movementModifier
         }
     }
 

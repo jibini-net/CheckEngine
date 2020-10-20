@@ -1,9 +1,13 @@
 package net.jibini.check;
 
+import net.jibini.check.character.Attack;
+import net.jibini.check.character.Player;
 import net.jibini.check.engine.*;
-import net.jibini.check.graphics.Renderer;
-import net.jibini.check.graphics.Window;
-import net.jibini.check.input.Keyboard;
+import net.jibini.check.resource.Resource;
+import net.jibini.check.texture.Texture;
+import net.jibini.check.world.GameWorld;
+import net.jibini.check.world.Room;
+import net.jibini.check.world.Tile;
 import org.jetbrains.annotations.NotNull;
 
 public class TestGame implements CheckGame
@@ -12,19 +16,7 @@ public class TestGame implements CheckGame
     private FeatureSet featureSet;
 
     @EngineObject
-    private Window window;
-
-    @EngineObject
-    private Keyboard keyboard;
-
-    @EngineObject
-    private LifeCycle lifeCycle;
-
-    @EngineObject
-    private Renderer renderer;
-
-    @EngineObject
-    private TestGameWorld world;
+    private GameWorld gameWorld;
 
     /**
      * Application entry point; calls the engine boot method and hangs until the game is closed
@@ -52,6 +44,44 @@ public class TestGame implements CheckGame
         featureSet.enableDepthTest()
                 .enable2DTextures()
                 .enableTransparency();
+
+        Player forbes = new Player(
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_right.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_left.gif")),
+
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_right.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_left.gif"))
+        );
+
+        forbes.setAttack(new Attack(
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_right.gif")),
+                Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_left.gif")),
+
+                /* Animation time (sec):    */ 0.5,
+                /* Cool-down time (sec):    */ 0.35,
+                /* Always reset animation?  */ false,
+
+                /* Attack damage amount:    */ 1.0,
+                /* Movement scale effect:   */ 0.5
+        ));
+
+        gameWorld.getEntities().add(forbes);
+        gameWorld.setCenterOn(forbes);
+
+        Room room = new Room(32, 32, 0.4);
+
+        Tile tile = new Tile(Texture.load(Resource.fromClasspath("tile_sets/world01/test.png")), true);
+
+        room.getTiles()[1][1] = tile;
+        room.getTiles()[3][1] = tile;
+        room.getTiles()[4][1] = tile;
+        room.getTiles()[3][3] = tile;
+        room.getTiles()[4][4] = tile;
+
+        gameWorld.setRoom(room);
+
+
+        gameWorld.setVisible(true);
     }
 
     /**

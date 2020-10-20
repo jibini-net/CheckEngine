@@ -9,11 +9,9 @@ import org.lwjgl.opengl.GL11
 import java.nio.ByteBuffer
 
 class BitmapTextureImpl(
-    pointer: Int = GL11.glGenTextures(),
-
     width: Int = TextureSpriteMapImpl.MAP_DIMENSION,
     height: Int = TextureSpriteMapImpl.MAP_DIMENSION
-) : AbstractAutoDestroyable(), Texture, Pointer<Int> by PointerImpl(pointer)
+) : AbstractAutoDestroyable(), Texture, Pointer<Int> by PointerImpl(GL11.glGenTextures())
 {
     init
     {
