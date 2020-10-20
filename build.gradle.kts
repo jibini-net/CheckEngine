@@ -32,7 +32,6 @@ repositories {
 
 plugins {
     kotlin("jvm") version "1.4.10"
-    kotlin("kapt") version "1.4.10"
 
     `java-library`
 }
@@ -48,21 +47,6 @@ tasks.withType(KotlinCompile::class).all {
 
         @Suppress("SuspiciousCollectionReassignment")
         freeCompilerArgs += "-include-runtime"
-    }
-}
-
-kapt {
-    annotationProcessor("net.jibini.check.annotation.EngineObjectProcessor")
-}
-
-sourceSets {
-    main {
-        java {
-            if (File("${buildDir.absolutePath}/generated/source/kapt/main").exists())
-                srcDir("${buildDir.absolutePath}/generated/source/kapt/main")
-            if (File("${buildDir.absolutePath}/generated/source/kapt/test").exists())
-                srcDir("${buildDir.absolutePath}/generated/source/kapt/test")
-        }
     }
 }
 
@@ -98,7 +82,6 @@ dependencies {
     // JUnit 5 (Jupiter) test platform library
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.7.0")
 
-    // Include annotation processing module
-    implementation(project(path = ":annotation", configuration = "default"))
-    kapt(project(":annotation"))
+    // Library for scanning classpath members
+    implementation("io.github.classgraph", "classgraph", "4.8.90")
 }

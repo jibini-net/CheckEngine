@@ -3,6 +3,8 @@ package net.jibini.check.input
 import net.jibini.check.graphics.Window
 import org.lwjgl.glfw.GLFW
 import org.slf4j.LoggerFactory
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 class Keyboard(
     window: Window
@@ -10,8 +12,8 @@ class Keyboard(
 {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val keyStates = mutableMapOf<Int, Boolean>()
-    private val keyListeners = mutableMapOf<Int, MutableList<Runnable>>()
+    private val keyStates = ConcurrentHashMap<Int, Boolean>()
+    private val keyListeners = ConcurrentHashMap<Int, MutableList<Runnable>>()
 
     init
     {
@@ -45,7 +47,7 @@ class Keyboard(
 
     fun addKeyListener(key: Int, runnable: Runnable)
     {
-        val listeners = keyListeners.getOrPut(key) { mutableListOf() }
+        val listeners = keyListeners.getOrPut(key) { Collections.synchronizedList(mutableListOf()) }
 
         listeners += runnable
     }

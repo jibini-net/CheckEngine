@@ -1,8 +1,10 @@
 package net.jibini.check
 
-import net.jibini.check.engine.impl.EngineObjects
+import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.engine.FeatureSet
+import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.LifeCycle
+import net.jibini.check.engine.Updatable
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.AbstractAutoDestroyable
@@ -26,6 +28,19 @@ object Check
 
     // Tracks duplicate instances of one game type
     private val instanceCount = mutableMapOf<String, Int>()
+
+//    @JvmStatic
+//    fun boot()
+//    {
+//        EngineObjectsImpl.initialize()
+//
+//        val games = EngineObjectsImpl.get<CheckGame>()
+//        log.info("Found ${games.size} game class(es) on classpath")
+//
+//        for (game in games)
+//            boot(game)
+//        infinitelyPoll()
+//    }
 
     @JvmStatic
     fun boot(game: CheckGame)
@@ -67,18 +82,15 @@ object Check
 
         // Create and place game's window
         val window = Window(game.profile)
-        EngineObjects.placeInstance(window, game)
 
         // Create and place game's keyboard
         val keyboard = Keyboard(window)
-        EngineObjects.placeInstance(keyboard, game)
 
         // Enable VSync because screen tearing on high FPS
         GLFW.glfwSwapInterval(1)
 
         // Create and place game's feature set
         val featureSet = FeatureSet()
-        EngineObjects.placeInstance(featureSet, game)
 
         // Release the context (required for multithreading)
         GLFW.glfwMakeContextCurrent(0L)
@@ -87,20 +99,33 @@ object Check
         thread(name = "${game.profile.appName}$postfix") {
             log.debug("Branched application main engine thread")
 
+            EngineObjectsImpl.objects += window
+            EngineObjectsImpl.objects += keyboard
+            EngineObjectsImpl.objects += featureSet
+
+            EngineObjectsImpl.objects += game
+
             // Make and keep OpenGL context current
             window.makeCurrent()
             GL.createCapabilities()
 
             // Create and place game's lifecycle
             val lifeCycle = LifeCycle()
-            EngineObjects.placeInstance(lifeCycle, game)
+            EngineObjectsImpl.objects += lifeCycle
 
             // Create and place game's renderer
             val renderer = Renderer()
-            EngineObjects.placeInstance(renderer, game)
+            EngineObjectsImpl.objects += renderer
 
-            // Initialize the game
-            game.start()
+            EngineObjectsImpl.initialize()
+
+            log.info("Initializing all initializable engine objects . . .")
+            for (each in EngineObjectsImpl.get<Initializable>())
+                each.initialize()
+
+            log.info("Registering all updatable engine objects in lifecycle . . .")
+            for (each in EngineObjectsImpl.get<Updatable>())
+                lifeCycle.registerTask(each::update)
 
             // Register the OpenGL clear and identity reset operations
             lifeCycle.registerTask({

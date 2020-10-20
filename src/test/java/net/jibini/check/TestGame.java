@@ -1,44 +1,33 @@
 package net.jibini.check;
 
-import net.jibini.check.annotation.EngineObject;
-import net.jibini.check.character.Humanoid;
-import net.jibini.check.character.Player;
-import net.jibini.check.engine.FeatureSet;
-import net.jibini.check.engine.LifeCycle;
+import net.jibini.check.engine.*;
 import net.jibini.check.graphics.Renderer;
 import net.jibini.check.graphics.Window;
 import net.jibini.check.input.Keyboard;
-import net.jibini.check.resource.Resource;
-import net.jibini.check.texture.Texture;
 import org.jetbrains.annotations.NotNull;
 
 public class TestGame implements CheckGame
 {
     @EngineObject
-    public FeatureSet featureSet;
+    private FeatureSet featureSet;
 
     @EngineObject
-    public Window window;
+    private Window window;
 
     @EngineObject
-    public Keyboard keyboard;
+    private Keyboard keyboard;
 
     @EngineObject
-    public LifeCycle lifeCycle;
+    private LifeCycle lifeCycle;
 
     @EngineObject
-    public Renderer renderer;
+    private Renderer renderer;
 
-//    private final DeltaTimer attackTimer = new DeltaTimer(false);
-//
-//    private final double attackTime = 0.6;
-//    private final double attackReTriggerTime = 0.5;
-
-    private Humanoid forbes;
+    @EngineObject
+    private TestGameWorld world;
 
     /**
-     * Application entry point; calls the engine boot methods and polls for controller/keyboard/mouse inputs on the
-     * main thread until the game is closed
+     * Application entry point; calls the engine boot method and hangs until the game is closed
      * <br /><br />
      *
      * !!! <strong>DO NOT PLACE CODE IN THIS MAIN METHOD</strong> !!!
@@ -58,38 +47,11 @@ public class TestGame implements CheckGame
      * Enable features and register update tasks here
      */
     @Override
-    public void start()
+    public void initialize()
     {
         featureSet.enableDepthTest()
                 .enable2DTextures()
                 .enableTransparency();
-        lifeCycle.registerTask(this::update);
-
-        forbes = new Player(
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_right.gif")),
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_left.gif")),
-
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_right.gif")),
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_left.gif")),
-
-                keyboard
-        );
-
-//        keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, () ->
-//        {
-//            if (attackTimer.getDelta() > attackReTriggerTime)
-//            {
-//                if (attackTimer.getDelta() > attackTime)
-//                {
-//                    if (textures[ATTACK][LEFT ] instanceof AnimatedTextureImpl)
-//                        ((AnimatedTextureImpl) textures[ATTACK][LEFT ]).setCurrentFrameIndex(0);
-//                    if (textures[ATTACK][RIGHT] instanceof AnimatedTextureImpl)
-//                        ((AnimatedTextureImpl) textures[ATTACK][RIGHT]).setCurrentFrameIndex(0);
-//                }
-//
-//                attackTimer.reset();
-//            }
-//        });
     }
 
     /**
@@ -101,9 +63,7 @@ public class TestGame implements CheckGame
      */
     public void update()
     {
-        forbes.update();
 
-        forbes.render(renderer);
     }
 
     /**

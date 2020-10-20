@@ -1,19 +1,17 @@
 package net.jibini.check
 
+import net.jibini.check.engine.Initializable
+import net.jibini.check.engine.Updatable
+
 /**
  * A primary game object which defines initialization and entry points for the game's execution
  */
-interface CheckGame
+interface CheckGame : Initializable, Updatable
 {
     /**
      * Basic information required to start up the game engine
      */
     val profile: Profile
-
-    /**
-     * Set up and register update tasks with the engine lifecycle
-     */
-    fun start()
 
     /**
      * Basic information required to start up the game engine

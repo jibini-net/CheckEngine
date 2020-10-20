@@ -1,12 +1,12 @@
 package net.jibini.check.engine;
 
-import net.jibini.check.annotation.EngineObject;
-import net.jibini.check.engine.impl.EngineObjects;
+import net.jibini.check.engine.impl.EngineObjectsImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class TestEngineObjectsJVM
 {
+    @RegisterObject
     public static class TestClassWithEngineObjects
     {
         @EngineObject
@@ -22,7 +22,7 @@ public class TestEngineObjectsJVM
     public void engineObjectPlacementInClass()
     {
         TestClassWithEngineObjects placeIn = new TestClassWithEngineObjects();
-        EngineObjects.placeInstance("Hello, world!", placeIn);
+        EngineObjectsImpl.placeInstance("Hello, world!", placeIn);
 
         placeIn.doAssert();
     }
