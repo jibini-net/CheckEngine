@@ -27,7 +27,7 @@ class BoundingBox(
      * @param entity Entity whose position and velocity to correct depending on overlap
      *
      * @return Whether the static bounding box provides a traction-able ground point for walking (this box is supported
-     * in the vertical direction and is "on the ground")
+     *      in the vertical direction and is "on the ground")
      */
     fun resolve(static: BoundingBox, deltaPosition: Vector2d, entity: Entity): Boolean
     {
