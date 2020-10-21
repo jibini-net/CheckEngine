@@ -2,12 +2,25 @@ package net.jibini.check.engine
 
 import org.slf4j.LoggerFactory
 
+/**
+ * Collects and executes life-cycle tasks to be executed on loop during the execution of the application
+ *
+ * @author Zach Goethel
+ */
 class LifeCycle
 {
     private val log = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * Collection of update tasks
+     */
     private val tasks = mutableListOf<Runnable>()
 
+    /**
+     * Adds the given task to the collection of update tasks
+     *
+     * @param task Task to register at the end-index
+     */
     fun registerTask(task: Runnable)
     {
         // Add a new task to the end of the list
@@ -16,6 +29,12 @@ class LifeCycle
         log.debug("Registered cycle task at end-of-progression index ${tasks.size}")
     }
 
+    /**
+     * Adds the given task to the collection of update tasks
+     *
+     * @param task Task to register at the given index
+     * @param index Index at which to register the task
+     */
     fun registerTask(task: Runnable, index: Int)
     {
         // Insert a task in the list at index
@@ -24,6 +43,11 @@ class LifeCycle
         log.debug("Registered cycle task in progression order ${index + 1} of ${tasks.size}")
     }
 
+    /**
+     * Infinitely loop and call all update tasks in order until the predicate returns false
+     *
+     * @param predicate The life-cycle will execute until this predicate returns false
+     */
     fun start(predicate: () -> Boolean)
     {
         // Loop until the given predicate returns false

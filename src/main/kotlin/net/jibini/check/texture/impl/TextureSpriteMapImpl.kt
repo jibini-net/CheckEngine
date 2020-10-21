@@ -3,15 +3,36 @@ package net.jibini.check.texture.impl
 import net.jibini.check.texture.Texture
 import org.slf4j.LoggerFactory
 
+/**
+ * A collection of small sprites stored in a grid on a large square texture
+ *
+ * @author Zach Goethel
+ */
 class TextureSpriteMapImpl(
+    /**
+     * Sprite size in texels; this should be a value 2^n where n is an integer
+     */
     private val dimension: Int
 )
 {
+    /**
+     * Max number of sprites which can be fit along one side of the sprite-sheet
+     */
     private val num = MAP_DIMENSION / dimension
+
+    /**
+     * The max number of sprites which can be held in one sprite-sheet
+     */
     private val maxCapacity = num * num
 
+    /**
+     * The number of sprites which have been allocated from this sprite-sheet
+     */
     private var given = 0
 
+    /**
+     * Sprite-sheet master texture with all sprites contained within
+     */
     private val texture = BitmapTextureImpl()
 
     init
@@ -22,9 +43,15 @@ class TextureSpriteMapImpl(
             log.warn("Texture size $dimension does not fit evenly within the sprite sheet size $MAP_DIMENSION")
     }
 
+    /**
+     * Allocates the next sprite in the sheet; is not validated to ensure the sprite-sheet is not empty
+     */
     val next: Texture
         get() = CroppedSpriteTextureImpl(texture, dimension, MAP_DIMENSION, given++)
 
+    /**
+     * Checks whether the sprite-sheet is full and another should be created
+     */
     val full: Boolean
         get() = given == maxCapacity
 
@@ -32,12 +59,18 @@ class TextureSpriteMapImpl(
     {
         private val log = LoggerFactory.getLogger(TextureSpriteMapImpl::class.java)
 
+        /**
+         * The global default sprite-sheet size in texels
+         */
         const val MAP_DIMENSION = 2048
 
         // Three-dimensional map of texture sprite sheets; the three dimensions are Thread (to separate game and context
         // instances), sprite dimension (such as 128 of 32 or 512), and the sheet index (in case there are full sheets)
         private val mappedSheets = mutableMapOf<Thread, MutableMap<Int, MutableList<TextureSpriteMapImpl>>>()
 
+        /**
+         * Gets all sprite-sheets of the given dimension created by the current thread
+         */
         @Suppress("UnnecessaryVariable")
         fun sheetsFor(dimension: Int): MutableList<TextureSpriteMapImpl>
         {
@@ -58,6 +91,11 @@ class TextureSpriteMapImpl(
             return sheetGroup
         }
 
+        /**
+         * Claims a sprite of the given size and allocates more sprite-sheets if necessary
+         *
+         * @param dimension Size of sprite in texels
+         */
         fun claimSprite(dimension: Int): Texture
         {
             // Get latest sheet for sprite size

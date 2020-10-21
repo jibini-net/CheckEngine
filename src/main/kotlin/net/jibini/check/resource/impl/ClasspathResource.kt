@@ -4,7 +4,15 @@ import net.jibini.check.resource.Resource
 import java.io.FileNotFoundException
 import java.io.InputStream
 
+/**
+ * A resource stored on the classpath (e.g. within the JAR or a dependency's JAR)
+ *
+ * @author Zach Goethel
+ */
 class ClasspathResource(
+    /**
+     * Absolute resource path from the root of the classpath
+     */
     private val path: String
 ) : Resource()
 {

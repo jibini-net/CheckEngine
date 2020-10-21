@@ -17,6 +17,8 @@ import kotlin.concurrent.thread
 
 /**
  * Game engine entry point factory and lifecycle management
+ *
+ * @author Zach Goethel
  */
 object Check
 {
@@ -42,6 +44,12 @@ object Check
 //        infinitelyPoll()
 //    }
 
+    /**
+     * Boots the given instance of the given game and sets up its context; the game will not function correctly until
+     * [infinitelyPoll] is called from the main thread
+     *
+     * @param game Game to boot and initialize context
+     */
     @JvmStatic
     fun boot(game: CheckGame)
     {
@@ -99,10 +107,11 @@ object Check
         thread(name = "${game.profile.appName}$postfix") {
             log.debug("Branched application main engine thread")
 
+            // Add created engine objects
             EngineObjectsImpl.objects += window
             EngineObjectsImpl.objects += keyboard
             EngineObjectsImpl.objects += featureSet
-
+            // The game itself is also an engine object
             EngineObjectsImpl.objects += game
 
             // Make and keep OpenGL context current
@@ -117,6 +126,7 @@ object Check
             val renderer = Renderer()
             EngineObjectsImpl.objects += renderer
 
+            // Search classpath for more engine objects
             EngineObjectsImpl.initialize()
 
             log.info("Initializing all initializable engine objects . . .")
@@ -169,6 +179,9 @@ object Check
         }
     }
 
+    /**
+     * Polls and waits for GLFW input events on the main thread; hangs until all game instances are closed
+     */
     @JvmStatic
     fun infinitelyPoll()
     {

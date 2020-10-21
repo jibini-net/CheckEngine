@@ -71,7 +71,7 @@ public class TestGame implements CheckGame
         gameWorld.getEntities().add(forbes);
         gameWorld.setCenterOn(forbes);
 
-        Room room = new Room(32, 32, 0.4);
+        Room room = new Room(32, 32, 0.2);
 
         Tile tile = new Tile(Texture.load(Resource.fromClasspath("tile_sets/world01/test.png")), true);
 

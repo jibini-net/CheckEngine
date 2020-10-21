@@ -12,6 +12,11 @@ import java.nio.Buffer
 import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 
+/**
+ * An OpenGL texture which can be contextually bound and rendered onto geometry
+ *
+ * @author Zach Goethel
+ */
 interface Texture : Pointer<Int>
 {
     /**
@@ -22,6 +27,12 @@ interface Texture : Pointer<Int>
         bind(this)
     }
 
+    /**
+     * Creates a texture object which has invertex texture coordinates
+     *
+     * @param horizontal Whether or not to flip horizontally
+     * @param vertical Whether or not to flip vertically
+     */
     fun flip(horizontal: Boolean = true, vertical: Boolean = false): Texture
     {
         return FlippedTextureImpl(this, horizontal, vertical)
@@ -32,8 +43,27 @@ interface Texture : Pointer<Int>
      */
     val textureCoordinates: TextureCoordinates
 
+    /**
+     * Puts texture data into the texture at the given locations
+     *
+     * @param offsetX Texture data start x-offset
+     * @param offsetY Texture data start y-offset
+     *
+     * @param width Width of given texture data
+     * @param height Height of given texture data
+     *
+     * @param data Byte-encoded RGBA texture data
+     */
     fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
 
+    /**
+     * Puts texture data into the texture at the given locations
+     *
+     * @param offsetX Texture data start x-offset
+     * @param offsetY Texture data start y-offset
+     *
+     * @param data Image to collect data from and get width/height
+     */
     fun putData(offsetX: Int, offsetY: Int, data: BufferedImage)
     {
         this.putData(offsetX, offsetY, data.width, data.height, data.toUnsignedBytes())
@@ -44,12 +74,23 @@ interface Texture : Pointer<Int>
         private val boundPerThread = mutableMapOf<Thread, Texture>()
         private val boundPointerPerThread = mutableMapOf<Thread, Int>()
 
+        /**
+         * Currently bound texture in the current thread
+         */
         val bound: Texture?
             get() = boundPerThread[Thread.currentThread()]
 
+        /**
+         * Currently bound pointer in the current thread
+         */
         private val boundPointer: Int
             get() = boundPointerPerThread[Thread.currentThread()] ?: 0
 
+        /**
+         * Binds the given texture in the current thread
+         *
+         * @param texture Texture to bind
+         */
         fun bind(texture: Texture)
         {
             // Only change bind if the currently bound state is different
@@ -63,6 +104,9 @@ interface Texture : Pointer<Int>
             boundPerThread[Thread.currentThread()] = texture
         }
 
+        /**
+         * Loads a texture from the given resource; animated textures will automatically be detected
+         */
         @JvmStatic
         fun load(resource: Resource): Texture
         {
@@ -101,6 +145,9 @@ interface Texture : Pointer<Int>
             }
         }
 
+        /**
+         * Converts an image to a byte-buffer of RGBA data
+         */
         fun BufferedImage.toUnsignedBytes(): ByteBuffer
         {
             // Created because this method was refactored

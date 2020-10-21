@@ -3,8 +3,23 @@ package net.jibini.check.graphics
 import net.jibini.check.texture.Texture
 import org.lwjgl.opengl.GL11
 
+/**
+ * A per-context engine object which helps with rendering textured rectangles
+ *
+ * @author Zach Goethel
+ */
 class Renderer
 {
+    /**
+     * Draws a rectangle with the given coordinates and size; uses the currently bound texture and its texture
+     * coordinates to texture the rectangle
+     *
+     * @param x Rectangle start x-coordinate
+     * @param y Rectangle start x-coordinate
+     *
+     * @param width Rectangle relative width (can be negative)
+     * @param height Rectangle relative height (can be negative)
+     */
     fun drawRectangle(x: Float, y: Float, width: Float, height: Float)
     {
         val coordinates = Texture.bound?.textureCoordinates

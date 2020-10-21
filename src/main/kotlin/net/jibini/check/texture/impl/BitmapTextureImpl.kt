@@ -8,8 +8,20 @@ import net.jibini.check.texture.TextureCoordinates
 import org.lwjgl.opengl.GL11
 import java.nio.ByteBuffer
 
+/**
+ * A texture which is backed by a byte-buffer of RGBA data
+ *
+ * @author Zach Goethel
+ */
 class BitmapTextureImpl(
+    /**
+     * Width of the texture in texels
+     */
     width: Int = TextureSpriteMapImpl.MAP_DIMENSION,
+
+    /**
+     * Height of the texture in texels
+     */
     height: Int = TextureSpriteMapImpl.MAP_DIMENSION
 ) : AbstractAutoDestroyable(), Texture, Pointer<Int> by PointerImpl(GL11.glGenTextures())
 {

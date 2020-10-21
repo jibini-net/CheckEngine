@@ -5,6 +5,8 @@ import net.jibini.check.engine.Updatable
 
 /**
  * A primary game object which defines initialization and entry points for the game's execution
+ *
+ * @author Zach Goethel
  */
 interface CheckGame : Initializable, Updatable
 {

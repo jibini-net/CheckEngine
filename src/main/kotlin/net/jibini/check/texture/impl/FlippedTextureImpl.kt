@@ -3,10 +3,25 @@ package net.jibini.check.texture.impl
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.TextureCoordinates
 
+/**
+ * A decorated texture which inverts the parent texture's texture coordinates
+ *
+ * @author Zach Goethel
+ */
 class FlippedTextureImpl(
+    /**
+     * Decorated parent texture instance
+     */
     private val internal: Texture,
 
+    /**
+     * Whether or not to flip horizontally
+     */
     private val horizontal: Boolean = true,
+
+    /**
+     * Whether or not to flip vertically
+     */
     private val vertical: Boolean = false
 ) : Texture by internal
 {

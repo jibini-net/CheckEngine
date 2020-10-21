@@ -3,14 +3,28 @@ package net.jibini.check.graphics
 import net.jibini.check.CheckGame
 import org.lwjgl.glfw.GLFW
 
+/**
+ * Wrapped GLFW window instance which handles the OpenGL context
+ *
+ * @author Zach Goethel
+ */
 class Window(
+    /**
+     * Game creation data for title and context information
+     */
     profile: CheckGame.Profile
 ) : Pointer<Long>, Destroyable
 {
     override val pointer: Long
 
+    /**
+     * Whether the window has been manually closed
+     */
     private var close = false
 
+    /**
+     * Converts booleans to ones and zeros
+     */
     private fun Boolean.toGLFWValue(): Int
     {
         // Convert boolean to int (0/1)
@@ -44,6 +58,9 @@ class Window(
         this.makeCurrent()
     }
 
+    /**
+     * Is the window destroyed?
+     */
     private var destroyed = false
 
     override fun destroy()
@@ -55,22 +72,35 @@ class Window(
         destroyed = true
     }
 
+    /**
+     * Makes the window's OpenGL context current in the current thread
+     */
     fun makeCurrent()
     {
         GLFW.glfwMakeContextCurrent(pointer)
     }
 
+    /**
+     * Swaps the window's buffers; context must be current
+     */
     fun swapBuffers()
     {
         GLFW.glfwSwapBuffers(pointer)
     }
 
+    /**
+     * Manually tells the window to close on the next frame
+     */
     fun close()
     {
         // Set close flag to close on next loop
         this.close = true
     }
 
+    /**
+     * Checks whether the window should close or has been requested to close manually
+     */
     val shouldClose: Boolean
+        // Check on each reference
         get() = GLFW.glfwWindowShouldClose(pointer) || close
 }
