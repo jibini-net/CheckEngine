@@ -65,6 +65,9 @@ public class TestGame implements CheckGame
                 /* Movement scale effect:   */ 0.5
         ));
 
+        forbes.setX(0.6);
+        forbes.setY(3);
+
         gameWorld.getEntities().add(forbes);
         gameWorld.setCenterOn(forbes);
 
@@ -79,7 +82,6 @@ public class TestGame implements CheckGame
         room.getTiles()[4][4] = tile;
 
         gameWorld.setRoom(room);
-
 
         gameWorld.setVisible(true);
     }

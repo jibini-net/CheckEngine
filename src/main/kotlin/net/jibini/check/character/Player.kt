@@ -19,6 +19,8 @@ class Player(
     init
     {
         keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, this::attack)
+
+        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) { jump(0.5) }
     }
 
     override fun update()
