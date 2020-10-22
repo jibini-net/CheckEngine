@@ -1,14 +1,18 @@
 package net.jibini.check.world
 
 import net.jibini.check.character.Entity
+import net.jibini.check.character.NonPlayer
 import net.jibini.check.character.Player
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.Updatable
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
+import net.jibini.check.texture.impl.BitmapTextureImpl
 import org.lwjgl.opengl.GL11
 import java.io.File
+import java.io.FileNotFoundException
+import java.lang.IllegalStateException
 import javax.imageio.ImageIO
 
 /**
@@ -59,7 +63,7 @@ class GameWorld : Initializable, Updatable
             return
 
         if (this::player.isInitialized)
-            GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat(), 0.0f)
+            GL11.glTranslatef(-player.x.toFloat(), -player.y.toFloat() - 0.4f, 0.0f)
 
         room?.update()
 
@@ -101,16 +105,44 @@ class GameWorld : Initializable, Updatable
 
         val roomTiles = mutableMapOf<Int, Tile>()
 
+        var isSideScroller = false
+
         roomMetaReader.forEachLine {
             val split = it.split(" ")
 
             when (split[0])
             {
+                "game_type" ->
+                {
+                    isSideScroller = when (split[1])
+                    {
+                        "top_down" -> false
+
+                        "side_scroller" -> true
+
+                        else -> throw IllegalStateException("Invalid game type entry in meta file '${split[1]}'")
+                    }
+                }
+
                 "tile" ->
                 {
                     val index = split[1].toInt()
-                    val texture = Texture.load(Resource.fromClasspath("tile_sets/$name/${split[2]}"))
-                    val blocking = split[3] == "blocking"
+
+                    val texture = when (split[2])
+                    {
+                        "untextured" -> BitmapTextureImpl(2, 2)
+
+                        else ->Texture.load(Resource.fromClasspath("tile_sets/$name/${split[2]}"))
+                    }
+
+                    val blocking = when(split[3])
+                    {
+                        "blocking" -> true
+
+                        "nonblocking" -> false
+
+                        else -> throw IllegalStateException("Invalid blocking entry in meta file '${split[3]}'")
+                    }
 
                     roomTiles[colorIndices[index]] = Tile(texture, blocking)
                 }
@@ -134,6 +166,48 @@ class GameWorld : Initializable, Updatable
 
                             entities += player
                         }
+
+                        "character" ->
+                        {
+                            val standRight = Texture.load(
+                                Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_right.gif")
+                            )
+
+                            val walkRight = try
+                            {
+                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_right.gif"))
+                            } catch (ex: FileNotFoundException)
+                            {
+                                standRight
+                            }
+
+                            val entity = NonPlayer(
+                                standRight,
+
+                                try
+                                {
+                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_left.gif"))
+                                } catch (ex: FileNotFoundException)
+                                {
+                                    standRight.flip()
+                                },
+
+                                walkRight,
+
+                                try
+                                {
+                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_left.gif"))
+                                } catch (ex: FileNotFoundException)
+                                {
+                                    walkRight.flip()
+                                }
+                            )
+
+                            entity.x = split[3].toDouble() * 0.2
+                            entity.y = split[4].toDouble() * 0.2
+
+                            entities += entity
+                        }
                     }
                 }
             }
@@ -141,7 +215,7 @@ class GameWorld : Initializable, Updatable
 
         roomMetaReader.close()
 
-        room = Room(roomImage.width, roomImage.height - 1, 0.2)
+        room = Room(roomImage.width, roomImage.height - 1, 0.2, isSideScroller)
 
         for (y in 1 until roomImage.height)
             for (x in 0 until roomImage.width)

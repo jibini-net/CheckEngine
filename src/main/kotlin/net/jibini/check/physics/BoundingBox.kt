@@ -24,19 +24,17 @@ class BoundingBox(
      * @param static Bounding box of static object against which to check collisions
      * @param deltaPosition Vector representing the movement performed on this specific frame; delta x and y of entity
      *      position between the previous frame and this one
-     * @param entity Entity whose position and velocity to correct depending on overlap
-     *
-     * @return Whether the static bounding box provides a traction-able ground point for walking (this box is supported
-     *      in the vertical direction and is "on the ground")
+     * @param entity Entity whose position and velocity to correct depending on overlap; also updates movement
+     *      restrictions
      */
-    fun resolve(static: BoundingBox, deltaPosition: Vector2d, entity: Entity): Boolean
+    fun resolve(static: BoundingBox, deltaPosition: Vector2d, entity: Entity)
     {
         // Detect if the two boxes overlap on either axis
-        val overlapX = maxOf(0.0, minOf(x + width , static.x + static.width ) - maxOf(x, static.x))
-        val overlapY = maxOf(0.0, minOf(y + height, static.y + static.height) - maxOf(y, static.y))
+        val overlapX = minOf(x + width , static.x + static.width ) - maxOf(x, static.x)
+        val overlapY = minOf(y + height, static.y + static.height) - maxOf(y, static.y)
         // Return if there is no overlap
-        if (overlapX == 0.0 || overlapY == 0.0 || overlapX.isNaN() || overlapY.isNaN())
-            return false
+        if (overlapX < 0.0 || overlapY < 0.0 || overlapX.isNaN() || overlapY.isNaN())
+            return
 
         // If the overlap is primarily vertical, resolve in x-direction
         if (overlapY > overlapX || overlapX == overlapY)
@@ -54,11 +52,20 @@ class BoundingBox(
 
             // Check for divide-by-zero
             if (resolution.isNaN())
-                return false
+                return
 
             // Nullify any horizontal velocity and correct box position
             entity.velocity.x = 0.0
             entity.x += resolution * overlapX
+
+            // Update the movement restrictions for left and right
+            if (overlapX != overlapY)
+            {
+                if (resolution > 0.0)
+                    entity.movementRestrictions.left = true
+                else
+                    entity.movementRestrictions.right = true
+            }
         }
 
         // If the overlap is primarily horizontal, resolve in y-direction
@@ -77,18 +84,17 @@ class BoundingBox(
 
             // Check for divide-by-zero
             if (resolution.isNaN())
-                return false
+                return
 
             // Nullify any vertical velocity and correct box position
             entity.velocity.y = 0.0
             entity.y += resolution * overlapY
 
-            // Return true if the static box supports in the positive y-axis
+            // Update the movement restrictions for up and down
             if (resolution > 0.0)
-                return true
+                entity.movementRestrictions.down = true
+            else
+                entity.movementRestrictions.up = true
         }
-
-        // Return false if not supported positively in the y-axis
-        return false
     }
 }

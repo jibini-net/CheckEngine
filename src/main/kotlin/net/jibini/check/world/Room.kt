@@ -22,7 +22,9 @@ class Room(
     /**
      * Each tile size (for rendering and physics)
      */
-    val tileSize: Double = 0.2
+    val tileSize: Double = 0.2,
+
+    val isSideScroller: Boolean
 ) : EngineAware(), Updatable
 {
     /**

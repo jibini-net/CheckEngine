@@ -73,7 +73,7 @@ abstract class ActionableEntity(
     fun jump(height: Double)
     {
         // Only jump if character on ground
-        if (onGround)
+        if (movementRestrictions.down && gameWorld.room?.isSideScroller == true)
             // Velocity = sqrt(-2g * h)
             velocity.y = sqrt(2 * 9.8 * height)
     }
@@ -106,12 +106,16 @@ abstract class ActionableEntity(
 
         // Default to idle animation
         var characterAnim: Int = stand
+
         // If on ground and moving, animate as walk
-        if ((x != 0.0 || y != 0.0) && onGround) characterAnim = walk
+        if ((x != 0.0 || y != 0.0) && (movementRestrictions.down || (gameWorld.room?.isSideScroller != true)))
+            characterAnim = walk
 
         // Update frame delta position with walking movement
-        this.deltaPosition.y += movement * y
-        this.deltaPosition.x += movement * x
+        if ((!movementRestrictions.up && y > 0.0) || (!movementRestrictions.down && y < 0.0))
+            this.deltaPosition.y += movement * y
+        if ((!movementRestrictions.right && x > 0.0) || (!movementRestrictions.left && x < 0.0))
+            this.deltaPosition.x += movement * x
 
         // Animate left if moving left; animate right if moving right
         if (x < 0.0)

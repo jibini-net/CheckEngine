@@ -36,6 +36,8 @@ abstract class Entity(
     @EngineObject
     protected lateinit var gameWorld: GameWorld
 
+    val movementRestrictions = MovementRestrictions()
+
     /**
      * Delta timer to keep track of physics and movement timing
      */
@@ -46,11 +48,6 @@ abstract class Entity(
      */
     protected val deltaPosition = Vector2d()
 
-    /**
-     * Updated per-frame for the next frame; whether the entity is grounded
-     */
-    protected var onGround: Boolean = false
-
     open fun update()
     {
         // Get the current game room; return if null
@@ -59,17 +56,21 @@ abstract class Entity(
         val delta = deltaTimer.delta
 
         // Apply gravity to the velocity
-        velocity.y -= 9.8 * delta
+        if (!movementRestrictions.down && room.isSideScroller)
+            velocity.y -= 9.8 * delta
 
         // Apply the velocity to the delta position
         deltaPosition.x += velocity.x * delta
         deltaPosition.y += velocity.y * delta
 
+        deltaPosition.x = minOf(deltaPosition.x, 0.1)
+        deltaPosition.y = minOf(deltaPosition.y, 0.1)
+
         // Apply the delta position to the position
         x += deltaPosition.x
         y += deltaPosition.y
         // Default to not-on-ground state
-        onGround = false
+        movementRestrictions.reset()
 
         // Iterate through each room tile
         for (y in 0 until room.height)
@@ -81,16 +82,12 @@ abstract class Entity(
                 if (!blocking)
                     continue
 
-                if (
-                    // Resolve the bounding box against each tile
-                    boundingBox.resolve(
-                        BoundingBox(x * room.tileSize, y * room.tileSize, room.tileSize, room.tileSize),
-                        deltaPosition,
-                        this
-                    )
+                // Resolve the bounding box against each tile
+                boundingBox.resolve(
+                    BoundingBox(x * room.tileSize + 0.01, y * room.tileSize, room.tileSize - 0.02, room.tileSize),
+                    deltaPosition,
+                    this
                 )
-                    // If at least one tile returns true, the entity is on the ground (see #resolve method info)
-                    onGround = true
             }
 
         // Reset delta position aggregation
@@ -102,4 +99,24 @@ abstract class Entity(
      * The bounding box of the entity, which should take into account the current coordinates of the entity
      */
     abstract val boundingBox: BoundingBox
+
+    class MovementRestrictions
+    {
+        var left: Boolean = false
+
+        var right: Boolean = false
+
+        var up: Boolean = false
+
+        var down: Boolean = false
+
+        fun reset()
+        {
+            left = false
+            right = false
+
+            up = false;
+            down = false;
+        }
+    }
 }

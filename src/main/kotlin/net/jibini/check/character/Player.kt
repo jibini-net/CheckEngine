@@ -49,9 +49,9 @@ class Player(
         super.update()
 
         // Check WASD keys
-        val w = keyboard.isPressed(GLFW.GLFW_KEY_W)
+        val w = keyboard.isPressed(GLFW.GLFW_KEY_W) && !(gameWorld.room?.isSideScroller ?: false)
         val a = keyboard.isPressed(GLFW.GLFW_KEY_A)
-        val s = keyboard.isPressed(GLFW.GLFW_KEY_S)
+        val s = keyboard.isPressed(GLFW.GLFW_KEY_S) && !(gameWorld.room?.isSideScroller ?: false)
         val d = keyboard.isPressed(GLFW.GLFW_KEY_D)
 
         // Calculate x/y movement based on key input
