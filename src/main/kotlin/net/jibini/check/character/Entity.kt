@@ -39,7 +39,7 @@ abstract class Entity(
     /**
      * Delta timer to keep track of physics and movement timing
      */
-    private val deltaTimer = DeltaTimer()
+    val deltaTimer = DeltaTimer()
 
     /**
      * Aggregate per-frame movement which can be added to by all sub-classes

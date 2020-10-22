@@ -4,6 +4,7 @@ import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.texture.Texture
+import org.lwjgl.opengl.GL11
 
 /**
  * A small section of a game level which can be interacted with
@@ -19,7 +20,7 @@ class Tile(
     /**
      * Whether the tile blocks the player from moving
      */
-    val blocking: Boolean = true
+    val blocking: Boolean
 ) : EngineAware()
 {
     @EngineObject

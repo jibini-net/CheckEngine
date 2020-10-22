@@ -1,10 +1,15 @@
 package net.jibini.check.world
 
 import net.jibini.check.character.Entity
+import net.jibini.check.character.Player
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.Updatable
+import net.jibini.check.resource.Resource
+import net.jibini.check.texture.Texture
 import org.lwjgl.opengl.GL11
+import java.io.File
+import javax.imageio.ImageIO
 
 /**
  * An engine object which manages the game's current room and entities
@@ -19,11 +24,19 @@ class GameWorld : Initializable, Updatable
      * game is initialized and ready to start a level)
      */
     var visible = false
+        set(value)
+        {
+            if (value)
+                for (entity in entities)
+                    entity.deltaTimer.reset()
+
+            field = value
+        }
 
     /**
      * Entities in the world; can be directly added to by the game
      */
-    var entities = mutableListOf<Entity>()
+    val entities = mutableListOf<Entity>()
 
     /**
      * Current room to update and render; set to null if no room should be rendered
@@ -31,9 +44,9 @@ class GameWorld : Initializable, Updatable
     var room: Room? = null
 
     /**
-     * An entity on which the renderer will center the screen
+     * A controllable character on which the renderer will center the screen
      */
-    var centerOn: Entity? = null
+    lateinit var player: Player
 
     override fun initialize()
     {
@@ -45,8 +58,8 @@ class GameWorld : Initializable, Updatable
         if (!visible)
             return
 
-        if (centerOn != null)
-            GL11.glTranslatef(-centerOn!!.x.toFloat(), -centerOn!!.y.toFloat(), 0.0f)
+        if (this::player.isInitialized)
+            GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat(), 0.0f)
 
         room?.update()
 
@@ -62,6 +75,81 @@ class GameWorld : Initializable, Updatable
         }
 
         GL11.glPopMatrix()
+    }
+
+    /**
+     * Loads the given room from the program resources and spawns the entities as described in the level metadata
+     *
+     * @param name Level resource folder relative to classpath location 'tile_sets/'
+     */
+    fun loadRoom(name: String)
+    {
+        reset()
+
+        val roomImageFile = Resource.fromClasspath("tile_sets/$name/$name.png").stream
+        val roomImage = ImageIO.read(roomImageFile)
+
+        val colors = IntArray(roomImage.width * roomImage.height)
+        roomImage.getRGB(0, 0, roomImage.width, roomImage.height, colors, 0, roomImage.width)
+
+        val colorIndices = mutableListOf<Int>()
+        for (x in 0 until roomImage.width)
+            colorIndices += colors[x]
+
+        val roomMetaFile = Resource.fromClasspath("tile_sets/$name/$name.txt").stream
+        val roomMetaReader = roomMetaFile.bufferedReader()
+
+        val roomTiles = mutableMapOf<Int, Tile>()
+
+        roomMetaReader.forEachLine {
+            val split = it.split(" ")
+
+            when (split[0])
+            {
+                "tile" ->
+                {
+                    val index = split[1].toInt()
+                    val texture = Texture.load(Resource.fromClasspath("tile_sets/$name/${split[2]}"))
+                    val blocking = split[3] == "blocking"
+
+                    roomTiles[colorIndices[index]] = Tile(texture, blocking)
+                }
+
+                "spawn" ->
+                {
+                    when (split[1])
+                    {
+                        "player" ->
+                        {
+                            player = Player(
+                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_right.gif")),
+                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_left.gif")),
+
+                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_right.gif")),
+                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_left.gif"))
+                            )
+
+                            player.x = split[3].toDouble() * 0.2
+                            player.y = split[4].toDouble() * 0.2
+
+                            entities += player
+                        }
+                    }
+                }
+            }
+        }
+
+        roomMetaReader.close()
+
+        room = Room(roomImage.width, roomImage.height - 1, 0.2)
+
+        for (y in 1 until roomImage.height)
+            for (x in 0 until roomImage.width)
+            {
+                val color = colors[y * roomImage.width + x]
+
+                room!!.tiles[x][room!!.height - y] = roomTiles[color]
+            }
     }
 
     fun reset()

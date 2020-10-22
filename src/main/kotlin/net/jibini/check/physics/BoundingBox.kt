@@ -42,15 +42,15 @@ class BoundingBox(
         if (overlapY > overlapX || overlapX == overlapY)
         {
             val resolution = when
-                {
-                    // If colliding from the right, correct leftwards
-                    x + width - overlapX == static.x -> -1.0
-                    // If colliding from the left, correct rightwards
-                    x + overlapX == static.x + static.width -> 1.0
+            {
+                // If colliding from the right, correct leftwards
+                x + width - overlapX == static.x -> -1.0
+                // If colliding from the left, correct rightwards
+                x + overlapX == static.x + static.width -> 1.0
 
-                    // If unsure, correct in opposite direction of movement
-                    else -> -abs(deltaPosition.x) / deltaPosition.x
-                }
+                // If unsure, correct in opposite direction of movement
+                else -> -abs(deltaPosition.x) / deltaPosition.x
+            }
 
             // Check for divide-by-zero
             if (resolution.isNaN())

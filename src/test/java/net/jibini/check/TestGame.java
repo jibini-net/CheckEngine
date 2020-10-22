@@ -45,15 +45,9 @@ public class TestGame implements CheckGame
                 .enable2DTextures()
                 .enableTransparency();
 
-        Player forbes = new Player(
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_right.gif")),
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_stand_left.gif")),
+        gameWorld.loadRoom("main_hub");
 
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_right.gif")),
-                Texture.load(Resource.fromClasspath("characters/forbes/forbes_walk_left.gif"))
-        );
-
-        forbes.setAttack(new Attack(
+        gameWorld.getPlayer().setAttack(new Attack(
                 Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_right.gif")),
                 Texture.load(Resource.fromClasspath("characters/forbes/forbes_chop_left.gif")),
 
@@ -64,24 +58,6 @@ public class TestGame implements CheckGame
                 /* Attack damage amount:    */ 1.0,
                 /* Movement scale effect:   */ 0.5
         ));
-
-        forbes.setX(0.6);
-        forbes.setY(3);
-
-        gameWorld.getEntities().add(forbes);
-        gameWorld.setCenterOn(forbes);
-
-        Room room = new Room(32, 32, 0.2);
-
-        Tile tile = new Tile(Texture.load(Resource.fromClasspath("tile_sets/world01/test.png")), true);
-
-        room.getTiles()[1][1] = tile;
-        room.getTiles()[3][1] = tile;
-        room.getTiles()[4][1] = tile;
-        room.getTiles()[3][3] = tile;
-        room.getTiles()[4][4] = tile;
-
-        gameWorld.setRoom(room);
 
         gameWorld.setVisible(true);
     }

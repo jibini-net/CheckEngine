@@ -1,0 +1,16 @@
+spawn character allie 4 1
+spawn character becky 9 1
+spawn character foley 14 1
+
+spawn player forbes 1 1
+
+tile 0 floor_tile0.png nonblocking
+tile 1 floor_tile1.png nonblocking
+tile 2 wall_tile.png nonblocking
+tile 3 name_tag_tile.png nonblocking
+tile 4 floor_tile0.png blocking
+tile 5 floor_tile1.png blocking
+tile 6 wall_tile.png blocking
+tile 7 base_board_tile.png nonblocking
+tile 8 door_top_tile.png nonblocking
+tile 9 door_bottom_tile.png nonblocking
