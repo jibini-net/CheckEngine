@@ -20,3 +20,9 @@ tile 10 base_board_tile.png blocking
 tile 11 untextured blocking
 
 portal world01 3 4.7 1 0.3
+portal world01 8 4.7 1 0.3
+portal world01 13 4.7 1 0.3
+portal world01 18 4.7 1 0.3
+portal world01 23 4.7 1 0.3
+portal world01 28 4.7 1 0.3
+portal world01 33 4.7 1 0.3

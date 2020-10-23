@@ -33,7 +33,7 @@ class NonPlayer(
             characterState = LEFT
         else if (gameWorld.player.x > x)
             characterState = RIGHT
-        
+
         renderTexture = textures[stand][characterState]
     }
 }

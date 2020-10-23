@@ -40,7 +40,7 @@ class Player(
         // Listen to space to trigger attack
         keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, this::attack)
         // Listen to left shift to trigger jump
-        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) { jump(0.7) }
+        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) { jump(0.55) }
     }
 
     override fun update()

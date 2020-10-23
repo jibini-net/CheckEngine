@@ -13,6 +13,8 @@ import net.jibini.check.texture.impl.BitmapTextureImpl
 import org.lwjgl.opengl.GL11
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import javax.imageio.ImageIO
 
 /**
@@ -40,7 +42,7 @@ class GameWorld : Initializable, Updatable
     /**
      * Entities in the world; can be directly added to by the game
      */
-    val entities = mutableListOf<Entity>()
+    val entities: MutableList<Entity> = Collections.synchronizedList(mutableListOf<Entity>())
 
     /**
      * Current room to update and render; set to null if no room should be rendered
@@ -52,7 +54,7 @@ class GameWorld : Initializable, Updatable
      */
     lateinit var player: Player
 
-    val portals = mutableMapOf<BoundingBox, String>()
+    private val portals = ConcurrentHashMap<BoundingBox, String>()
 
     override fun initialize()
     {
@@ -163,18 +165,20 @@ class GameWorld : Initializable, Updatable
                     {
                         "player" ->
                         {
-                            player = Player(
-                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_right.gif")),
-                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_left.gif")),
+                            if (!this::player.isInitialized)
+                                player = Player(
+                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_right.gif")),
+                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_left.gif")),
 
-                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_right.gif")),
-                                Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_left.gif"))
-                            )
+                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_right.gif")),
+                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_left.gif"))
+                                )
 
                             player.x = split[3].toDouble() * 0.2
                             player.y = split[4].toDouble() * 0.2
 
-                            entities += player
+                            if (!entities.contains(player))
+                                entities += player
                         }
 
                         "character" ->
