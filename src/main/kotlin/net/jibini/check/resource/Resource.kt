@@ -16,6 +16,8 @@ abstract class Resource
 {
     abstract val stream: InputStream
 
+    abstract val uniqueIdentifier: String
+
     /**
      * Reads the entirety of the file as if it were text
      */

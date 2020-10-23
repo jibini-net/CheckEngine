@@ -9,6 +9,7 @@ import net.jibini.check.world.GameWorld;
 import net.jibini.check.world.Room;
 import net.jibini.check.world.Tile;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.opengl.GL11;
 
 public class TestGame implements CheckGame
 {
@@ -71,7 +72,21 @@ public class TestGame implements CheckGame
      */
     public void update()
     {
+        GL11.glBegin(GL11.GL_QUADS);
 
+        GL11.glTexCoord2f(0.0f, 1.0f);
+        GL11.glVertex3f(-1.0f, -1.0f, 20.0f);
+
+        GL11.glTexCoord2f(1.0f, 1.0f);
+        GL11.glVertex3f(-0.5f, -1.0f, 20.0f);
+
+        GL11.glTexCoord2f(1.0f, 0.0f);
+        GL11.glVertex3f(-0.5f, -0.5f, 20.0f);
+
+        GL11.glTexCoord2f(0.0f, 0.0f);
+        GL11.glVertex3f(-1.0f, -0.5f, 20.0f);
+
+        GL11.glEnd();
     }
 
     /**

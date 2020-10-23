@@ -74,6 +74,8 @@ interface Texture : Pointer<Int>
         private val boundPerThread = mutableMapOf<Thread, Texture>()
         private val boundPointerPerThread = mutableMapOf<Thread, Int>()
 
+        private val cachedPerThread = mutableMapOf<Thread, MutableMap<String, Texture>>()
+
         /**
          * Currently bound texture in the current thread
          */
@@ -110,6 +112,11 @@ interface Texture : Pointer<Int>
         @JvmStatic
         fun load(resource: Resource): Texture
         {
+            val cache = cachedPerThread.getOrPut(Thread.currentThread()) { mutableMapOf() }
+
+            if (cache.containsKey(resource.uniqueIdentifier))
+                return cache[resource.uniqueIdentifier]!!
+
             // Open texture resource and get readers
             val stream = ImageIO.createImageInputStream(resource.stream)
             val readers = ImageIO.getImageReaders(stream)
@@ -132,7 +139,10 @@ interface Texture : Pointer<Int>
             // Use correct implementation for file format
             return if (animate)
             {
-                AnimatedTextureImpl(stream)
+                val texture = AnimatedTextureImpl(stream)
+
+                cache[resource.uniqueIdentifier] = texture
+                texture
             } else
             {
                 // Read in buffered image and pass to texture
@@ -141,6 +151,7 @@ interface Texture : Pointer<Int>
 
                 texture.putData(0, 0, image)
 
+                cache[resource.uniqueIdentifier] = texture
                 texture
             }
         }

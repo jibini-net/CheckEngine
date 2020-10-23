@@ -6,11 +6,11 @@ import net.jibini.check.character.Player
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.Updatable
+import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
 import org.lwjgl.opengl.GL11
-import java.io.File
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
 import javax.imageio.ImageIO
@@ -52,6 +52,8 @@ class GameWorld : Initializable, Updatable
      */
     lateinit var player: Player
 
+    val portals = mutableMapOf<BoundingBox, String>()
+
     override fun initialize()
     {
 
@@ -79,6 +81,14 @@ class GameWorld : Initializable, Updatable
         }
 
         GL11.glPopMatrix()
+
+        for ((box, world) in portals)
+            if (box.overlaps(player.boundingBox))
+            {
+                loadRoom(world)
+
+                visible = true
+            }
     }
 
     /**
@@ -132,7 +142,7 @@ class GameWorld : Initializable, Updatable
                     {
                         "untextured" -> BitmapTextureImpl(2, 2)
 
-                        else ->Texture.load(Resource.fromClasspath("tile_sets/$name/${split[2]}"))
+                        else -> Texture.load(Resource.fromClasspath("tile_sets/$name/${split[2]}"))
                     }
 
                     val blocking = when(split[3])
@@ -210,6 +220,17 @@ class GameWorld : Initializable, Updatable
                         }
                     }
                 }
+
+                "portal" ->
+                {
+                    portals[BoundingBox(
+                        split[2].toDouble() * 0.2,
+                        split[3].toDouble() * 0.2,
+
+                        split[4].toDouble() * 0.2,
+                        split[5].toDouble() * 0.2
+                    )] = split[1]
+                }
             }
         }
 
@@ -229,6 +250,7 @@ class GameWorld : Initializable, Updatable
     fun reset()
     {
         entities.clear()
+        portals.clear()
 
         visible = false
     }

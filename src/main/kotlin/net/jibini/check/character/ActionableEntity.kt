@@ -34,7 +34,7 @@ abstract class ActionableEntity(
 ) : Entity()
 {
     // Animation array indices
-    private val stand = 0
+    val stand = 0
     private val walk = 1
 
     /**
@@ -50,7 +50,7 @@ abstract class ActionableEntity(
     /**
      * Two-dimensional array of textures by animation and direction
      */
-    private val textures: Array<Array<Texture>> = arrayOf(
+    protected val textures: Array<Array<Texture>> = arrayOf(
         arrayOf(idleRight, idleLeft),
         arrayOf(walkRight, walkLeft)
     )
@@ -58,7 +58,7 @@ abstract class ActionableEntity(
     /**
      * The texture which will be rendered when the entity is rendered
      */
-    private var renderTexture = idleRight
+    var renderTexture = idleRight
 
     /**
      * Delta timer to keep track of walking timing
@@ -102,7 +102,7 @@ abstract class ActionableEntity(
     fun walk(x: Double, y: Double)
     {
         // Get movement speed based on delta time and attack speed modifier
-        val movement = timer.delta / 2 * (attack?.effectiveMovementModifier ?: 1.0)
+        val movement = timer.delta / 1.5 * (attack?.effectiveMovementModifier ?: 1.0)
 
         // Default to idle animation
         var characterAnim: Int = stand

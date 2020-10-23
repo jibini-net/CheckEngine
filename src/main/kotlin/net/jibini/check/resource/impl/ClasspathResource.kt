@@ -13,7 +13,9 @@ class ClasspathResource(
     /**
      * Absolute resource path from the root of the classpath
      */
-    private val path: String
+    private val path: String,
+
+    override val uniqueIdentifier: String = "CLASSPATH; $path"
 ) : Resource()
 {
     // Open classpath resource stream

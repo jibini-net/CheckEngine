@@ -127,5 +127,11 @@ class AnimatedTextureImpl(
     }
 
     override val pointer: Int
-        get() = animation[currentFrameIndex].texture.pointer
+        get()
+        {
+            if (timer.delta * 1000 >= animation[currentFrameIndex].time)
+                nextFrame()
+            
+            return animation[currentFrameIndex].texture.pointer
+        }
 }

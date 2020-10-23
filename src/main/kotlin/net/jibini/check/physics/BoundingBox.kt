@@ -18,6 +18,14 @@ class BoundingBox(
     private val height: Double
 )
 {
+    fun overlaps(box: BoundingBox): Boolean
+    {
+        val overlapX = minOf(x + width , box.x + box.width ) - maxOf(x, box.x)
+        val overlapY = minOf(y + height, box.y + box.height) - maxOf(y, box.y)
+
+        return overlapX > 0.0 && overlapY > 0.0
+    }
+
     /**
      * Detects and corrects bounding-box collisions on the horizontal and vertical axes
      *

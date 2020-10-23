@@ -18,3 +18,5 @@ tile 8 door_top_tile.png nonblocking
 tile 9 door_bottom_tile.png nonblocking
 tile 10 base_board_tile.png blocking
 tile 11 untextured blocking
+
+portal world01 3 4.7 1 0.3

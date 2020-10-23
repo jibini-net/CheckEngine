@@ -13,7 +13,9 @@ class FileResource(
     /**
      * File pointing to the resource
      */
-    file: File
+    file: File,
+
+    override val uniqueIdentifier: String = "FILE; ${file.absolutePath}"
 ) : Resource()
 {
     // Open file resource stream
