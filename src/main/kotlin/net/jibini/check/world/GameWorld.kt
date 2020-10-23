@@ -89,7 +89,7 @@ class GameWorld : Initializable, Updatable
         for (entity in entities)
         {
             // Translate forward to avoid transparency issues
-            GL11.glTranslatef(0.0f, 0.0f, 0.01f)
+            GL11.glTranslatef(0.0f, 0.0f, 0.02f)
 
             entity.update()
         }

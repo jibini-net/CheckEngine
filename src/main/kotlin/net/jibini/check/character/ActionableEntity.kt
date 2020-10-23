@@ -2,7 +2,10 @@ package net.jibini.check.character
 
 import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.physics.BoundingBox
+import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
+import org.joml.Math.clamp
+import org.lwjgl.opengl.GL11
 import kotlin.math.sqrt
 
 /**
@@ -37,6 +40,8 @@ abstract class ActionableEntity(
     val stand = 0
     private val walk = 1
 
+    private val shadowTexture = Texture.load(Resource.fromClasspath("characters/shadow.png"))
+
     /**
      * Character directional state (RIGHT/LEFT, or 0/1 respectively)
      */
@@ -65,6 +70,11 @@ abstract class ActionableEntity(
      */
     private val timer = DeltaTimer()
 
+    private var falseYOffset: Double = 0.0
+    private var falseYVeloc: Double = 0.0
+    private var delta: Double = 0.0
+    private val secondaryDeltaTimer = DeltaTimer()
+
     /**
      * Sets the vertical velocity in order to jump (only if currently on ground)
      *
@@ -76,20 +86,55 @@ abstract class ActionableEntity(
         if (movementRestrictions.down && gameWorld.room?.isSideScroller == true)
             // Velocity = sqrt(-2g * h)
             velocity.y = sqrt(2 * 9.8 * height)
+
+        if (gameWorld.room?.isSideScroller == false)
+            if (falseYOffset == 0.0)
+                falseYVeloc = sqrt(2 * 9.8 * height / 2)
     }
 
     override fun update()
     {
+        delta = secondaryDeltaTimer.delta
+
+        if (gameWorld.room?.isSideScroller == true)
+        {
+            falseYOffset = 0.0
+            falseYVeloc = 0.0
+        } else
+        {
+            falseYOffset = maxOf(0.0, falseYOffset + falseYVeloc * delta)
+            falseYVeloc -= 9.8 * delta
+        }
+
+
         // Bind render texture
         renderTexture.bind()
         // Update attack; this may override previous texture
         attack?.update()
 
         // Draw rectangle (centered on x, 0.4 x 0.4)
+        GL11.glTranslatef(0.0f, 0.0f, 0.01f)
         renderer.drawRectangle(
-            x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32),
+            x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32) + falseYOffset.toFloat(),
             0.4f, 0.4f
         )
+
+
+        val shadowSize = clamp(0.1f, 0.2f, (0.2 - (falseYOffset / 3.2)).toFloat())
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, shadowSize * 5 - 0.25f)
+
+        if (gameWorld.room?.isSideScroller == false && falseYOffset > 0.0)
+        {
+            shadowTexture.bind()
+            GL11.glTranslatef(0.0f, 0.0f, -0.01f)
+            renderer.drawRectangle(
+                x.toFloat() - shadowSize / 2, y.toFloat() - 0.01f,
+                shadowSize, shadowSize
+            )
+        }
+
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+
 
         // Update physics in entity last (after render to avoid shaking)
         super.update()
@@ -102,7 +147,7 @@ abstract class ActionableEntity(
     fun walk(x: Double, y: Double)
     {
         // Get movement speed based on delta time and attack speed modifier
-        val movement = timer.delta / 1.5 * (attack?.effectiveMovementModifier ?: 1.0)
+        val movement = delta / 1.5 * (attack?.effectiveMovementModifier ?: 1.0)
 
         // Default to idle animation
         var characterAnim: Int = stand

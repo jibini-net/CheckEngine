@@ -6,6 +6,7 @@ import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.world.GameWorld
+import org.joml.Math.clamp
 import org.joml.Vector2d
 
 /**
@@ -63,8 +64,8 @@ abstract class Entity(
         deltaPosition.x += velocity.x * delta
         deltaPosition.y += velocity.y * delta
 
-        deltaPosition.x = minOf(deltaPosition.x, 0.1)
-        deltaPosition.y = minOf(deltaPosition.y, 0.1)
+        deltaPosition.x = clamp(-0.07, 0.07, deltaPosition.x)
+        deltaPosition.y = clamp(-0.07, 0.07, deltaPosition.y)
 
         // Apply the delta position to the position
         x += deltaPosition.x
