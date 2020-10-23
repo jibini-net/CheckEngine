@@ -38,6 +38,9 @@ class Tile(
     {
         texture.bind()
 
+        // Uncomment for seizure
+//        GL11.glColor4f(Random().nextFloat(), Random().nextFloat(), Random().nextFloat(), 1.0f)
+
         val tileSize = world.room?.tileSize?.toFloat() ?: 0.2f
 
         renderer.drawRectangle(tileSize * x, tileSize * y, tileSize, tileSize)

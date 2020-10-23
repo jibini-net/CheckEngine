@@ -7,7 +7,7 @@ import net.jibini.check.engine.LifeCycle
 import net.jibini.check.engine.Updatable
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Window
-import net.jibini.check.graphics.impl.AbstractAutoDestroyable
+import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.input.Keyboard
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
@@ -166,7 +166,7 @@ object Check
             log.debug("Breaking application engine thread")
 
             // Destroy all destroyable objects created on this thread
-            AbstractAutoDestroyable.flushRegistered()
+            EngineObjectsImpl.get<DestroyableRegistry>()[0].flushRegistered()
 
             window.destroy()
 

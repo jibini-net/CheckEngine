@@ -60,5 +60,14 @@ class Player(
 
         // Walk based on previous movement
         this.walk(x, y)
+
+        if (this.y < -16.0)
+        {
+            //TODO FANCIER DEATH
+            gameWorld.loadRoom("main_hub")
+            gameWorld.visible = true
+
+            velocity.y = 0.0
+        }
     }
 }

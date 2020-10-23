@@ -1,6 +1,9 @@
 package net.jibini.check.graphics
 
+import net.jibini.check.engine.EngineAware
+import net.jibini.check.engine.EngineObject
 import net.jibini.check.texture.Texture
+import net.jibini.check.texture.impl.TextureRegistry
 import org.lwjgl.opengl.GL11
 
 /**
@@ -8,8 +11,11 @@ import org.lwjgl.opengl.GL11
  *
  * @author Zach Goethel
  */
-class Renderer
+class Renderer : EngineAware()
 {
+    @EngineObject
+    private lateinit var textureRegistry: TextureRegistry
+
     /**
      * Draws a rectangle with the given coordinates and size; uses the currently bound texture and its texture
      * coordinates to texture the rectangle
@@ -22,7 +28,7 @@ class Renderer
      */
     fun drawRectangle(x: Float, y: Float, width: Float, height: Float)
     {
-        val coordinates = Texture.bound?.textureCoordinates
+        val coordinates = textureRegistry.bound?.textureCoordinates
 
         // Find coordinate start coordinates
         val baseX = coordinates?.baseX ?: 0.0f

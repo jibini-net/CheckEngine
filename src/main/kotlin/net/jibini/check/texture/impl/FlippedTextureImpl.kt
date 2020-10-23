@@ -1,5 +1,6 @@
 package net.jibini.check.texture.impl
 
+import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.TextureCoordinates
 
@@ -41,6 +42,6 @@ class FlippedTextureImpl(
 
     override fun bind()
     {
-        Texture.bind(this)
+        EngineObjectsImpl.get<TextureRegistry>()[0].bind(this)
     }
 }

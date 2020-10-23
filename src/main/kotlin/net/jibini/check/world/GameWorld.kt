@@ -15,6 +15,7 @@ import java.io.FileNotFoundException
 import java.lang.IllegalStateException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
 
 /**
@@ -42,7 +43,7 @@ class GameWorld : Initializable, Updatable
     /**
      * Entities in the world; can be directly added to by the game
      */
-    val entities: MutableList<Entity> = Collections.synchronizedList(mutableListOf<Entity>())
+    val entities: MutableList<Entity> = CopyOnWriteArrayList()
 
     /**
      * Current room to update and render; set to null if no room should be rendered
@@ -52,7 +53,18 @@ class GameWorld : Initializable, Updatable
     /**
      * A controllable character on which the renderer will center the screen
      */
-    lateinit var player: Player
+    var player: Player? = null
+        set(value)
+        {
+            if (value == null)
+            {
+                if (entities.contains(field))
+                    entities.remove(field)
+            } else if (!entities.contains(value))
+                entities += value
+
+            field = value
+        }
 
     private val portals = ConcurrentHashMap<BoundingBox, String>()
 
@@ -66,8 +78,8 @@ class GameWorld : Initializable, Updatable
         if (!visible)
             return
 
-        if (this::player.isInitialized)
-            GL11.glTranslatef(-player.x.toFloat(), -player.y.toFloat() - 0.4f, 0.0f)
+        if (player != null)
+            GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
 
         room?.update()
 
@@ -85,7 +97,7 @@ class GameWorld : Initializable, Updatable
         GL11.glPopMatrix()
 
         for ((box, world) in portals)
-            if (box.overlaps(player.boundingBox))
+            if (box.overlaps(player!!.boundingBox))
             {
                 loadRoom(world)
 
@@ -165,7 +177,8 @@ class GameWorld : Initializable, Updatable
                     {
                         "player" ->
                         {
-                            if (!this::player.isInitialized)
+                            // TODO SUPPORT PLAYING AS MULTIPLE CHARACTERS
+                            if (player == null)
                                 player = Player(
                                     Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_right.gif")),
                                     Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_left.gif")),
@@ -174,11 +187,11 @@ class GameWorld : Initializable, Updatable
                                     Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_left.gif"))
                                 )
 
-                            player.x = split[3].toDouble() * 0.2
-                            player.y = split[4].toDouble() * 0.2
+                            player!!.x = split[3].toDouble() * 0.2
+                            player!!.y = split[4].toDouble() * 0.2
 
                             if (!entities.contains(player))
-                                entities += player
+                                entities += player!!
                         }
 
                         "character" ->

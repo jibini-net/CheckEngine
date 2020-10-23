@@ -1,5 +1,7 @@
 package net.jibini.check.texture.impl
 
+import net.jibini.check.engine.EngineObject
+import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.graphics.impl.AbstractAutoDestroyable
 import net.jibini.check.graphics.impl.PointerImpl
@@ -25,10 +27,13 @@ class BitmapTextureImpl(
     height: Int = TextureSpriteMapImpl.MAP_DIMENSION
 ) : AbstractAutoDestroyable(), Texture, Pointer<Int> by PointerImpl(GL11.glGenTextures())
 {
+    @EngineObject
+    private lateinit var textureRegistry: TextureRegistry
+
     init
     {
         // Store currently bound texture
-        val bound = Texture.bound
+        val bound = textureRegistry.bound
         bind()
 
         // Set coordinate clamp/wrap properties
@@ -54,7 +59,7 @@ class BitmapTextureImpl(
     override fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
     {
         // Store currently bound texture
-        val bound = Texture.bound
+        val bound = textureRegistry.bound
         bind()
 
         // Set the video memory for the given texture segment

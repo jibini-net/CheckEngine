@@ -1,6 +1,7 @@
 package net.jibini.check.character
 
 import net.jibini.check.texture.Texture
+import java.util.*
 
 class NonPlayer(
     /**
@@ -29,11 +30,14 @@ class NonPlayer(
         super.update()
 
         //TODO AI
-        if (gameWorld.player.x < x)
+        if (gameWorld.player?.x ?: 0.0 < x)
             characterState = LEFT
-        else if (gameWorld.player.x > x)
+        else if (gameWorld.player?.x ?: 0.0 > x)
             characterState = RIGHT
 
         renderTexture = textures[stand][characterState]
+
+        //TODO REMOVE JOKE AND RENAME GENDRAU SPRITE TO 'YELL'
+        jump((Random().nextInt(64) + 64).toDouble() / (64 + 64))
     }
 }

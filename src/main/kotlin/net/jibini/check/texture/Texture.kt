@@ -1,10 +1,13 @@
 package net.jibini.check.texture
 
+import net.jibini.check.engine.EngineAware
+import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.impl.AnimatedTextureImpl
 import net.jibini.check.texture.impl.BitmapTextureImpl
 import net.jibini.check.texture.impl.FlippedTextureImpl
+import net.jibini.check.texture.impl.TextureRegistry
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.awt.image.BufferedImage
@@ -24,7 +27,7 @@ interface Texture : Pointer<Int>
      */
     fun bind()
     {
-        bind(this)
+        EngineObjectsImpl.get<TextureRegistry>()[0].bind(this)
     }
 
     /**
@@ -71,51 +74,15 @@ interface Texture : Pointer<Int>
 
     companion object
     {
-        private val boundPerThread = mutableMapOf<Thread, Texture>()
-        private val boundPointerPerThread = mutableMapOf<Thread, Int>()
-
-        private val cachedPerThread = mutableMapOf<Thread, MutableMap<String, Texture>>()
-
-        /**
-         * Currently bound texture in the current thread
-         */
-        val bound: Texture?
-            get() = boundPerThread[Thread.currentThread()]
-
-        /**
-         * Currently bound pointer in the current thread
-         */
-        private val boundPointer: Int
-            get() = boundPointerPerThread[Thread.currentThread()] ?: 0
-
-        /**
-         * Binds the given texture in the current thread
-         *
-         * @param texture Texture to bind
-         */
-        fun bind(texture: Texture)
-        {
-            // Only change bind if the currently bound state is different
-            if (texture.pointer != boundPointer)
-            {
-                boundPointerPerThread[Thread.currentThread()] = texture.pointer
-
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.pointer)
-            }
-
-            boundPerThread[Thread.currentThread()] = texture
-        }
-
         /**
          * Loads a texture from the given resource; animated textures will automatically be detected
          */
         @JvmStatic
         fun load(resource: Resource): Texture
         {
-            val cache = cachedPerThread.getOrPut(Thread.currentThread()) { mutableMapOf() }
-
-            if (cache.containsKey(resource.uniqueIdentifier))
-                return cache[resource.uniqueIdentifier]!!
+            val registry = EngineObjectsImpl.get<TextureRegistry>()[0]
+            if (registry.cache.containsKey(resource.uniqueIdentifier))
+                return registry.cache[resource.uniqueIdentifier]!!
 
             // Open texture resource and get readers
             val stream = ImageIO.createImageInputStream(resource.stream)
@@ -141,7 +108,7 @@ interface Texture : Pointer<Int>
             {
                 val texture = AnimatedTextureImpl(stream)
 
-                cache[resource.uniqueIdentifier] = texture
+                registry.cache[resource.uniqueIdentifier] = texture
                 texture
             } else
             {
@@ -151,7 +118,7 @@ interface Texture : Pointer<Int>
 
                 texture.putData(0, 0, image)
 
-                cache[resource.uniqueIdentifier] = texture
+                registry.cache[resource.uniqueIdentifier] = texture
                 texture
             }
         }
