@@ -1,7 +1,7 @@
-package net.jibini.check.character
+package net.jibini.check.entity.character
 
+import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.texture.Texture
-import java.util.*
 
 class NonPlayer(
     /**
@@ -36,8 +36,5 @@ class NonPlayer(
             characterState = RIGHT
 
         renderTexture = textures[stand][characterState]
-
-        //TODO REMOVE JOKE AND RENAME GENDRAU SPRITE TO 'YELL'
-        jump((Random().nextInt(64) + 64).toDouble() / (64 + 64))
     }
 }

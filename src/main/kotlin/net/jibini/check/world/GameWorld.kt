@@ -1,8 +1,8 @@
 package net.jibini.check.world
 
-import net.jibini.check.character.Entity
-import net.jibini.check.character.NonPlayer
-import net.jibini.check.character.Player
+import net.jibini.check.entity.Entity
+import net.jibini.check.entity.character.NonPlayer
+import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.Updatable
@@ -13,7 +13,6 @@ import net.jibini.check.texture.impl.BitmapTextureImpl
 import org.lwjgl.opengl.GL11
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
@@ -85,6 +84,8 @@ class GameWorld : Initializable, Updatable
 
         // Update entities last for transparency
         GL11.glPushMatrix()
+
+        entities.sortByDescending { it.y }
 
         for (entity in entities)
         {

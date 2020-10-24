@@ -1,6 +1,6 @@
 package net.jibini.check;
 
-import net.jibini.check.character.Attack;
+import net.jibini.check.entity.character.Attack;
 import net.jibini.check.engine.*;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;

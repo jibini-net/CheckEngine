@@ -3,7 +3,9 @@ package net.jibini.check.world
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.graphics.Renderer
+import net.jibini.check.graphics.Window
 import net.jibini.check.texture.Texture
+import org.lwjgl.glfw.GLFW
 
 /**
  * A small section of a game level which can be interacted with
@@ -26,6 +28,9 @@ class Tile(
     private lateinit var renderer: Renderer
 
     @EngineObject
+    private lateinit var window: Window
+
+    @EngineObject
     private lateinit var world: GameWorld
 
     /**
@@ -36,12 +41,24 @@ class Tile(
      */
     fun render(x: Int, y: Int)
     {
+        val w = IntArray(1)
+        val h = IntArray(1)
+
+        GLFW.glfwGetWindowSize(window.pointer, w, h)
+
+        val widthRatio = w[0].toDouble() / h[0]
+        val tileSize = world.room?.tileSize?.toFloat() ?: 0.2f
+
+        if (x * tileSize - (world.player?.x ?: 0.0) > widthRatio
+            || x * tileSize + tileSize - (world.player?.x ?: 0.0) < -widthRatio
+            || y * tileSize - (world.player?.y ?: 0.0) - 0.4 > 1.0
+            || y * tileSize - (world.player?.y ?: 0.0) - 0.4 + tileSize < -1.0)
+            return
+
         texture.bind()
 
         // Uncomment for seizure
 //        GL11.glColor4f(Random().nextFloat(), Random().nextFloat(), Random().nextFloat(), 1.0f)
-
-        val tileSize = world.room?.tileSize?.toFloat() ?: 0.2f
 
         renderer.drawRectangle(tileSize * x, tileSize * y, tileSize, tileSize)
     }

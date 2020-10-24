@@ -1,8 +1,9 @@
-package net.jibini.check.character
+package net.jibini.check.entity.character
 
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.Updatable
 import net.jibini.check.engine.timing.DeltaTimer
+import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.AnimatedTextureImpl
 

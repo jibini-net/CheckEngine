@@ -1,6 +1,7 @@
-package net.jibini.check.character
+package net.jibini.check.entity.character
 
 import net.jibini.check.engine.EngineObject
+import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.input.Keyboard
 import net.jibini.check.texture.Texture
 import org.lwjgl.glfw.GLFW

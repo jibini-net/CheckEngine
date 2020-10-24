@@ -1,4 +1,4 @@
-package net.jibini.check.character
+package net.jibini.check.entity
 
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
@@ -74,8 +74,10 @@ abstract class Entity(
         movementRestrictions.reset()
 
         // Iterate through each room tile
-        for (y in 0 until room.height)
-            for (x in 0 until room.width)
+        for (y in maxOf(0, (y / room.tileSize).toInt() - 2)
+                until minOf(room.height, (y / room.tileSize).toInt() + 3))
+            for (x in maxOf(0, (x / room.tileSize).toInt() - 2)
+                    until minOf(room.width, (x / room.tileSize).toInt() + 3))
             {
                 // Check if the tile is blocking; default to false
                 val blocking = room.tiles[x][y]?.blocking ?: false

@@ -1,6 +1,7 @@
-package net.jibini.check.character
+package net.jibini.check.entity
 
 import net.jibini.check.engine.timing.DeltaTimer
+import net.jibini.check.entity.character.Attack
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
@@ -106,7 +107,6 @@ abstract class ActionableEntity(
             falseYVeloc -= 9.8 * delta
         }
 
-
         // Bind render texture
         renderTexture.bind()
         // Update attack; this may override previous texture
@@ -118,7 +118,6 @@ abstract class ActionableEntity(
             x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32) + falseYOffset.toFloat(),
             0.4f, 0.4f
         )
-
 
         val shadowSize = clamp(0.1f, 0.2f, (0.2 - (falseYOffset / 3.2)).toFloat())
         GL11.glColor4f(1.0f, 1.0f, 1.0f, shadowSize * 5 - 0.25f)
@@ -134,7 +133,6 @@ abstract class ActionableEntity(
         }
 
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
-
 
         // Update physics in entity last (after render to avoid shaking)
         super.update()
