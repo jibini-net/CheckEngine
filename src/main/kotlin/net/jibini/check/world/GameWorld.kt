@@ -7,6 +7,7 @@ import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.Updatable
 import net.jibini.check.engine.impl.EngineObjectsImpl
+import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
@@ -244,6 +245,33 @@ class GameWorld : Initializable, Updatable
                             entity.y = split[4].toDouble() * 0.2
 
                             entities += entity
+                        }
+
+                        "entity" ->
+                        {
+                            when (split[2])
+                            {
+                                "platform" ->
+                                {
+                                    val behavior =
+                                        if (split.size > 6)
+                                            EngineObjectsImpl.get<EntityBehavior>()
+                                                .find { element -> element::class.simpleName == split[6] }!!
+                                        else
+                                            null
+
+                                    entities += Platform(
+                                        split[3].toDouble() * 0.2f,
+                                        split[4].toDouble() * 0.2f,
+
+                                        split[5].toDouble() * 0.2f,
+
+                                        behavior
+                                    )
+                                }
+
+                                else -> throw IllegalStateException("Invalid entity type ${split[2]} in world meta file")
+                            }
                         }
                     }
                 }

@@ -1,6 +1,9 @@
 package net.jibini.check.physics
 
+import net.jibini.check.engine.EngineAware
+import net.jibini.check.engine.EngineObject
 import net.jibini.check.entity.Entity
+import net.jibini.check.graphics.Renderer
 import org.joml.Vector2d
 import kotlin.math.abs
 
@@ -11,12 +14,12 @@ import kotlin.math.abs
  * @author Zach Goethel
  */
 class BoundingBox(
-    private val x: Double,
-    private val y: Double,
+    var x: Double,
+    var y: Double,
 
-    private val width: Double,
-    private val height: Double
-)
+    var width: Double,
+    var height: Double
+) : EngineAware()
 {
     fun overlaps(box: BoundingBox): Boolean
     {
@@ -25,6 +28,9 @@ class BoundingBox(
 
         return overlapX > 0.0 && overlapY > 0.0
     }
+
+    @EngineObject
+    private lateinit var renderer: Renderer
 
     /**
      * Detects and corrects bounding-box collisions on the horizontal and vertical axes
@@ -63,8 +69,11 @@ class BoundingBox(
                 return
 
             // Nullify any horizontal velocity and correct box position
-            entity.velocity.x = 0.0
-            entity.x += resolution * overlapX
+            if (!entity.static)
+            {
+                entity.velocity.x = 0.0
+                entity.x += resolution * overlapX
+            }
 
             // Update the movement restrictions for left and right
             if (overlapX != overlapY)
@@ -95,8 +104,11 @@ class BoundingBox(
                 return
 
             // Nullify any vertical velocity and correct box position
-            entity.velocity.y = 0.0
-            entity.y += resolution * overlapY
+            if (!entity.static)
+            {
+                entity.velocity.y = 0.0
+                entity.y += resolution * overlapY
+            }
 
             // Update the movement restrictions for up and down
             if (resolution > 0.0)

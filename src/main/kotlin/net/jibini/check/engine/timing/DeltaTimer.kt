@@ -1,5 +1,8 @@
 package net.jibini.check.engine.timing
 
+import net.jibini.check.engine.EngineAware
+import net.jibini.check.engine.EngineObject
+
 /**
  * Tracks fractional seconds between calls to get delta times
  *
@@ -10,12 +13,15 @@ class DeltaTimer(
      * If set to true, the timer will automatically be reset every time delta is retrieved
      */
     private val autoReset: Boolean = true
-)
+) : EngineAware()
 {
     /**
      * Last time in nanoseconds when delta was calculated
      */
     private var last: Long = System.nanoTime()
+
+    @EngineObject
+    private lateinit var globalDeltaSync: GlobalDeltaSync
 
     /**
      * Gets the time in seconds since the timer was last reset; if auto-reset is enabled, access to this property also
@@ -24,13 +30,15 @@ class DeltaTimer(
     val delta: Double
         get()
         {
+            if (autoReset)
+                return globalDeltaSync.delta
+
+
             // Get current time and compare to previous reset
             val current = System.nanoTime()
             val difference = current - last
 
             // Reset if applicable
-            if (autoReset)
-                reset()
 
             // Divide by one billion to get seconds
             return difference.toDouble() / 1000000000.0

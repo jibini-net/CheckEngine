@@ -5,6 +5,7 @@ import net.jibini.check.engine.FeatureSet
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.LifeCycle
 import net.jibini.check.engine.Updatable
+import net.jibini.check.engine.timing.GlobalDeltaSync
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.DestroyableRegistry
@@ -158,7 +159,11 @@ object Check
             }, 0)
 
             // Register the OpenGL/GLFW window buffer swap
-            lifeCycle.registerTask { window.swapBuffers() }
+            lifeCycle.registerTask {
+                window.swapBuffers()
+
+                EngineObjectsImpl.get<GlobalDeltaSync>()[0].globalAutoUpdate()
+            }
 
             // Start game lifecycle until the window should close
             lifeCycle.start { !window.shouldClose }

@@ -9,6 +9,7 @@ import net.jibini.check.physics.BoundingBox
 import net.jibini.check.world.GameWorld
 import org.joml.Math.clamp
 import org.joml.Vector2d
+import kotlin.math.abs
 
 /**
  * A dynamic being with position and velocity; affected by gravity
@@ -32,7 +33,7 @@ abstract class Entity(
     val velocity: Vector2d = Vector2d()
 ) : EngineAware()
 {
-    var behavior: EntityBehavior? = null
+    open var behavior: EntityBehavior? = null
 
     @EngineObject
     protected lateinit var renderer: Renderer
@@ -47,6 +48,9 @@ abstract class Entity(
      */
     val deltaTimer = DeltaTimer()
 
+    open val blocking = false
+    open val static = false
+
     /**
      * Aggregate per-frame movement which can be added to by all sub-classes
      */
@@ -60,7 +64,7 @@ abstract class Entity(
         val delta = deltaTimer.delta
 
         // Apply gravity to the velocity
-        if (!movementRestrictions.down && room.isSideScroller)
+        if (!movementRestrictions.down && room.isSideScroller && !static)
             velocity.y -= 9.8 * delta
 
         // Apply the velocity to the delta position
@@ -76,11 +80,13 @@ abstract class Entity(
         // Default to not-on-ground state
         movementRestrictions.reset()
 
+        val bB = boundingBox
+
         // Iterate through each room tile
-        for (y in maxOf(0, (y / room.tileSize).toInt() - 2)
-                until minOf(room.height, (y / room.tileSize).toInt() + 3))
-            for (x in maxOf(0, (x / room.tileSize).toInt() - 2)
-                    until minOf(room.width, (x / room.tileSize).toInt() + 3))
+        for (y in maxOf(0, (bB.y / room.tileSize).toInt() - 2)
+                until minOf(room.height, ((bB.y + bB.height) / room.tileSize).toInt() + 3))
+            for (x in maxOf(0, (bB.x / room.tileSize).toInt() - 2)
+                    until minOf(room.width, ((bB.x + bB.width) / room.tileSize).toInt() + 3))
             {
                 // Check if the tile is blocking; default to false
                 val blocking = room.tiles[x][y]?.blocking ?: false
@@ -95,6 +101,18 @@ abstract class Entity(
                     this
                 )
             }
+
+        for (entity in gameWorld.entities)
+            if (entity.blocking && entity != this)
+                boundingBox.resolve(entity.boundingBox, deltaPosition, this)
+
+        if (movementRestrictions.down)
+        {
+            if (velocity.x != 0.0)
+                velocity.x -= (abs(velocity.x) / velocity.x) * 4.0 * delta
+            if (abs(velocity.x ) < 0.05)
+                velocity.x = 0.0
+        }
 
         // Reset delta position aggregation
         deltaPosition.x = 0.0

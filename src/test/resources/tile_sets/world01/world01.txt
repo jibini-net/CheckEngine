@@ -1,9 +1,16 @@
+# game_type <side_scroller/top_down>
 game_type side_scroller
 
+# spawn character <character name> <x> <y> [engine behavior object]
 spawn character gendrau 28.5 1 JumpingBehavior
 
+# spawn player <player name> <x> <y>
 spawn player forbes 2 1
 
+# spawn entity <entity name> <x> <y> <platform width> [engine behavior object]
+spawn entity platform 7 1 5 LeftRightBehavior
+
+# tile <index> <texture> <blocking/nonblocking>
 tile 0 platform_mid.png blocking
 tile 1 untextured blocking
 tile 2 platform_left_cap.png blocking
@@ -11,4 +18,5 @@ tile 3 platform_right_cap.png blocking
 tile 4 exit_top.png nonblocking
 tile 5 exit_bottom.png nonblocking
 
+# portal <destination> <x> <y> <width> <height>
 portal main_hub 30 1 1 2
