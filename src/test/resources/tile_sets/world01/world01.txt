@@ -1,6 +1,6 @@
 game_type side_scroller
 
-spawn character gendrau 28.5 1
+spawn character gendrau 28.5 1 JumpingBehavior
 
 spawn player forbes 2 1
 

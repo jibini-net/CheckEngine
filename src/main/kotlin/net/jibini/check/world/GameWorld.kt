@@ -6,6 +6,8 @@ import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.Updatable
+import net.jibini.check.engine.impl.EngineObjectsImpl
+import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
@@ -230,6 +232,13 @@ class GameWorld : Initializable, Updatable
                                     walkRight.flip()
                                 }
                             )
+
+                            if (split.size > 5)
+                            {
+                                val behavior = EngineObjectsImpl.get<EntityBehavior>()
+                                    .find { element -> element::class.simpleName == split[5] }!!
+                                entity.behavior = behavior
+                            }
 
                             entity.x = split[3].toDouble() * 0.2
                             entity.y = split[4].toDouble() * 0.2

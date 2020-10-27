@@ -1,8 +1,8 @@
 game_type top_down
 
-spawn character allie 4 2.5
-spawn character becky 9 2.5
-spawn character foley 14 2.5
+spawn character allie 4 2.5 WanderingBehavior
+spawn character becky 9 2.5 WanderingBehavior
+spawn character foley 14 2.5 WanderingBehavior
 
 spawn player forbes 1 2
 

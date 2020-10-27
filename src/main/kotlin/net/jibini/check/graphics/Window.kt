@@ -49,7 +49,7 @@ class Window(
 
         // Create window with some defaults
         pointer = GLFW.glfwCreateWindow(
-            1366, 768,
+            1366, 900,
             "${profile.appName} ${profile.appVersion}",
             0L, 0L
         )

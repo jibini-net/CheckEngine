@@ -3,6 +3,7 @@ package net.jibini.check.entity
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.timing.DeltaTimer
+import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.world.GameWorld
@@ -31,6 +32,8 @@ abstract class Entity(
     val velocity: Vector2d = Vector2d()
 ) : EngineAware()
 {
+    var behavior: EntityBehavior? = null
+
     @EngineObject
     protected lateinit var renderer: Renderer
 
@@ -96,6 +99,8 @@ abstract class Entity(
         // Reset delta position aggregation
         deltaPosition.x = 0.0
         deltaPosition.y = 0.0
+
+        behavior?.update(this)
     }
 
     /**

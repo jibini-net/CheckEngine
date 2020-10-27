@@ -24,17 +24,3 @@ class NonPlayer(
      */
     walkLeft: Texture = idleRight.flip()
 ) : ActionableEntity(idleRight, idleLeft, walkRight, walkLeft)
-{
-    override fun update()
-    {
-        super.update()
-
-        //TODO AI
-        if (gameWorld.player?.x ?: 0.0 < x)
-            characterState = LEFT
-        else if (gameWorld.player?.x ?: 0.0 > x)
-            characterState = RIGHT
-
-        renderTexture = textures[stand][characterState]
-    }
-}

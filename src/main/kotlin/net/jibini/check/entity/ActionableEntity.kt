@@ -56,7 +56,7 @@ abstract class ActionableEntity(
     /**
      * Two-dimensional array of textures by animation and direction
      */
-    protected val textures: Array<Array<Texture>> = arrayOf(
+    val textures: Array<Array<Texture>> = arrayOf(
         arrayOf(idleRight, idleLeft),
         arrayOf(walkRight, walkLeft)
     )
