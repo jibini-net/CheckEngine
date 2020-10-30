@@ -9,7 +9,9 @@ import net.jibini.check.engine.Updatable
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.physics.Bounded
 import net.jibini.check.physics.BoundingBox
+import net.jibini.check.physics.QuadTree
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
@@ -28,7 +30,7 @@ import javax.imageio.ImageIO
 @RegisterObject
 class GameWorld : Initializable, Updatable
 {
-//    var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
+    var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
 
     /**
      * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
@@ -114,7 +116,8 @@ class GameWorld : Initializable, Updatable
         }
 
         GL11.glTranslatef(0.0f, 0.0f, 0.02f)
-//        quadTree.render()
+        quadTree.reevaluate()
+        quadTree.render()
 
         GL11.glPopMatrix()
 
@@ -214,8 +217,6 @@ class GameWorld : Initializable, Updatable
 
                             if (!entities.contains(player))
                                 entities += player!!
-
-//                            quadTree.place(player!!)
                         }
 
                         "character" ->
@@ -265,8 +266,6 @@ class GameWorld : Initializable, Updatable
                             entity.y = split[4].toDouble() * 0.2
 
                             entities += entity
-
-//                            quadTree.place(entity)
                         }
 
                         "entity" ->
@@ -311,10 +310,13 @@ class GameWorld : Initializable, Updatable
             }
         }
 
+
         roomMetaReader.close()
 
         room = Room(roomImage.width, roomImage.height - 1, 0.2, isSideScroller)
-//        quadTree = QuadTree(0.0, 0.0, room!!.width * 0.2, room!!.height * 0.2)
+        quadTree = QuadTree(0.0, 0.0, room!!.width * 0.2, room!!.width * 0.2)
+        for (entity in entities)
+            quadTree.place(entity)
 
         for (y in 1 until roomImage.height)
             for (x in 0 until roomImage.width)
@@ -322,9 +324,6 @@ class GameWorld : Initializable, Updatable
                 val color = colors[y * roomImage.width + x]
 
                 room!!.tiles[x][room!!.height - y] = roomTiles[color]
-
-//                if (roomTiles[color]?.blocking == true)
-//                    quadTree.place(BoundedImpl(BoundingBox(x * 0.2, y * 0.2, 0.2, 0.2)))
             }
     }
 

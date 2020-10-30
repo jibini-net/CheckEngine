@@ -4,7 +4,3 @@ interface Bounded
 {
     val boundingBox: BoundingBox
 }
-
-class BoundedImpl(
-    override val boundingBox: BoundingBox
-) : Bounded

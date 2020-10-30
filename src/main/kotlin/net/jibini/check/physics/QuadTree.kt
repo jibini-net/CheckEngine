@@ -8,6 +8,9 @@ import org.lwjgl.opengl.GL11
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
+/**
+ *
+ */
 class QuadTree<E : Bounded>(
     x: Double,
     y: Double,
@@ -18,7 +21,7 @@ class QuadTree<E : Bounded>(
 {
     companion object
     {
-        const val MAX_BUCKET_CAPACITY = 2
+        const val MAX_BUCKET_CAPACITY = 1
 
         const val MIN_BUCKET_SIZE = 0.1
     }
@@ -66,10 +69,7 @@ class QuadTree<E : Bounded>(
         fun place(value: E): Boolean
         {
             // Return early if the value should not be in this node
-            if (!boundingBox.overlaps(value.boundingBox))
-                return false
-
-            if (bucket.contains(value))
+            if (!boundingBox.contains(value.boundingBox))
                 return false
 
             if ((bucket.size < MAX_BUCKET_CAPACITY
@@ -88,9 +88,22 @@ class QuadTree<E : Bounded>(
             // Make sure the children nodes are initialized
             if (!branched)
                 branch()
+
+            // Track if any child can hold the value
+            var homeFound = false
             // Recursively place the object
             for (child in children)
-                child?.place(value)
+                if (child?.place(value) == true)
+                {
+                    // A child can hold the value
+                    homeFound = true
+                    // Break out of the loop as only one child can hold
+                    break
+                }
+
+            // No home was found, so keep it in this node's bucket
+            if (!homeFound)
+                bucket += value
 
             // Return true as the object is contained somewhere in this node's children
             return true
@@ -98,12 +111,10 @@ class QuadTree<E : Bounded>(
 
         fun render(renderer: Renderer)
         {
-            GL11.glColor4f(
+            GL11.glColor3f(
                 if (bucket.size == 1) 1.0f else 0.0f,
                 if (bucket.size == 2) 1.0f else 0.0f,
-                if (bucket.size >= 3) 1.0f else 0.0f,
-
-                0.5f
+                if (bucket.size >= 3) 1.0f else 0.0f
             )
 
             renderer.drawRectangle(
@@ -134,47 +145,55 @@ class QuadTree<E : Bounded>(
                 height.toFloat()
             )
 
-            GL11.glTranslatef(0.0f, 0.0f, 0.2f)
-
-            if (bucket.find { it.boundingBox.overlaps(boundingBox) } != null)
-                renderer.drawRectangle(
-                    x.toFloat(),
-                    y.toFloat(),
-                    width.toFloat(),
-                    height.toFloat()
-                )
-
-            GL11.glTranslatef(0.0f, 0.0f, -0.2f)
-
             for (child in children)
                 child?.render(renderer)
         }
 
         fun reevaluate()
         {
-            if (branched)
+            for (i in bucket.size - 1 downTo 0)
             {
-                var nodesWithChildren = 0
-                var ignore = false
+                val value = bucket[i]
+
+                if (!boundingBox.contains(value.boundingBox))
+                {
+                    if (parent?.bucket?.add(value) != null)
+                        bucket.removeAt(i)
+
+                    continue
+                }
 
                 for (child in children)
-                {
-                    child?.reevaluate()
-
-                    if (child?.branched == true)
-                        ignore = true
-                    if (child?.bucket?.size ?: 0 > 0)
-                        nodesWithChildren++
-                }
-
-                if (!ignore && nodesWithChildren <= 1)
-                    consume()
-            } else if (bucket.size > 0)
-                for (i in bucket.size - 1 downTo 0)
-                {
-                    if (!boundingBox.overlaps(bucket[i].boundingBox))
+                    if (child?.place(value) == true)
+                    {
                         bucket.removeAt(i)
+
+                        break
+                    }
+            }
+
+            if (bucket.size > MAX_BUCKET_CAPACITY && !branched)
+                branch()
+
+            val uniqueChildren = mutableListOf<E>()
+            var ignore = false
+
+            for (child in children)
+            {
+                child?.reevaluate()
+
+                if (child?.branched == true)
+                    ignore = true
+                else if (child?.bucket?.size ?: 0 > 0)
+                {
+                    for (subChild in child?.bucket!!)
+                        if (!uniqueChildren.contains(subChild))
+                            uniqueChildren.add(subChild)
                 }
+            }
+
+            if (!ignore && uniqueChildren.size + bucket.size <= MAX_BUCKET_CAPACITY)
+                consume()
         }
 
         fun branch()
@@ -189,12 +208,19 @@ class QuadTree<E : Bounded>(
                 children[i] = QuadTreeNode(this, childX, childY, width / 2, height / 2)
 
                 // Move the values in this bucket to children's buckets
-                for (value in bucket)
-                    children[i]?.place(value)
-            }
+                for (j in bucket.size - 1 downTo 0)
+                {
+                    val value = bucket[j]
 
-            // Clear this node's bucket
-            bucket.clear()
+                    if (!boundingBox.contains(value.boundingBox))
+                    {
+                        if (parent?.bucket?.add(value) != null)
+                            bucket.removeAt(j)
+
+                        continue
+                    }
+                }
+            }
 
             branched = true
         }
