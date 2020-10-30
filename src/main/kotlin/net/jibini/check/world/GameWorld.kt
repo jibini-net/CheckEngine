@@ -28,6 +28,8 @@ import javax.imageio.ImageIO
 @RegisterObject
 class GameWorld : Initializable, Updatable
 {
+//    var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
+
     /**
      * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
      * game is initialized and ready to start a level)
@@ -72,7 +74,20 @@ class GameWorld : Initializable, Updatable
 
     override fun initialize()
     {
-
+//        thread(isDaemon = true, name = "Quad-tree") {
+//            while (true)
+//                try
+//                {
+//                    quadTree.reevaluate()
+//                    for (entity in entities)
+//                        quadTree.place(entity)
+//
+//                    Thread.sleep(10)
+//                } catch (ex: ConcurrentModificationException)
+//                {
+//                    ex.printStackTrace()
+//                }
+//        }
     }
 
     override fun update()
@@ -97,6 +112,9 @@ class GameWorld : Initializable, Updatable
 
             entity.update()
         }
+
+        GL11.glTranslatef(0.0f, 0.0f, 0.02f)
+//        quadTree.render()
 
         GL11.glPopMatrix()
 
@@ -196,6 +214,8 @@ class GameWorld : Initializable, Updatable
 
                             if (!entities.contains(player))
                                 entities += player!!
+
+//                            quadTree.place(player!!)
                         }
 
                         "character" ->
@@ -245,6 +265,8 @@ class GameWorld : Initializable, Updatable
                             entity.y = split[4].toDouble() * 0.2
 
                             entities += entity
+
+//                            quadTree.place(entity)
                         }
 
                         "entity" ->
@@ -292,6 +314,7 @@ class GameWorld : Initializable, Updatable
         roomMetaReader.close()
 
         room = Room(roomImage.width, roomImage.height - 1, 0.2, isSideScroller)
+//        quadTree = QuadTree(0.0, 0.0, room!!.width * 0.2, room!!.height * 0.2)
 
         for (y in 1 until roomImage.height)
             for (x in 0 until roomImage.width)
@@ -299,6 +322,9 @@ class GameWorld : Initializable, Updatable
                 val color = colors[y * roomImage.width + x]
 
                 room!!.tiles[x][room!!.height - y] = roomTiles[color]
+
+//                if (roomTiles[color]?.blocking == true)
+//                    quadTree.place(BoundedImpl(BoundingBox(x * 0.2, y * 0.2, 0.2, 0.2)))
             }
     }
 

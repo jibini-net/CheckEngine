@@ -8,8 +8,7 @@ import org.joml.Vector2d
 import kotlin.math.abs
 
 /**
- * An axis-aligned bounding box with x/y coordinates and a width and height; supports very basic physics calculations to
- * resolve object collisions
+ * An axis-aligned bounding box with x and y coordinates and a width and height
  *
  * @author Zach Goethel
  */
@@ -23,10 +22,14 @@ class BoundingBox(
 {
     fun overlaps(box: BoundingBox): Boolean
     {
-        val overlapX = minOf(x + width , box.x + box.width ) - maxOf(x, box.x)
-        val overlapY = minOf(y + height, box.y + box.height) - maxOf(y, box.y)
+        return (box.x + box.width >= x && box.x <= x + width)
+                && (box.y + box.height >= y && box.y <= y + height)
+    }
 
-        return overlapX > 0.0 && overlapY > 0.0
+    fun contains(box: BoundingBox): Boolean
+    {
+        return (box.x > x && box.x + box.width < x + width)
+                && (box.y > y && box.y + box.height < y + height)
     }
 
     @EngineObject
@@ -41,6 +44,7 @@ class BoundingBox(
      * @param entity Entity whose position and velocity to correct depending on overlap; also updates movement
      *      restrictions
      */
+    @Deprecated("Part of old entity-based physics system")
     fun resolve(static: BoundingBox, deltaPosition: Vector2d, entity: Entity)
     {
         // Detect if the two boxes overlap on either axis

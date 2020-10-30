@@ -5,6 +5,7 @@ import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.graphics.Renderer
+import net.jibini.check.physics.Bounded
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.world.GameWorld
 import org.joml.Math.clamp
@@ -31,9 +32,11 @@ abstract class Entity(
      * Entity's velocity vector; initialized to <0.0, 0.0> on instantiation
      */
     val velocity: Vector2d = Vector2d()
-) : EngineAware()
+) : EngineAware(), Bounded
 {
     open var behavior: EntityBehavior? = null
+
+    val entityId = nextId++
 
     @EngineObject
     protected lateinit var renderer: Renderer
@@ -83,10 +86,10 @@ abstract class Entity(
         val bB = boundingBox
 
         // Iterate through each room tile
-        for (y in maxOf(0, (bB.y / room.tileSize).toInt() - 2)
-                until minOf(room.height, ((bB.y + bB.height) / room.tileSize).toInt() + 3))
-            for (x in maxOf(0, (bB.x / room.tileSize).toInt() - 2)
-                    until minOf(room.width, ((bB.x + bB.width) / room.tileSize).toInt() + 3))
+        for (y in maxOf(0, (bB.y / room.tileSize).toInt() - 1)
+                until minOf(room.height, ((bB.y + bB.height) / room.tileSize).toInt() + 1))
+            for (x in maxOf(0, (bB.x / room.tileSize).toInt() - 1)
+                    until minOf(room.width, ((bB.x + bB.width) / room.tileSize).toInt() + 1))
             {
                 // Check if the tile is blocking; default to false
                 val blocking = room.tiles[x][y]?.blocking ?: false
@@ -121,10 +124,10 @@ abstract class Entity(
         behavior?.update(this)
     }
 
-    /**
-     * The bounding box of the entity, which should take into account the current coordinates of the entity
-     */
-    abstract val boundingBox: BoundingBox
+//    /**
+//     * The bounding box of the entity, which should take into account the current coordinates of the entity
+//     */
+//    abstract val boundingBox: BoundingBox
 
     class MovementRestrictions
     {
@@ -144,5 +147,10 @@ abstract class Entity(
             up = false;
             down = false;
         }
+    }
+
+    companion object
+    {
+        private var nextId = 0
     }
 }

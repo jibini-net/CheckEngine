@@ -39,4 +39,12 @@ class TextureRegistry
 
         bound = texture
     }
+
+    fun unbind()
+    {
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0)
+
+        bound = null
+        boundPointer = 0
+    }
 }
