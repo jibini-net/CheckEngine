@@ -55,6 +55,9 @@ dependencies {
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
 
+    // Kotlin coroutine multithreading utilities
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.4.0")
+
     // SLF4J and Log4J libraries
     implementation("org.slf4j", "slf4j-api", "1.7.30")
     implementation("org.slf4j", "slf4j-log4j12", "1.7.30")

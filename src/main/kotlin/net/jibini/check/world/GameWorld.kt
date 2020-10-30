@@ -81,8 +81,6 @@ class GameWorld : Initializable, Updatable
 //                try
 //                {
 //                    quadTree.reevaluate()
-//                    for (entity in entities)
-//                        quadTree.place(entity)
 //
 //                    Thread.sleep(10)
 //                } catch (ex: ConcurrentModificationException)
@@ -116,10 +114,12 @@ class GameWorld : Initializable, Updatable
         }
 
         GL11.glTranslatef(0.0f, 0.0f, 0.02f)
+
         quadTree.reevaluate()
         quadTree.render()
 
         GL11.glPopMatrix()
+
 
         for ((box, world) in portals)
             if (box.overlaps(player!!.boundingBox))
@@ -314,7 +314,12 @@ class GameWorld : Initializable, Updatable
         roomMetaReader.close()
 
         room = Room(roomImage.width, roomImage.height - 1, 0.2, isSideScroller)
-        quadTree = QuadTree(0.0, 0.0, room!!.width * 0.2, room!!.width * 0.2)
+        quadTree = QuadTree(
+            0.0,
+            0.0,
+            maxOf(room!!.width, room!!.height) * 0.2,
+            maxOf(room!!.width, room!!.height) * 0.2
+        )
         for (entity in entities)
             quadTree.place(entity)
 

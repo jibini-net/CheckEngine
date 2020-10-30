@@ -13,23 +13,23 @@ import org.joml.Vector2d
 import kotlin.math.abs
 
 /**
- * A dynamic being with position and velocity; affected by gravity
+ * A dynamic being with position and velocity; may affected by gravity unless the entity is static
  *
  * @author Zach Goethel
  */
 abstract class Entity(
     /**
-     * Entity's x position; aligned with horizontal center of entity
+     * Entity's x-position; aligned with horizontal center of entity
      */
     var x: Double = 0.0,
 
     /**
-     * Entity's y position; aligned with vertical bottom of entity
+     * Entity's y-position; aligned with vertical bottom of entity
      */
     var y: Double = 0.0,
 
     /**
-     * Entity's velocity vector; initialized to <0.0, 0.0> on instantiation
+     * Entity's velocity vector; initialized to <0.0, 0.0>
      */
     val velocity: Vector2d = Vector2d()
 ) : EngineAware(), Bounded
@@ -144,8 +144,8 @@ abstract class Entity(
             left = false
             right = false
 
-            up = false;
-            down = false;
+            up = false
+            down = false
         }
     }
 

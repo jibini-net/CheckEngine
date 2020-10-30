@@ -96,7 +96,7 @@ object Check
         val keyboard = Keyboard(window)
 
         // Enable VSync because screen tearing on high FPS
-        GLFW.glfwSwapInterval(1)
+//        GLFW.glfwSwapInterval(1)
 
         // Create and place game's feature set
         val featureSet = FeatureSet()
