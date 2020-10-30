@@ -42,9 +42,9 @@ class WanderingBehavior : EntityBehavior()
                 entityState.movement.y = maxOf(0.0, entityState.movement.y)
 
             if (entity.movementRestrictions.left)
-                entityState.movement.x = minOf(0.0, entityState.movement.x)
-            if (entity.movementRestrictions.right)
                 entityState.movement.x = maxOf(0.0, entityState.movement.x)
+            if (entity.movementRestrictions.right)
+                entityState.movement.x = minOf(0.0, entityState.movement.x)
 
             entityState.changeAt = deltaTimer.delta + (random.nextInt(40) + 24).toDouble() / 40
         }
