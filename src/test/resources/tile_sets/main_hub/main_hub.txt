@@ -19,7 +19,7 @@ tile 9 door_bottom_tile.png nonblocking
 tile 10 base_board_tile.png blocking
 tile 11 untextured blocking
 
-portal world01 3 4.7 1 0.3
+portal maze_test 3 4.7 1 0.3
 portal world01 8 4.7 1 0.3
 portal world01 13 4.7 1 0.3
 portal world01 18 4.7 1 0.3

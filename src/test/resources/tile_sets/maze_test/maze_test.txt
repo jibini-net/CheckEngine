@@ -1,0 +1,8 @@
+game_type top_down
+
+spawn player forbes 3 10
+
+tile 0 floor_tile0.png blocking
+tile 1 floor_tile1.png nonblocking
+tile 2 floor_tile1.png nonblocking
+tile 3 floor_tile1.png nonblocking
