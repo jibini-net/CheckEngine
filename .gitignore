@@ -1,0 +1,21 @@
+# =============================
+# Primary project ignored files
+# =============================
+
+# Visual Studio project files and compilation output
+/out/**
+/.vs/**
+
+/CMakeSettings.json
+
+# GLFW source downloaded from their website
+/glfw/**
+
+# Any misc. compiled libraries or executable files
+**/*.exe
+**/*.dll
+**/*.lib
+# Linux platform-related compiled output files
+**/*.out
+**/*.a
+**/*.so
