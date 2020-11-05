@@ -41,12 +41,7 @@ class Tile(
      */
     fun render(x: Int, y: Int)
     {
-        val w = IntArray(1)
-        val h = IntArray(1)
-
-        GLFW.glfwGetWindowSize(window.pointer, w, h)
-
-        val widthRatio = w[0].toDouble() / h[0]
+        val widthRatio = window.width.toDouble() / window.height
         val tileSize = world.room?.tileSize?.toFloat() ?: 0.2f
 
         if (x * tileSize - (world.player?.x ?: 0.0) > widthRatio

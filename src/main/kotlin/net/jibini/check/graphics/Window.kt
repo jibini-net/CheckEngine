@@ -22,6 +22,22 @@ class Window(
      */
     private var close = false
 
+    var width: Int = 1366
+        set(value)
+        {
+            GLFW.glfwSetWindowSize(pointer,value, height)
+
+            field = value
+        }
+
+    var height: Int = 900
+        set(value)
+        {
+            GLFW.glfwSetWindowSize(pointer, width, value)
+
+            field = value
+        }
+
     /**
      * Converts booleans to ones and zeros
      */
@@ -49,7 +65,7 @@ class Window(
 
         // Create window with some defaults
         pointer = GLFW.glfwCreateWindow(
-            900, 900,
+            width, height,
             "${profile.appName} ${profile.appVersion}",
             0L, 0L
         )
