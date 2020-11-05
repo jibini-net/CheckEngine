@@ -34,7 +34,7 @@ public:
 // Simple tree-sort sort algorithm implementation for any generic linkable
 // type as expressed in a rearrangable linked-list
 template <typename E>
-class tree_sort
+class tree_sort : public iterable<E>
 {
 protected:
 	// Root node of the sorting tree; defaults to a null-value node
@@ -55,5 +55,6 @@ public:
 	// to the quick-sort algorithm
 	void place(E *value);
 
+	// The collection's unique implementation of the iterator
 	std::unique_ptr<element_iterator<E>> iterator();
 };

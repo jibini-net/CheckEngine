@@ -9,9 +9,12 @@
 #include "util/collection/tree_sort.h"
 #include "util/collection/tree_sort.cpp"
 
+#include "util/collection/linked_list.h"
+#include "util/collection/linked_list.cpp"
+
 int main()
 {
-	tree_sort<int> sort([](int *compare, int *to) -> int
+	tree_sort<int> *sort = new tree_sort<int>([](int *compare, int *to) -> int
 	{
 		return *compare - *to;
 	});
@@ -23,16 +26,29 @@ int main()
 
 		std::cout << *value << " ";
 
-		sort.place(value);
+		sort->place(value);
 	}
 
 	std::cout << std::endl;
 
-	sort.iterator()->for_each([](int *element) -> void
+	linked_list<int> *list = new linked_list<int>();
+
+	sort->iterator()->for_each([&list](int *element) -> void
+	{
+		list->add(element);
+
+		std::cout << *element << " ";
+	});
+
+	delete sort;
+	std::cout << std::endl;
+
+	list->iterator()->for_each([](int *element) -> void
 	{
 		std::cout << *element << " ";
 	});
 
+	delete list;
 	std::cout << std::endl;
 
 	std::thread(&bootable_game::park_thread, bootable_game()).detach();

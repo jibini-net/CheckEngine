@@ -33,9 +33,8 @@
 
 // Convenience method for the binary search functionality
 template <typename E>
-tree_sort_node<E> *find_node(E *value, std::function<int(E *compare, E *to)> comparator,
-	tree_sort_node<E> *&start_node,  tree_sort_node<E> *&escape_node,
-	tree_sort_node<E> *&last_branch_right, bool &is_lesser)
+tree_sort_node<E> *find_node(E *value, std::function<int(E *compare, E *to)> comparator, tree_sort_node<E> *&start_node,
+	tree_sort_node<E> *&escape_node, tree_sort_node<E> *&last_branch_right, bool &is_lesser)
 {
 	// Track the node as the tree is traversed
 	tree_sort_node<E> *climb = start_node;
@@ -67,7 +66,7 @@ tree_sort_node<E> *find_node(E *value, std::function<int(E *compare, E *to)> com
 }
 
 template <typename E>
-tree_sort<E>::tree_sort(std::function<int(E *compare, E *to)> comparator)
+tree_sort<E>::tree_sort(std::function<int(E *compare, E *to)> comparator) : iterable<E>()
 {
 	this->comparator = comparator;
 }

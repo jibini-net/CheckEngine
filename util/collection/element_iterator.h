@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 // An object-oriented iterator system which relies on has-next
 // and next clauses
 template <typename E>
@@ -24,4 +26,13 @@ public:
 			action(next);
 		}
 	}
+};
+
+// Any collection which provides an iterator
+template <typename E>
+class iterable
+{
+public:
+	// The collection's unique implementation of the iterator
+	virtual std::unique_ptr<element_iterator<E>> iterator() = 0;
 };
