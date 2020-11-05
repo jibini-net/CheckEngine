@@ -30,7 +30,7 @@ import javax.imageio.ImageIO
 @RegisterObject
 class GameWorld : Initializable, Updatable
 {
-    var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
+    //var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
 
     /**
      * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
@@ -113,10 +113,10 @@ class GameWorld : Initializable, Updatable
             entity.update()
         }
 
-        GL11.glTranslatef(0.0f, 0.0f, 0.02f)
+        //GL11.glTranslatef(0.0f, 0.0f, 0.02f)
 
-        quadTree.reevaluate()
-        quadTree.render()
+        //quadTree.reevaluate()
+        //quadTree.render()
 
         GL11.glPopMatrix()
 
@@ -314,14 +314,14 @@ class GameWorld : Initializable, Updatable
         roomMetaReader.close()
 
         room = Room(roomImage.width, roomImage.height - 1, 0.2, isSideScroller)
-        quadTree = QuadTree(
-            0.0,
-            0.0,
-            maxOf(room!!.width, room!!.height) * 0.2,
-            maxOf(room!!.width, room!!.height) * 0.2
-        )
-        for (entity in entities)
-            quadTree.place(entity)
+//        quadTree = QuadTree(
+//            0.0,
+//            0.0,
+//            maxOf(room!!.width, room!!.height) * 0.2,
+//            maxOf(room!!.width, room!!.height) * 0.2
+//        )
+//        for (entity in entities)
+//            quadTree.place(entity)
 
         for (y in 1 until roomImage.height)
             for (x in 0 until roomImage.width)
