@@ -17,3 +17,8 @@ void delta_timer::reset()
 {
 	this->last_call = current_time;
 }
+
+double delta_timer::delta_time()
+{
+	return this->current_time - this->last_call;
+}

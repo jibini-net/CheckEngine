@@ -126,21 +126,44 @@ public:
 		// Track if each node was branched off to the left
 		bool is_lesser = false;
 
-		tree_sort_node<E> *null_value_node = find_node(value, this->comparator, root_node,
-			escape_node, last_branch_right, is_lesser);
+		// Track the node as the tree is traversed
+		tree_sort_node<E> *climb = root_node;
+
+		// Climb down the tree and jog left and right as appropriate until
+		// a null-value node is reached
+		while (climb->value != nullptr)
+		{
+			int comparison = comparator(value, climb->value);
+
+			if (comparison < 0)
+			{
+				escape_node = climb;
+				is_lesser = true;
+
+				// Move the pointer after tracking escape node
+				climb = climb->less_than;
+			} else
+			{
+				// Move the pointer before tracking the rightwards branch
+				climb = climb->greater_than;
+
+				last_branch_right = climb;
+				is_lesser = false;
+			}
+		}
 
 		// Place the given value in the null-value node
-		null_value_node->value = value;
+		climb->value = value;
 
 		// Branch out the node's child nodes to null-values
-		null_value_node->less_than = new tree_sort_node<E>;
-		null_value_node->greater_than = new tree_sort_node<E>;
+		climb->less_than = new tree_sort_node<E>;
+		climb->greater_than = new tree_sort_node<E>;
 
 		// Set the escape node of the current node
-		null_value_node->escape_node = escape_node;
+		climb->escape_node = escape_node;
 		// Set the least child of the branch head if branching left
 		if (is_lesser)
-			last_branch_right->least_child = null_value_node;
+			last_branch_right->least_child = climb;
 
 		// Track the number of elements in the tree for iteration
 		size++;
@@ -158,39 +181,6 @@ public:
 		}));
 	}
 };
-
-template <typename E>
-tree_sort_node<E> *find_node(E *value, std::function<int(E *compare, E *to)> comparator, tree_sort_node<E> *&start_node,
-	tree_sort_node<E> *&escape_node, tree_sort_node<E> *&last_branch_right, bool &is_lesser)
-{
-	// Track the node as the tree is traversed
-	tree_sort_node<E> *climb = start_node;
-
-	// Climb down the tree and jog left and right as appropriate until
-	// a null-value node is reached
-	while (climb->value != nullptr)
-	{
-		int comparison = comparator(value, climb->value);
-
-		if (comparison < 0)
-		{
-			escape_node = climb;
-			is_lesser = true;
-
-			// Move the pointer after tracking escape node
-			climb = climb->less_than;
-		} else
-		{
-			// Move the pointer before tracking the rightwards branch
-			climb = climb->greater_than;
-
-			last_branch_right = climb;
-			is_lesser = false;
-		}
-	}
-
-	return climb;
-}
 
 template <typename E>
 class tree_sort_iterator : public element_iterator<E>

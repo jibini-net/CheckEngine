@@ -8,6 +8,8 @@
 
 #include "glfw_window.h"
 
+#include "util/collection/linked_list.h"
+
 // Destruction class for GLFWwindow* smart-pointers
 class destroy_glfw_window
 {
@@ -36,7 +38,7 @@ public:
 
 
 	// A queue of tasks to execute on the main application thread
-	std::vector<std::function<void()>> thread_queue;
+	linked_list<std::function<bool()>> thread_queue;
 
 
 	// Iterates through and executes all tasks in the queue
@@ -82,11 +84,8 @@ protected:
 	std::function<void()> temp_update;
 
 public:
-	bootable_game(std::function<void()> temp_update)
-	{
-		this->context.reset(new glfw_context(20));
-		this->temp_update = temp_update;
-	}
+	bootable_game(std::function<void()> temp_update);
+
 
 	void park_thread();
 };

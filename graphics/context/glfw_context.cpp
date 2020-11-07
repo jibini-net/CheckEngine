@@ -8,10 +8,14 @@ void destroy_glfw_window::operator() (GLFWwindow* ptr)
 	glfwMakeContextCurrent(NULL);
 
 	// Schedule a main-thread task to destroy the context
-	global_glfw_context::instance->thread_queue.push_back([ptr]
-	{
-		glfwDestroyWindow(ptr);
-	});
+	(global_glfw_context::instance->thread_queue).add(
+		new std::function<bool()>([ptr]() -> bool
+		{
+			glfwDestroyWindow(ptr);
+		
+			// Return true to indicate this lambda should be deleted once executed
+			return true;
+		}));
 
 	glfwPostEmptyEvent();
 }
@@ -34,10 +38,13 @@ global_glfw_context::~global_glfw_context()
 
 void global_glfw_context::execute_queue()
 {
-	while (this->thread_queue.size() > 0)
+	while ((this->thread_queue).get_size() > 0)
 	{
-		this->thread_queue.back()();
-		this->thread_queue.pop_back();
+		std::function<bool()> *first = (this->thread_queue).remove();
+
+		// If the lambda returns true, delete once executed
+		if ((*first)())
+			delete first;
 	}
 }
 
@@ -85,13 +92,18 @@ void glfw_context::make_current()
 	glfwMakeContextCurrent(this->pointer.get());
 }
 
+bootable_game::bootable_game(std::function<void()> temp_update)
+{
+	this->context.reset(new glfw_context(20));
+	this->temp_update = temp_update;
+}
+
 void bootable_game::park_thread()
 {
-	this->context->make_current();
-
 	per_thread<glfw_context>::set(this->context);
+	per_thread<glfw_context>::get_or_create()->make_current();
 
-	per_thread<glfw_window>::get_or_create();
+	auto window = per_thread<glfw_window>::get_or_create();
 	//per_thread<glfw_keyboard>::get_or_create();
 	//per_thread<glfw_mouse>::get_or_create();
 
@@ -101,6 +113,12 @@ void bootable_game::park_thread()
 	{
 		temp_update();
 
-		per_thread<glfw_window>::get_or_create()->swap_buffers();
+		window->swap_buffers();
 	}
+
+	per_thread<glfw_window>::remove_reference();
+	//per_thread<glfw_keyboard>::remove_reference();
+	//per_thread<glfw_mouse>::remove_reference();
+
+	per_thread<glfw_window>::remove_reference();
 }
