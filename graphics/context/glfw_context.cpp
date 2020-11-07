@@ -1,5 +1,7 @@
 #include "glfw_context.h"
 
+#include <thread>
+
 #include "util/intrinsics/singleton.h"
 
 void destroy_glfw_window::operator() (GLFWwindow* ptr)
@@ -92,9 +94,11 @@ void glfw_context::make_current()
 	glfwMakeContextCurrent(this->pointer.get());
 }
 
-bootable_game::bootable_game(std::function<void()> temp_update)
+bootable_game::bootable_game(std::function<void()> temp_start, std::function<void()> temp_update)
 {
 	this->context.reset(new glfw_context(20));
+
+	this->temp_start = temp_start;
 	this->temp_update = temp_update;
 }
 
@@ -106,6 +110,8 @@ void bootable_game::park_thread()
 	auto window = per_thread<glfw_window>::get_or_create();
 	//per_thread<glfw_keyboard>::get_or_create();
 	//per_thread<glfw_mouse>::get_or_create();
+
+	temp_start();
 
 	per_thread<glfw_window>::get_or_create()->show();
 
@@ -121,4 +127,9 @@ void bootable_game::park_thread()
 	//per_thread<glfw_mouse>::remove_reference();
 
 	per_thread<glfw_window>::remove_reference();
+}
+
+void bootable_game::boot_thread()
+{
+	std::thread(&bootable_game::park_thread, *this).detach();
 }

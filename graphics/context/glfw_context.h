@@ -1,5 +1,8 @@
 #pragma once
 
+#define GLEW_STATIC
+
+#include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
 #include <vector>
@@ -81,11 +84,14 @@ protected:
 	std::shared_ptr<glfw_context> context;
 
 	//TEMP
+	std::function<void()> temp_start;
 	std::function<void()> temp_update;
 
 public:
-	bootable_game(std::function<void()> temp_update);
+	bootable_game(std::function<void()> temp_start, std::function<void()> temp_update);
 
 
 	void park_thread();
+
+	void boot_thread();
 };

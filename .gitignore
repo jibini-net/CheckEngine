@@ -8,8 +8,9 @@
 
 /CMakeSettings.json
 
-# GLFW source downloaded from their website
+# GLFW/GLEW downloaded from their websites
 /glfw/**
+/glew/**
 
 # Any misc. compiled libraries or executable files
 **/*.exe

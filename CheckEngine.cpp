@@ -1,13 +1,13 @@
-﻿#include <iostream>
-#include <thread>
-#include <functional>
-
-#include "graphics/context/glfw_context.h"
+﻿#include "graphics/context/glfw_context.h"
 
 #include "util/intrinsics/singleton.h"
 
-#include "util/collection/tree_sort.h"
-#include "util/collection/linked_list.h"
+int buffer;
+
+void start()
+{
+	
+}
 
 void update()
 {
@@ -35,7 +35,7 @@ void update()
 
 int main()
 {
-	std::thread(&bootable_game::park_thread, bootable_game(update)).detach();
+	bootable_game(start, update).boot_thread();
 
 	per_thread<global_glfw_context>::get_or_create()->park_thread();
 	per_thread<global_glfw_context>::remove_reference();
