@@ -25,6 +25,9 @@ target_link_libraries (CheckEngine check_intrinsics)
 # Engine collections and sorting algorithms
 add_subdirectory ("util/collection")
 target_link_libraries (CheckEngine check_collection)
+# Engine vector math and math utilities
+add_subdirectory ("util/math")
+target_link_libraries (CheckEngine check_math)
 # GLFW and OpenGL context management
 add_subdirectory ("graphics/context")
 target_link_libraries (CheckEngine check_context)

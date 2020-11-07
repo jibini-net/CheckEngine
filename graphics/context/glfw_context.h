@@ -77,10 +77,14 @@ class bootable_game
 protected:
 	std::unique_ptr<glfw_context> context;
 
+	//TEMP
+	std::function<void()> temp_update;
+
 public:
-	bootable_game()
+	bootable_game(std::function<void()> temp_update)
 	{
-		this->context.reset(new glfw_context(33));
+		this->context.reset(new glfw_context(20));
+		this->temp_update = temp_update;
 	}
 
 	void park_thread()
@@ -89,7 +93,7 @@ public:
 
 		while (glfwWindowShouldClose(this->context->glfw_window.get()) != GLFW_TRUE)
 		{
-
+			temp_update();
 
 			glfwSwapBuffers(this->context->glfw_window.get());
 		}
