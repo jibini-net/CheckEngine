@@ -66,7 +66,7 @@ glfw_context::glfw_context(int context_version)
 
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-	this->glfw_window.reset(glfwCreateWindow(1366, 910, "", NULL, NULL));
+	this->pointer.reset(glfwCreateWindow(1366, 910, "", NULL, NULL));
 	this->make_current();
 
 	// Relinquish all contexts on the main thread
@@ -82,5 +82,25 @@ glfw_context::~glfw_context()
 
 void glfw_context::make_current()
 {
-	glfwMakeContextCurrent(this->glfw_window.get());
+	glfwMakeContextCurrent(this->pointer.get());
+}
+
+void bootable_game::park_thread()
+{
+	this->context->make_current();
+
+	per_thread<glfw_context>::set(this->context);
+
+	per_thread<glfw_window>::get_or_create();
+	//per_thread<glfw_keyboard>::get_or_create();
+	//per_thread<glfw_mouse>::get_or_create();
+
+	per_thread<glfw_window>::get_or_create()->show();
+
+	while (glfwWindowShouldClose(this->context->pointer.get()) != GLFW_TRUE)
+	{
+		temp_update();
+
+		per_thread<glfw_window>::get_or_create()->swap_buffers();
+	}
 }

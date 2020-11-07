@@ -6,6 +6,8 @@
 #include <functional>
 #include <memory>
 
+#include "glfw_window.h"
+
 // Destruction class for GLFWwindow* smart-pointers
 class destroy_glfw_window
 {
@@ -51,11 +53,14 @@ public:
 
 class glfw_context
 {
-protected:
-	// Internal unique context and window pointer
-	std::unique_ptr<GLFWwindow, destroy_glfw_window> glfw_window;
-
 public:
+	// Internal unique context and window pointer
+	std::unique_ptr<GLFWwindow, destroy_glfw_window> pointer;
+
+	// Empty constructor required by singleton implementation
+	glfw_context()
+	{ };
+
 	// Initializes an invisible window with OpenGL context
 	glfw_context(int context_version);
 	// Decrements the number of active contexts when destructing
@@ -64,10 +69,6 @@ public:
 
 	// Convenience method for making a GLFW context current
 	void make_current();
-
-
-	// Allow each bootable game to access its context fully
-	friend class bootable_game;
 };
 
 
@@ -75,7 +76,7 @@ public:
 class bootable_game
 {
 protected:
-	std::unique_ptr<glfw_context> context;
+	std::shared_ptr<glfw_context> context;
 
 	//TEMP
 	std::function<void()> temp_update;
@@ -87,15 +88,5 @@ public:
 		this->temp_update = temp_update;
 	}
 
-	void park_thread()
-	{
-		this->context->make_current();
-
-		while (glfwWindowShouldClose(this->context->glfw_window.get()) != GLFW_TRUE)
-		{
-			temp_update();
-
-			glfwSwapBuffers(this->context->glfw_window.get());
-		}
-	}
+	void park_thread();
 };
