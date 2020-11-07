@@ -2,8 +2,6 @@
 
 #include "util/intrinsics/singleton.h"
 
-int buffer;
-
 void start()
 {
 	
@@ -16,6 +14,7 @@ void update()
 
 	glViewport(0, 0, window->get_width(), window->get_height());
 
+	/*
 	glClear(GL_COLOR_BUFFER_BIT);
 	glLoadIdentity();
 
@@ -31,6 +30,7 @@ void update()
 	glVertex2f(0.5f, 0.5f);
 	glVertex2f(-0.5f, 0.5f);
 	glEnd();
+	*/
 }
 
 int main()

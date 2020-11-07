@@ -78,6 +78,13 @@ glfw_context::glfw_context(int context_version)
 	this->pointer.reset(glfwCreateWindow(1366, 910, "", NULL, NULL));
 	this->make_current();
 
+	if (glewInit() != GLEW_OK)
+	{
+		glfwTerminate();
+
+		throw std::exception("GLEW failed to initialize; check system requirements and libraries");
+	}
+
 	// Relinquish all contexts on the main thread
 	glfwMakeContextCurrent(NULL);
 
@@ -96,7 +103,7 @@ void glfw_context::make_current()
 
 bootable_game::bootable_game(std::function<void()> temp_start, std::function<void()> temp_update)
 {
-	this->context.reset(new glfw_context(20));
+	this->context.reset(new glfw_context(33));
 
 	this->temp_start = temp_start;
 	this->temp_update = temp_update;
