@@ -101,13 +101,6 @@ object Check
         // Create and place game's feature set
         val featureSet = FeatureSet()
 
-        GLFW.glfwSetWindowSizeCallback(window.pointer) {
-            _: Long, w: Int, h: Int ->
-
-            window.width = w
-            window.height = h
-        }
-
         // Release the context (required for multithreading)
         GLFW.glfwMakeContextCurrent(0L)
 

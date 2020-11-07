@@ -22,20 +22,25 @@ class Window(
      */
     private var close = false
 
-    var width: Int = 1366
+    private var internalWidth = 1366;
+    private var internalHeight = 1000;
+
+    var width: Int
+        get() = internalWidth;
         set(value)
         {
             GLFW.glfwSetWindowSize(pointer,value, height)
 
-            field = value
+            internalWidth = value
         }
 
-    var height: Int = 900
+    var height: Int
+        get() = internalHeight;
         set(value)
         {
             GLFW.glfwSetWindowSize(pointer, width, value)
 
-            field = value
+            internalHeight = value
         }
 
     /**
@@ -72,6 +77,13 @@ class Window(
 
         // Make context current in thread
         this.makeCurrent()
+
+        GLFW.glfwSetWindowSizeCallback(pointer) {
+                _: Long, w: Int, h: Int ->
+
+            internalWidth = w
+            internalHeight = h
+        }
     }
 
     /**
