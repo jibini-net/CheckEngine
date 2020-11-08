@@ -12,7 +12,7 @@
 	template <typename E>
 	void tree_sort<E>::print_ordered()
 	{
-		tree_sort_node<E> *climb = root_node->least_child;
+		auto climb = root_node->least_child;
 
 		for (int i = 0; i < size; i ++)
 		{
@@ -86,14 +86,14 @@ public:
 	~tree_sort()
 	{
 		// Start deleting at the first node
-		tree_sort_node<E> *climb = root_node->least_child;
+		auto climb = root_node->least_child;
 		// Delete the first node's left child
 		delete climb->less_than;
 
 		for (int i = 0; i < size; i++)
 		{
 			// Maintain a reference to delete later
-			tree_sort_node<E> *delete_reference = climb;
+			auto delete_reference = climb;
 
 			if (climb->greater_than->value == nullptr)
 			{
@@ -119,15 +119,15 @@ public:
 	void place(E *value)
 	{
 		// Track the head node for each branch
-		tree_sort_node<E> *last_branch_right = root_node;
+		auto last_branch_right = root_node;
 		// Track the escape node for each value
-		tree_sort_node<E> *escape_node = root_node;
+		auto escape_node = root_node;
 
 		// Track if each node was branched off to the left
 		bool is_lesser = false;
 
 		// Track the node as the tree is traversed
-		tree_sort_node<E> *climb = root_node;
+		auto climb = root_node;
 
 		// Climb down the tree and jog left and right as appropriate until
 		// a null-value node is reached
@@ -176,9 +176,9 @@ public:
 
 		return std::unique_ptr<element_iterator<E>>(
 			new tree_sort_iterator<E>(this->root_node->least_child, [size](tree_sort_node<E> *&current_node, int &i) -> bool
-		{
-			return i++ < size;
-		}));
+			{
+				return i++ < size;
+			}));
 	}
 };
 
@@ -206,7 +206,7 @@ public:
 
 	virtual E *next()
 	{
-		E *result = current_node->value;
+		auto result = current_node->value;
 
 		if (current_node->greater_than->value == nullptr)
 			current_node = current_node->escape_node;

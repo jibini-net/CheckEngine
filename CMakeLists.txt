@@ -29,13 +29,13 @@ add_executable (CheckEngine
 find_package (OpenGL REQUIRED)
 target_link_libraries (CheckEngine OpenGL::GL)
 #
-# GLFW 3.3.2 (download source into project directory)
+# GLFW v3.3.2 (download source into project directory)
 #
 add_subdirectory ("glfw")
 target_link_libraries (CheckEngine glfw ${GLFW_LIBRARIES})
 
 #
-# GLEW 2.1.0 (download source into project directory)
+# GLEW v2.1.0 (download source into project directory)
 #
 # Fix for building in 'x64-Release' configuration:
 # ----------------
@@ -45,7 +45,7 @@ target_link_libraries (CheckEngine glfw ${GLFW_LIBRARIES})
 # target_link_libraries (glew LINK_PRIVATE -BASE:0x62AA0000)
 # target_link_libraries (glew LINK_PRIVATE -nodefaultlib -noentry)
 #
-# Thank you github user 'undisputed-seraphim' for the fix!
+# Thank you to user 'undisputed-seraphim' for the fix!
 # https://github.com/nigels-com/glew/issues/99
 #
 add_subdirectory ("glew/build/cmake")

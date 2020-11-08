@@ -1,8 +1,12 @@
 #include "glfw_context.h"
 
 #include <thread>
+#include <string>
 
 #include "util/intrinsics/singleton.h"
+
+// Local implementation logger instance
+logger _log("GLFW Context");
 
 void destroy_glfw_window::operator() (GLFWwindow* ptr)
 {
@@ -27,9 +31,10 @@ global_glfw_context::global_glfw_context()
 {
 	if (glfwInit() != GLFW_TRUE)
 	{
-		glfwTerminate();
+		_log.error("GLFW failed to initialize; check system requirements and libraries");
 
-		throw std::exception("GLFW failed to initialize; check system requirements and libraries");
+		glfwTerminate();
+		throw std::exception();
 	}
 }
 
@@ -42,7 +47,7 @@ void global_glfw_context::execute_queue()
 {
 	while ((this->thread_queue).get_size() > 0)
 	{
-		std::function<bool()> *first = (this->thread_queue).remove();
+		auto *first = (this->thread_queue).remove();
 
 		// If the lambda returns true, delete once executed
 		if ((*first)())
@@ -78,12 +83,19 @@ glfw_context::glfw_context(int context_version)
 	this->pointer.reset(glfwCreateWindow(1366, 910, "", NULL, NULL));
 	this->make_current();
 
+	_log.debug("Successfully created context version "
+		+ std::to_string(context_version / 10)
+		+ "." + std::to_string(context_version % 10));
+
 	if (glewInit() != GLEW_OK)
 	{
-		glfwTerminate();
+		_log.error("GLEW failed to initialize; check system requirements and libraries");
 
-		throw std::exception("GLEW failed to initialize; check system requirements and libraries");
+		glfwTerminate();
+		throw std::exception();
 	}
+
+	_log.debug("Successfully initialized GLEW bindings for new context");
 
 	// Relinquish all contexts on the main thread
 	glfwMakeContextCurrent(NULL);
@@ -99,44 +111,4 @@ glfw_context::~glfw_context()
 void glfw_context::make_current()
 {
 	glfwMakeContextCurrent(this->pointer.get());
-}
-
-bootable_game::bootable_game(std::function<void()> temp_start, std::function<void()> temp_update)
-{
-	this->context.reset(new glfw_context(33));
-
-	this->temp_start = temp_start;
-	this->temp_update = temp_update;
-}
-
-void bootable_game::park_thread()
-{
-	per_thread<glfw_context>::set(this->context);
-	per_thread<glfw_context>::get_or_create()->make_current();
-
-	auto window = per_thread<glfw_window>::get_or_create();
-	//per_thread<glfw_keyboard>::get_or_create();
-	//per_thread<glfw_mouse>::get_or_create();
-
-	temp_start();
-
-	per_thread<glfw_window>::get_or_create()->show();
-
-	while (glfwWindowShouldClose(this->context->pointer.get()) != GLFW_TRUE)
-	{
-		temp_update();
-
-		window->swap_buffers();
-	}
-
-	per_thread<glfw_window>::remove_reference();
-	//per_thread<glfw_keyboard>::remove_reference();
-	//per_thread<glfw_mouse>::remove_reference();
-
-	per_thread<glfw_window>::remove_reference();
-}
-
-void bootable_game::boot_thread()
-{
-	std::thread(&bootable_game::park_thread, *this).detach();
 }

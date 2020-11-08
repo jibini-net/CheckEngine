@@ -21,7 +21,7 @@ public:
 	{
 		while (this->has_next())
 		{
-			E *next = this->next();
+			auto next = this->next();
 
 			action(next);
 		}

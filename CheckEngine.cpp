@@ -1,10 +1,18 @@
 ﻿#include "graphics/context/glfw_context.h"
 
 #include "util/intrinsics/singleton.h"
+#include "util/intrinsics/bootable_game.h"
+
+#include "util/diagnostic/logging/logger.h"
+
+// Local implementation logger instance
+logger _root_log("Check Engine");
 
 void start()
 {
-	
+	_root_log.info("\033[1;33m===============================================================");
+	_root_log.info("Initializing game assets prior to runtime . . .");
+	_root_log.info("\033[1;33m===============================================================");
 }
 
 void update()
@@ -35,6 +43,10 @@ void update()
 
 int main()
 {
+	_root_log.info("\033[1;33m===============================================================");
+	_root_log.info("        Welcome to \033[1;31mCheck Engine\033[0m created by \033[1;31mZach Goethel");
+	_root_log.info("\033[1;33m===============================================================");
+
 	bootable_game(start, update).boot_thread();
 
 	per_thread<global_glfw_context>::get_or_create()->park_thread();

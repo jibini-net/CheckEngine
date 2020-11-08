@@ -29,7 +29,7 @@ public:
 	{
 		for (int i = 0; i <= size; i++)
 		{
-			linked_list_node<E> *delete_reference = this->first_node;
+			auto delete_reference = this->first_node;
 			this->first_node = delete_reference->next_node;
 
 			delete delete_reference;
@@ -41,7 +41,7 @@ public:
 	{
 		this->mtx.lock();
 
-		linked_list_node<E> *created_node = new linked_list_node<E> { value };
+		auto created_node = new linked_list_node<E> { value };
 
 		this->last_node->next_node = created_node;
 		this->last_node = created_node;
@@ -67,8 +67,8 @@ public:
 			return nullptr;
 		}
 
-		linked_list_node<E> *delete_reference = this->first_node->next_node;
-		E *returned_value = delete_reference->value;
+		auto delete_reference = this->first_node->next_node;
+		auto returned_value = delete_reference->value;
 
 		this->first_node->next_node = this->first_node->next_node->next_node;
 		delete delete_reference;

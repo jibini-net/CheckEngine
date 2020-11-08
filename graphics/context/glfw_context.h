@@ -11,6 +11,9 @@
 
 #include "glfw_window.h"
 
+#include "util/diagnostic/timing/delta_timer.h"
+#include "util/diagnostic/logging/logger.h"
+
 #include "util/collection/linked_list.h"
 
 // Destruction class for GLFWwindow* smart-pointers
@@ -58,6 +61,10 @@ public:
 
 class glfw_context
 {
+private:
+	// Local implementation logger instance
+	logger _log = logger("GLFW Context");
+
 public:
 	// Internal unique context and window pointer
 	std::unique_ptr<GLFWwindow, destroy_glfw_window> pointer;
@@ -74,24 +81,4 @@ public:
 
 	// Convenience method for making a GLFW context current
 	void make_current();
-};
-
-
-//TODO MOVE OUT
-class bootable_game
-{
-protected:
-	std::shared_ptr<glfw_context> context;
-
-	//TEMP
-	std::function<void()> temp_start;
-	std::function<void()> temp_update;
-
-public:
-	bootable_game(std::function<void()> temp_start, std::function<void()> temp_update);
-
-
-	void park_thread();
-
-	void boot_thread();
 };
