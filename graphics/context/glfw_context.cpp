@@ -78,6 +78,15 @@ glfw_context::glfw_context(int context_version)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, context_version / 10);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, context_version % 10);
 
+	if (context_version >= 33)
+	{
+		glfwWindowHint(GLFW_OPENGL_CORE_PROFILE, GLFW_TRUE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
+		glewExperimental = true;
+	} else
+		glewExperimental = false;
+
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
 	this->pointer.reset(glfwCreateWindow(1366, 910, "", NULL, NULL));

@@ -4,7 +4,7 @@
 
 bootable_game::bootable_game(std::function<void()> temp_start, std::function<void()> temp_update)
 {
-	this->context.reset(new glfw_context(33));
+	this->context.reset(new glfw_context(43));
 
 	this->temp_start = temp_start;
 	this->temp_update = temp_update;
@@ -27,7 +27,7 @@ void bootable_game::park_thread()
 	_log.info("Invoking application initialization section . . .");
 	temp_start();
 
-	_log.debug("Making the application window visible . . .");
+	_log.debug("Showing application window and entering game loop . . .");
 	per_thread<glfw_window>::get_or_create()->show();
 
 	init_time.update();
