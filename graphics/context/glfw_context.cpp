@@ -75,24 +75,31 @@ glfw_context::glfw_context(int context_version)
 {
 	glfwDefaultWindowHints();
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, context_version / 10);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, context_version % 10);
-
 	if (context_version >= 33)
 	{
+		_log.debug("Context is detected as core, forward compatible, and GLEW experimental");
+		_log.warn("Some systems may not fully support this context version; ensure driver and hardware support");
+
 		glfwWindowHint(GLFW_OPENGL_CORE_PROFILE, GLFW_TRUE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
 		glewExperimental = true;
 	} else
+	{
+		_log.warn("Context is detected as pre-3.3; some non-core legacy features are not recommended");
+
 		glewExperimental = false;
+	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, context_version / 10);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, context_version % 10);
 
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
 	this->pointer.reset(glfwCreateWindow(1366, 910, "", NULL, NULL));
 	this->make_current();
 
-	_log.debug("Successfully created context version "
+	_log.debug("Successfully created context versioned "
 		+ std::to_string(context_version / 10)
 		+ "." + std::to_string(context_version % 10));
 
@@ -104,7 +111,7 @@ glfw_context::glfw_context(int context_version)
 		throw std::exception();
 	}
 
-	_log.debug("Successfully initialized GLEW bindings for new context");
+	_log.debug("Successfully initialized GLEW bindings for current context");
 
 	// Relinquish all contexts on the main thread
 	glfwMakeContextCurrent(NULL);

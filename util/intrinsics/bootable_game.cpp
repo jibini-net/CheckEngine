@@ -12,7 +12,7 @@ bootable_game::bootable_game(std::function<void()> temp_start, std::function<voi
 
 void bootable_game::park_thread()
 {
-	_log.info("Establishing current thread's OpenGL context . . .");
+	_log.info("Branched primary application thread for graphical context");
 	per_thread<glfw_context>::set(this->context);
 	per_thread<glfw_context>::get_or_create()->make_current();
 
@@ -27,7 +27,6 @@ void bootable_game::park_thread()
 	_log.info("Invoking application initialization section . . .");
 	temp_start();
 
-	_log.debug("Showing application window and entering game loop . . .");
 	per_thread<glfw_window>::get_or_create()->show();
 
 	init_time.update();
@@ -49,6 +48,5 @@ void bootable_game::park_thread()
 
 void bootable_game::boot_thread()
 {
-	_log.info("Spawning game application thread and context . . .");
 	std::thread(&bootable_game::park_thread, *this).detach();
 }
