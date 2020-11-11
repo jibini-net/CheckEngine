@@ -13,7 +13,7 @@ class bootable_game
 {
 private:
 	// Local implementation logger instance
-	logger _log = logger("Game Lifecycle");
+	logger _log { "Game Lifecycle" };
 
 protected:
 	std::shared_ptr<glfw_context> context;

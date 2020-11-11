@@ -76,3 +76,13 @@ target_link_libraries (CheckEngine check_math)
 #
 add_subdirectory ("graphics/context")
 target_link_libraries (CheckEngine check_context)
+#
+# GPGPU and threaded compute implementations
+#
+add_subdirectory ("graphics/compute")
+target_link_libraries (CheckEngine check_compute)
+#
+# GPGPU and threaded compute implementations
+#
+add_subdirectory ("graphics/wrappers")
+target_link_libraries (CheckEngine check_wrappers)

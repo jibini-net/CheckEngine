@@ -13,12 +13,16 @@ void destroy_glfw_window::operator() (GLFWwindow* ptr)
 	// Relinquish the context from the current thread
 	glfwMakeContextCurrent(NULL);
 
+	_log.debug("Posting context deletion task to main thread for next queue execution . . .");
+
 	// Schedule a main-thread task to destroy the context
 	(global_glfw_context::instance->thread_queue).add(
 		new std::function<bool()>([ptr]() -> bool
 		{
+			logger("GLFW Context").debug("Context destruction called on main thread");
+
 			glfwDestroyWindow(ptr);
-		
+
 			// Return true to indicate this lambda should be deleted once executed
 			return true;
 		}));

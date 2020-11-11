@@ -1,9 +1,16 @@
-﻿#include "graphics/context/glfw_context.h"
+﻿#include <vector>
+
+#include "util/diagnostic/logging/logger.h"
+
+#include "graphics/context/glfw_context.h"
+
+#include "graphics/compute/accel_compute.h"
+
+#include "graphics/wrappers/shader_program.h"
+#include "graphics/wrappers/buffer_object.h"
 
 #include "util/intrinsics/singleton.h"
 #include "util/intrinsics/bootable_game.h"
-
-#include "util/diagnostic/logging/logger.h"
 
 // Local implementation logger instance
 logger _root_log("Check Engine");
@@ -18,23 +25,15 @@ struct positional_data
 	int num_local_bodies;
 	float __padding[1];
 
+	// Needs special memcpy ops
+	//std::vector<body> local_bodies;
 	body local_bodies[];
 };
 
-positional_data ssbo_data
-{
-	2, { 0.0 },
-
-	{
-		{ 1.0f, 1.0f },
-		{ 1.0f, 1.0f }
-	}
-};
-
 const std::string VERTEX_GLSL = 
-"#version 430\n \
+"#version 430 core\n \
 \
-layout (location = 0) in vec3 vertex; \
+layout (location = 0) in int index; \
 \
 struct body \
 { \
@@ -49,12 +48,14 @@ layout (std430, binding = 0) buffer positional_data \
 \
 void main() \
 { \
-	gl_PointSize = 80.0f; \
-	gl_Position = vec4(vertex, 1.0f); \
+	local_bodies[0].position.x += 0.01f; \
+\
+	gl_PointSize = 16.0f; \
+	gl_Position = vec4(index, 0.0f, 0.0f, 1.0f); \
 }";
 
 const std::string FRAGMENT_GLSL = 
-"#version 430\n \
+"#version 430 core\n \
 \
 out vec4 color; \
 \
@@ -79,7 +80,7 @@ GLuint fragment_shader;
 
 GLuint shader_program;
 
-GLuint shader_ssbo, vbo;
+std::shared_ptr<buffer_object> shader_ssbo, vbo;
 
 void start()
 {
@@ -101,7 +102,7 @@ void start()
 	glCompileShader(fragment_shader);
 
 	GLint max_length;
-	_root_log.debug("Checking comiled shaders for compilation or syntax errors . . .");
+	_root_log.debug("Checking compiled shaders for compilation or syntax errors . . .");
 
 	glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &max_length);
 
@@ -128,8 +129,10 @@ void start()
 
 	_root_log.debug("Shaders are compiled; attaching to shader program and deleting . . .");
 	shader_program = glCreateProgram();
+
 	glAttachShader(shader_program, vertex_shader);
 	glAttachShader(shader_program, fragment_shader);
+
 	glLinkProgram(shader_program);
 
 	glDeleteShader(vertex_shader);
@@ -139,35 +142,37 @@ void start()
 	glUseProgram(shader_program);
 
 
-	glGenBuffers(1, &shader_ssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(positional_data) + ssbo_data.num_local_bodies * sizeof(body),
-		&ssbo_data, GL_DYNAMIC_COPY);
-
-	GLvoid *p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-	memcpy(p, &ssbo_data, sizeof(positional_data) + ssbo_data.num_local_bodies * sizeof(body));
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-	GLuint block_index = glGetProgramResourceIndex(shader_program, GL_SHADER_STORAGE_BLOCK, "positional_data");
-	glShaderStorageBlockBinding(shader_program, block_index, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, shader_ssbo);
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	
-
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	glEnable(GL_PROGRAM_POINT_SIZE);
-
-	float data[] =  
+	positional_data ssbo_data
 	{
-		0.0f, 0.0f, 0.0f
+		2, { 0.0 },
+
+		{
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f }
+		}
 	};
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data), &data[0], GL_STATIC_DRAW);
+	int data_size = sizeof(positional_data) + ssbo_data.num_local_bodies * sizeof(body);
+	shader_ssbo.reset(new buffer_object(GL_SHADER_STORAGE_BUFFER));
+	shader_ssbo->put(&ssbo_data, data_size, GL_DYNAMIC_COPY);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	shader_ssbo->bind_base(0);
+
+	shader_ssbo->unbind();
+	
+
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	glEnable(GL_DEPTH_TEST);
+
+	int data[] =  
+	{
+		0
+	};
+
+	vbo.reset(new buffer_object(GL_ARRAY_BUFFER));
+	vbo->put(&data[0], sizeof(data), GL_STATIC_DRAW);
+
+	vbo->unbind();
 	
 	GLuint vertex_array;
 	glGenVertexArrays(1, &vertex_array);
@@ -183,32 +188,27 @@ void update()
 
 	glViewport(0, 0, window->get_width(), window->get_height());
 
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	vbo->bind();
+	glVertexAttribPointer(0, 1, GL_INT, GL_FALSE, 0, NULL);
 
 	glDrawArrays(GL_POINTS, 0, 1);
 
 	glDisableVertexAttribArray(0);
 
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	int error = glGetError();
-	if (error != GL_NO_ERROR)
-		_root_log.error("An OpenGL error has occurred; context error flag is set to " + std::to_string(error));
+	vbo->unbind();
 
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader_ssbo);
-	GLvoid *p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-	memcpy(&ssbo_data, p, sizeof(positional_data) + ssbo_data.num_local_bodies * sizeof(body));
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	auto mapped = shader_ssbo->map_typed<positional_data>(true, false);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	// Mapped data is in scope; complete CPU-side operations
+
+	shader_ssbo->unmap();
+	shader_ssbo->unbind();
 }
 
 int main()

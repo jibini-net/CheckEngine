@@ -36,6 +36,10 @@ void bootable_game::park_thread()
 	{
 		temp_update();
 
+		int error = glGetError();
+		if (error != GL_NO_ERROR)
+			_log.error("An OpenGL error has occurred; context error flag is set to " + std::to_string(error));
+
 		window->swap_buffers();
 	}
 
