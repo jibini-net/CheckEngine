@@ -75,11 +75,7 @@ void main() \
 	color = vec4(local_bodies[0].position, local_bodies[1].position); \
 }";
 
-GLuint vertex_shader;
-GLuint fragment_shader;
-
-GLuint shader_program;
-
+std::shared_ptr<shader_program> shader;
 std::shared_ptr<buffer_object> shader_ssbo, vbo;
 
 delta_timer frame_rate_time;
@@ -90,60 +86,13 @@ void start()
 	_root_log.info("\033[1;33m===============================================================");
 	_root_log.info("Initializing game assets prior to runtime . . .");
 
-	_root_log.info("Loading point-based compute vertex shader (parallelized workhorse kernel) . . .");
-	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	const char *vertex_glsl = VERTEX_GLSL.c_str();
-	const int vertex_glsl_length = (int)VERTEX_GLSL.length();
-	glShaderSource(vertex_shader, 1, &vertex_glsl, &vertex_glsl_length);
-	glCompileShader(vertex_shader);
+	shader.reset(new shader_program());
 
-	_root_log.info("Loading point-based compute fragment shader (graphical debug/diagnostic output) . . .");
-	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	const char *fragment_glsl = FRAGMENT_GLSL.c_str();
-	const int fragment_glsl_length = (int)FRAGMENT_GLSL.length();
-	glShaderSource(fragment_shader, 1, &fragment_glsl, &fragment_glsl_length);
-	glCompileShader(fragment_shader);
+	shader->attach_shader(GL_VERTEX_SHADER, VERTEX_GLSL, "COMPUTE_VERT (workhorse)");
+	shader->attach_shader(GL_FRAGMENT_SHADER, FRAGMENT_GLSL, "COMPUTE_FRAG (debug draw)");
 
-	GLint max_length;
-	_root_log.debug("Checking compiled shaders for compilation or syntax errors . . .");
-
-	glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &max_length);
-
-	if (max_length > 0)
-	{
-		std::vector<GLchar> error_log(max_length);
-		glGetShaderInfoLog(vertex_shader, max_length, &max_length, &error_log[0]);
-
-		_root_log.error("VERTEX SHADER COMPILE ERROR:\n" + (std::string)error_log.data() + "\n");
-	} else
-		_root_log.debug("Vertex shader compiled with no error messages");
-
-	glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &max_length);
-
-	if (max_length > 0)
-	{
-		std::vector<GLchar> error_log(max_length);
-		glGetShaderInfoLog(fragment_shader, max_length, &max_length, &error_log[0]);
-
-		_root_log.error("FRAGMENT SHADER COMPILE ERROR:\n" + (std::string)error_log.data() + "\n");
-	} else
-		_root_log.debug("Fragment shader compiled with no error messages");
-
-
-	_root_log.debug("Shaders are compiled; attaching to shader program and deleting . . .");
-	shader_program = glCreateProgram();
-
-	glAttachShader(shader_program, vertex_shader);
-	glAttachShader(shader_program, fragment_shader);
-
-	glLinkProgram(shader_program);
-
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
-
-	_root_log.info("Successfully linked point-based accelerated compute program");
-	glUseProgram(shader_program);
-
+	shader->link();
+	shader->use();
 
 	positional_data ssbo_data
 	{

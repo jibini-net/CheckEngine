@@ -5,21 +5,21 @@
 
 #include "util/intrinsics/singleton.h"
 
-// Local implementation logger instance
-logger _log("GLFW Context");
-
 void destroy_glfw_window::operator() (GLFWwindow* ptr)
 {
 	// Relinquish the context from the current thread
 	glfwMakeContextCurrent(NULL);
 
-	_log.debug("Posting context deletion task to main thread for next queue execution . . .");
+	auto _log = new logger("Context Destroy");
+
+	_log->debug("Posting context deletion task to main thread for next queue execution . . .");
 
 	// Schedule a main-thread task to destroy the context
 	(global_glfw_context::instance->thread_queue).add(
-		new std::function<bool()>([ptr]() -> bool
+		new std::function<bool()>([ptr, _log]() -> bool
 		{
-			logger("GLFW Context").debug("Context destruction called on main thread");
+			_log->debug("Context destruction called on main thread");
+			delete _log;
 
 			glfwDestroyWindow(ptr);
 

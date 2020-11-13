@@ -31,6 +31,9 @@ public:
 class global_glfw_context
 {
 protected:
+	// Local implementation logger instance
+	logger _log = logger("Global Context");
+
 	// Counter of how many contexts are currently alive
 	int active_contexts = 0;
 
@@ -65,7 +68,7 @@ class glfw_context
 {
 private:
 	// Local implementation logger instance
-	logger _log = logger("GLFW Context");
+	logger _log = logger("GL Context");
 
 public:
 	// Internal unique context and window pointer
