@@ -82,6 +82,9 @@ GLuint shader_program;
 
 std::shared_ptr<buffer_object> shader_ssbo, vbo;
 
+delta_timer frame_rate_time;
+long frame_count = 0;
+
 void start()
 {
 	_root_log.info("\033[1;33m===============================================================");
@@ -209,6 +212,20 @@ void update()
 
 	shader_ssbo->unmap();
 	shader_ssbo->unbind();
+
+
+	frame_rate_time.update();
+	frame_count++;
+
+	if (frame_rate_time.delta_time() >= 2.0)
+	{
+		double frame_rate = (double)frame_count / frame_rate_time.delta_time();
+
+		_root_log.debug(std::to_string(frame_rate) + " frames per second");
+
+		frame_rate_time.reset();
+		frame_count = 0;
+	}
 }
 
 int main()

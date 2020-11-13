@@ -33,6 +33,7 @@ void *buffer_object::map(bool read, bool write)
 	}
 
 	GLenum access_type;
+
 	if (read && write)
 		access_type = GL_READ_WRITE;
 	else if (read)
