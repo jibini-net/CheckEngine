@@ -8,6 +8,10 @@
 
 /CMakeSettings.json
 
+# VSCode-related project files and compilation output
+/build/**
+/.vscode/**
+
 # GLFW/GLEW downloaded from their websites
 /glfw/**
 /glew/**
