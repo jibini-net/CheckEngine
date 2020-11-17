@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "util/diagnostic/logging/logger.h"
 
 #include "graphics/context/glfw_context.h"
@@ -36,6 +38,16 @@ public:
 	}
 
 	void unmap();
+
+	template <typename T>
+	void map_scoped(bool read, bool write, std::function<void(T *mapped)> action)
+	{
+		T *mapped = this->map_typed<T>(read, write);
+
+		action(mapped);
+
+		this->unmap();
+	}
 
 
 	void put(void *data, GLsizeiptr size, GLenum usage);

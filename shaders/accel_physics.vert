@@ -1,6 +1,13 @@
 #version 430 core
 
-layout (location = 0) in uint index;
+struct vertex
+{
+	vec3 position;
+	vec4 color;
+	vec2 tex_coord;
+
+	int body_index;
+};
 
 struct body
 {
@@ -11,14 +18,21 @@ struct body
 	float rot_velocity;
 };
 
-layout (std430, binding = 0) buffer body_ssbo_data
+layout (std430, binding = 0) buffer phys_body_data
 {
-	int num_local_bodies;
 	body local_bodies[];
+};
+
+layout (std430, binding = 1) buffer vertex_data
+{
+	vertex vertices[];
 };
 
 void main()
 {
+	vertex current_vertex = vertices[gl_VertexID];
+	body current_body = local_bodies[current_vertex.body_index];
+
 	gl_PointSize = 16.0f;
-	gl_Position = vec4(index, 0.0f, 0.0f, 1.0f);
+	gl_Position = vec4(current_vertex.position, 0.0f, 1.0f);
 }

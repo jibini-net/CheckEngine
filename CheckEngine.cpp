@@ -33,8 +33,6 @@ struct positional_data
 const std::string VERTEX_GLSL = 
 "#version 430 core\n \
 \
-layout (location = 0) in int index; \
-\
 struct body \
 { \
 	vec2 position; \
@@ -48,10 +46,10 @@ layout (std430, binding = 0) buffer positional_data \
 \
 void main() \
 { \
-	local_bodies[0].position.x += 0.01f; \
+	local_bodies[0].position.x += 0.001f; \
 \
 	gl_PointSize = 16.0f; \
-	gl_Position = vec4(index, 0.0f, 0.0f, 1.0f); \
+	gl_Position = vec4(local_bodies[gl_VertexID].position, 0.0f, 1.0f); \
 }";
 
 const std::string FRAGMENT_GLSL = 
@@ -72,11 +70,11 @@ layout (std430, binding = 0) buffer positional_data \
 \
 void main() \
 { \
-	color = vec4(local_bodies[0].position, local_bodies[1].position); \
+	color = vec4(1.0f, 1.0f, 1.0f, 1.0f); \
 }";
 
 std::shared_ptr<shader_program> shader;
-std::shared_ptr<buffer_object> shader_ssbo, vbo;
+std::shared_ptr<buffer_object> shader_ssbo;
 
 delta_timer frame_rate_time;
 long frame_count = 0;
@@ -94,13 +92,14 @@ void start()
 	shader->link();
 	shader->use();
 
+
 	positional_data ssbo_data
 	{
 		2, { 0.0 },
 
 		{
-			{ 1.0f, 0.0f },
-			{ 1.0f, 1.0f }
+			{ 0.0f, 0.0f },
+			{ 0.0f, 0.0f }
 		}
 	};
 
@@ -109,22 +108,11 @@ void start()
 	shader_ssbo->put(&ssbo_data, data_size, GL_DYNAMIC_COPY);
 
 	shader_ssbo->bind_base(0);
-
-	shader_ssbo->unbind();
 	
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
 
-	int data[] =  
-	{
-		0
-	};
-
-	vbo.reset(new buffer_object(GL_ARRAY_BUFFER));
-	vbo->put(&data[0], sizeof(data), GL_STATIC_DRAW);
-
-	vbo->unbind();
 	
 	GLuint vertex_array;
 	glGenVertexArrays(1, &vertex_array);
@@ -143,24 +131,20 @@ void update()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(0);
 
-	vbo->bind();
-	glVertexAttribPointer(0, 1, GL_INT, GL_FALSE, 0, NULL);
+	//vbo->bind();
+	//glVertexAttribPointer(0, 1, GL_INT, GL_FALSE, 0, NULL);
 
-	glDrawArrays(GL_POINTS, 0, 1);
+	glDrawArrays(GL_POINTS, 0, 2);
 
-	glDisableVertexAttribArray(0);
-
-	vbo->unbind();
+	//glDisableVertexAttribArray(0);
 
 
-	auto mapped = shader_ssbo->map_typed<positional_data>(true, false);
-
-	// Mapped data is in scope; complete CPU-side operations
-
-	shader_ssbo->unmap();
-	shader_ssbo->unbind();
+	shader_ssbo->map_scoped<positional_data>(true, false, [](auto mapped)
+	{
+		// Mapped data is in scope; complete CPU-side operations
+	});
 
 
 	frame_rate_time.update();
