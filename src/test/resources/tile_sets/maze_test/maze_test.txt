@@ -1,5 +1,7 @@
 game_type top_down
 
+run_macro TestMacro
+
 spawn player forbes 3 10
 
 tile 0 floor_tile0.png blocking

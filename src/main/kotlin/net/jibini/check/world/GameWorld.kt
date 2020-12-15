@@ -1,26 +1,32 @@
 package net.jibini.check.world
 
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import net.jibini.check.engine.*
 import net.jibini.check.entity.Entity
 import net.jibini.check.entity.character.NonPlayer
 import net.jibini.check.entity.character.Player
-import net.jibini.check.engine.Initializable
-import net.jibini.check.engine.RegisterObject
-import net.jibini.check.engine.Updatable
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.input.Keyboard
 import net.jibini.check.physics.Bounded
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.physics.QuadTree
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
+import org.joml.Math
+import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
+import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
+import kotlin.math.abs
 
 /**
  * An engine object which manages the game's current room and entities
@@ -30,7 +36,14 @@ import javax.imageio.ImageIO
 @RegisterObject
 class GameWorld : Initializable, Updatable
 {
-    //var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
+    var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    val physicsUpdateLock = Mutex()
+
+    @EngineObject
+    private lateinit var keyboard: Keyboard
 
     /**
      * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
@@ -62,12 +75,15 @@ class GameWorld : Initializable, Updatable
     var player: Player? = null
         set(value)
         {
-            if (value == null)
+            if (field != null)
             {
-                if (entities.contains(field))
-                    entities.remove(field)
-            } else if (!entities.contains(value))
-                entities += value
+                if (value == null)
+                {
+                    if (entities.contains(field!!))
+                        entities.remove(field!!)
+                } else if (!entities.contains(value))
+                    entities += value
+            }
 
             field = value
         }
@@ -90,10 +106,11 @@ class GameWorld : Initializable, Updatable
 //        }
     }
 
-    override fun update()
+    private fun render()
     {
         if (!visible)
             return
+        room ?: return
 
         if (player != null)
             GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
@@ -109,18 +126,71 @@ class GameWorld : Initializable, Updatable
         {
             // Translate forward to avoid transparency issues
             GL11.glTranslatef(0.0f, 0.0f, 0.02f)
-
             entity.update()
         }
 
-        //GL11.glTranslatef(0.0f, 0.0f, 0.02f)
+        GL11.glTranslatef(0.0f, 0.0f, 0.02f)
 
-        //quadTree.reevaluate()
-        //quadTree.render()
+        if (keyboard.isPressed(GLFW.GLFW_KEY_F3))
+            quadTree.render()
 
         GL11.glPopMatrix()
+    }
 
+    private fun quadTreeResolution()
+    {
+        quadTree.reevaluate()
 
+        quadTree.iteratePairs {
+                a, b ->
+
+            if (a is Entity)
+            {
+                if ((b !is Entity || b.blocking) && !a.static)
+                    a.boundingBox.resolve(b.boundingBox, a.deltaPosition, a)
+            }
+
+            if (b is Entity)
+            {
+                if ((a !is Entity || a.blocking) && !b.static)
+                    b.boundingBox.resolve(a.boundingBox, b.deltaPosition, b)
+            }
+        }
+    }
+
+    private fun tileResolution(entity: Entity)
+    {
+        // Reset delta position aggregation
+        entity.deltaPosition.set(0.0, 0.0)
+
+        // Get the current game room; return if null
+        val room = room ?: return
+
+        val bB = entity.boundingBox
+
+        // Iterate through each room tile
+        for (y in maxOf(0, (bB.y / room.tileSize).toInt() - 1)
+                until minOf(room.height, ((bB.y + bB.height) / room.tileSize).toInt() + 1))
+            for (x in maxOf(0, (bB.x / room.tileSize).toInt() - 1)
+                    until minOf(room.width, ((bB.x + bB.width) / room.tileSize).toInt() + 1))
+            {
+                // Check if the tile is blocking; default to false
+                val blocking = room.tiles[x][y]?.blocking ?: false
+                // Ignore tile if it is not blocking
+                if (!blocking)
+                    continue
+
+                // Resolve the bounding box against each tile
+                entity.boundingBox.resolve(
+                    BoundingBox(x * room.tileSize + 0.01, y * room.tileSize, room.tileSize - 0.02, room.tileSize),
+                    entity.deltaPosition,
+                    entity
+                )
+            }
+    }
+
+    private fun portalResolution()
+    {
         for ((box, world) in portals)
             if (box.overlaps(player!!.boundingBox))
             {
@@ -128,6 +198,60 @@ class GameWorld : Initializable, Updatable
 
                 visible = true
             }
+    }
+
+    private fun preResetUpdate(entity: Entity)
+    {
+        // Get delta time since last frame
+        val delta = entity.deltaTimer.delta
+
+        // Apply gravity to the velocity
+        if (!entity.movementRestrictions.down && room!!.isSideScroller && !entity.static)
+            entity.velocity.y -= 9.8 * delta
+
+        // Apply the velocity to the delta position
+        entity.deltaPosition.x += entity.velocity.x * delta
+        entity.deltaPosition.y += entity.velocity.y * delta
+
+        entity.deltaPosition.x = Math.clamp(-0.07, 0.07, entity.deltaPosition.x)
+        entity.deltaPosition.y = Math.clamp(-0.07, 0.07, entity.deltaPosition.y)
+
+        // Apply the delta position to the position
+        entity.x += entity.deltaPosition.x
+        entity.y += entity.deltaPosition.y
+
+        if (entity.movementRestrictions.down)
+        {
+            if (entity.velocity.x != 0.0)
+                entity.velocity.x -= (abs(entity.velocity.x) / entity.velocity.x) * 4.0 * delta
+            if (abs(entity.velocity.x) < 0.05)
+                entity.velocity.x = 0.0
+        }
+    }
+
+    override fun update()
+    {
+        room ?: return
+        render()
+
+        runBlocking {
+            physicsUpdateLock.withLock {
+
+                for (entity in entities)
+                {
+                    preResetUpdate(entity)
+
+                    entity.movementRestrictions.reset()
+                    entity.deltaPosition.set(0.0, 0.0)
+
+                    tileResolution(entity)
+                }
+
+                quadTreeResolution()
+            }
+        }
+
+        portalResolution()
     }
 
     /**
@@ -156,6 +280,8 @@ class GameWorld : Initializable, Updatable
 
         var isSideScroller = false
 
+        val loadMacros = mutableListOf<Macro>()
+
         roomMetaReader.forEachLine {
             val split = it.split(" ")
 
@@ -171,6 +297,18 @@ class GameWorld : Initializable, Updatable
 
                         else -> throw IllegalStateException("Invalid game type entry in meta file '${split[1]}'")
                     }
+                }
+
+                "run_macro" ->
+                {
+
+                    val macro = EngineObjectsImpl.get<Macro>()
+                        .find { element -> element::class.simpleName == split[1] }
+
+                    if (macro == null)
+                        log.error("Could not find engine object '${split[1]}'")
+                    else
+                        loadMacros += macro
                 }
 
                 "tile" ->
@@ -215,7 +353,7 @@ class GameWorld : Initializable, Updatable
                             player!!.x = split[3].toDouble() * 0.2
                             player!!.y = split[4].toDouble() * 0.2
 
-                            if (!entities.contains(player))
+                            if (!entities.contains(player!!))
                                 entities += player!!
                         }
 
@@ -258,8 +396,12 @@ class GameWorld : Initializable, Updatable
                             if (split.size > 5)
                             {
                                 val behavior = EngineObjectsImpl.get<EntityBehavior>()
-                                    .find { element -> element::class.simpleName == split[5] }!!
-                                entity.behavior = behavior
+                                    .find { element -> element::class.simpleName == split[5] }
+
+                                if (behavior == null)
+                                    log.error("Could not find engine object '${split[5]}'")
+                                else
+                                    entity.behavior = behavior
                             }
 
                             entity.x = split[3].toDouble() * 0.2
@@ -314,14 +456,14 @@ class GameWorld : Initializable, Updatable
         roomMetaReader.close()
 
         room = Room(roomImage.width, roomImage.height - 1, 0.2, isSideScroller)
-//        quadTree = QuadTree(
-//            0.0,
-//            0.0,
-//            maxOf(room!!.width, room!!.height) * 0.2,
-//            maxOf(room!!.width, room!!.height) * 0.2
-//        )
-//        for (entity in entities)
-//            quadTree.place(entity)
+        quadTree = QuadTree(
+            0.0,
+            0.0,
+            maxOf(room!!.width, room!!.height) * 0.2,
+            maxOf(room!!.width, room!!.height) * 0.2
+        )
+        for (entity in entities)
+            quadTree.place(entity)
 
         for (y in 1 until roomImage.height)
             for (x in 0 until roomImage.width)
@@ -329,6 +471,15 @@ class GameWorld : Initializable, Updatable
                 val color = colors[y * roomImage.width + x]
 
                 room!!.tiles[x][room!!.height - y] = roomTiles[color]
+            }
+
+        for (macro in loadMacros)
+            try
+            {
+                macro.action()
+            } catch (ex: Exception)
+            {
+                log.error("Failed to run world post-load macro '${macro::class.simpleName}'", ex)
             }
     }
 

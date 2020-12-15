@@ -1,12 +1,18 @@
 package net.jibini.check.entity
 
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.entity.character.Attack
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
+import net.jibini.check.world.GameWorld
 import org.joml.Math.clamp
 import org.lwjgl.opengl.GL11
+import org.slf4j.LoggerFactory
 import kotlin.math.sqrt
 
 /**
@@ -38,7 +44,7 @@ abstract class ActionableEntity(
 ) : Entity()
 {
     // Animation array indices
-    val stand = 0
+    private val stand = 0
     private val walk = 1
 
     private val shadowTexture = Texture.load(Resource.fromClasspath("characters/shadow.png"))
@@ -69,10 +75,10 @@ abstract class ActionableEntity(
     /**
      * Delta timer to keep track of walking timing
      */
-    private val timer = DeltaTimer()
+//    private val timer = DeltaTimer()
 
     private var falseYOffset: Double = 0.0
-    private var falseYVeloc: Double = 0.0
+    private var falseYVelocity: Double = 0.0
     private var delta: Double = 0.0
     private val secondaryDeltaTimer = DeltaTimer()
 
@@ -85,12 +91,12 @@ abstract class ActionableEntity(
     {
         // Only jump if character on ground
         if (movementRestrictions.down && gameWorld.room?.isSideScroller == true)
-            // Velocity = sqrt(-2g * h)
+        // Velocity = sqrt(-2g * h)
             velocity.y = sqrt(2 * 9.8 * height)
 
         if (gameWorld.room?.isSideScroller == false)
             if (falseYOffset == 0.0)
-                falseYVeloc = sqrt(2 * 9.8 * height / 2)
+                falseYVelocity = sqrt(2 * 9.8 * height / 2)
     }
 
     override fun update()
@@ -100,11 +106,11 @@ abstract class ActionableEntity(
         if (gameWorld.room?.isSideScroller == true)
         {
             falseYOffset = 0.0
-            falseYVeloc = 0.0
+            falseYVelocity = 0.0
         } else
         {
-            falseYOffset = maxOf(0.0, falseYOffset + falseYVeloc * delta)
-            falseYVeloc -= 9.8 * delta
+            falseYOffset = maxOf(0.0, falseYOffset + falseYVelocity * delta)
+            falseYVelocity -= 9.8 * delta
         }
 
         // Bind render texture
@@ -153,6 +159,10 @@ abstract class ActionableEntity(
         // If on ground and moving, animate as walk
         if ((x != 0.0 || y != 0.0) && (movementRestrictions.down || (gameWorld.room?.isSideScroller != true)))
             characterAnim = walk
+        // If not on ground and x-movement is against velocity,
+        // zero the velocity (platform stuff)
+        if (!movementRestrictions.down && x * velocity.x < 0 && gameWorld.room?.isSideScroller == true)
+            velocity.x = 0.0
 
         // Update frame delta position with walking movement
         if ((!movementRestrictions.up && y > 0.0) || (!movementRestrictions.down && y < 0.0))

@@ -104,6 +104,17 @@ class QuadTree<E : Bounded>(
     }
 
     /**
+     * Iterates through unique combinations of two elements which may be colliding; no two pairs of bounded elements
+     * will appear in two iterations.
+     *
+     * Thus `(u: E, v: E) == (v: E, u: E)` for the purposes of this iteration.
+     */
+    fun iteratePairs(action: (E, E) -> Unit)
+    {
+        rootNode.iteratePairs(action)
+    }
+
+    /**
      * Internal class representing a quadrant node
      */
     private class QuadTreeNode<E : Bounded>(
@@ -116,6 +127,54 @@ class QuadTree<E : Bounded>(
         val height: Double
     )
     {
+        /**
+         * See [QuadTree.iteratePairs].
+         */
+        fun iteratePairs(action: (E, E) -> Unit)
+        {
+            if (branched)
+            {
+                for (child in children)
+                    child?.iteratePairs(action)
+            } else
+            {
+                var climb: QuadTreeNode<E>? = this
+
+                while (climb != null)
+                {
+                    for ((i, element) in climb.bucket.withIndex())
+                    {
+                        for (with in climb.bucket.subList(i, climb.bucket.size))
+                            if (element != with)
+                                action(element, with)
+                    }
+
+                    climb.reactWithParents(action)
+                    climb = climb.parent
+                }
+            }
+        }
+
+        /**
+         * Calls the given lambda function with pairs of the current node crossed with the buckets of each parent of the
+         * current node
+         */
+        fun reactWithParents(action: (E, E) -> Unit)
+        {
+            var climb: QuadTreeNode<E>? = this
+
+            while (climb != null)
+            {
+                for (element in bucket)
+                {
+                    for (with in climb.bucket)
+                        action(element, with)
+                }
+
+                climb = climb.parent
+            }
+        }
+
         /**
          * The bounded area within which any elements will be in this node's or one if its children's buckets
          */

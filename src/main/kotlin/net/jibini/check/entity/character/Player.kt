@@ -1,10 +1,15 @@
 package net.jibini.check.entity.character
 
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.input.Keyboard
 import net.jibini.check.texture.Texture
 import org.lwjgl.glfw.GLFW
+import org.slf4j.LoggerFactory
 
 /**
  * Keyboard-controlled [actionable character][ActionableEntity] which is likely a human sprite-set
@@ -33,6 +38,8 @@ class Player(
     walkLeft: Texture = idleRight.flip()
 ) : ActionableEntity(idleRight, idleLeft, walkRight, walkLeft)
 {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     @EngineObject
     private lateinit var keyboard: Keyboard
 
@@ -40,15 +47,30 @@ class Player(
     {
         // Listen to space to trigger attack
         keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, this::attack)
+
         // Listen to left shift to trigger jump
-        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) { jump(0.55) }
+        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) {
+            runBlocking {
+                try
+                {
+                    // Synchronize jump to avoid jumping while updating physics
+                    withTimeout(50) {
+                        gameWorld.physicsUpdateLock.withLock {
+
+                            jump(0.55)
+
+                        }
+                    }
+                } catch (ex: TimeoutCancellationException)
+                {
+                    log.warn("Consumed jump callback exception due to timeout", ex)
+                }
+            }
+        }
     }
 
     override fun update()
     {
-        // Call super's rendering and physics
-        super.update()
-
         // Check WASD keys
         val w = keyboard.isPressed(GLFW.GLFW_KEY_W) && !(gameWorld.room?.isSideScroller ?: false)
         val a = keyboard.isPressed(GLFW.GLFW_KEY_A)
@@ -61,6 +83,9 @@ class Player(
 
         // Walk based on previous movement
         this.walk(x, y)
+
+        // Call super's rendering and physics
+        super.update()
 
         if (this.y < -0.4)
         {
