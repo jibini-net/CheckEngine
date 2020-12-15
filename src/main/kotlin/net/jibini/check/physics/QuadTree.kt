@@ -142,12 +142,13 @@ class QuadTree<E : Bounded>(
 
                 while (climb != null)
                 {
-                    for ((i, element) in climb.bucket.withIndex())
-                    {
-                        for (with in climb.bucket.subList(i, climb.bucket.size))
-                            if (element != with)
-                                action(element, with)
-                    }
+                    if (climb.bucket.size >= 2)
+                        for ((i, element) in climb.bucket.subList(0, climb.bucket.size - 1).withIndex())
+                        {
+                            for (with in climb.bucket.subList(i + 1, climb.bucket.size))
+//                            if (element != with)
+                                    action(element, with)
+                        }
 
                     climb.reactWithParents(action)
                     climb = climb.parent
