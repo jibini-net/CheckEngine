@@ -15,10 +15,17 @@ class DeltaTimer(
     private val autoReset: Boolean = true
 ) : EngineAware()
 {
+    companion object
+    {
+        var globalFreeze = false
+    }
+
     /**
      * Last time in nanoseconds when delta was calculated
      */
     private var last: Long = System.nanoTime()
+
+    private var current: Long = System.nanoTime()
 
     @EngineObject
     private lateinit var globalDeltaSync: GlobalDeltaSync
@@ -41,7 +48,10 @@ class DeltaTimer(
             // Reset if applicable
 
             // Divide by one billion to get seconds
-            return difference.toDouble() / 1000000000.0
+            return if (globalFreeze)
+                0.0
+            else
+                difference.toDouble() / 1000000000.0
         }
 
     /**
@@ -49,7 +59,9 @@ class DeltaTimer(
      */
     fun reset()
     {
+        current = System.nanoTime()
+
         // Store current time
-        last = System.nanoTime()
+        last = current
     }
 }
