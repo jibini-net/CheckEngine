@@ -16,7 +16,7 @@ class Tile(
     /**
      * Tile's texture for rendering
      */
-    private val texture: Texture,
+    val texture: Texture,
 
     /**
      * Whether the tile blocks the player from moving
@@ -39,6 +39,7 @@ class Tile(
      * @param x Tile position index x
      * @param y Tile position index y
      */
+    @Deprecated("Rendering is performed by the optimized room renderer")
     fun render(x: Int, y: Int)
     {
         val widthRatio = window.width.toDouble() / window.height
@@ -51,9 +52,6 @@ class Tile(
             return
 
         texture.bind()
-
-        // Uncomment for seizure
-//        GL11.glColor4f(Random().nextFloat(), Random().nextFloat(), Random().nextFloat(), 1.0f)
 
         renderer.drawRectangle(tileSize * x, tileSize * y, tileSize, tileSize)
     }

@@ -187,9 +187,9 @@ class QuadTree<E : Bounded>(
         val children = Array<QuadTreeNode<E>?>(CHILD_ARRAY_WIDTH * CHILD_ARRAY_WIDTH) { null }
 
         /**
-         * This node's contained values in a linked-list implementation
+         * This node's contained values in a mutable list
          */
-        val bucket: MutableList<E> = Collections.synchronizedList(LinkedList<E>())
+        val bucket: MutableList<E> = ArrayList(4)
 
         /**
          * Whether this node currently has any child nodes; initialized to false, set to true upon branching, and set to
@@ -328,38 +328,9 @@ class QuadTree<E : Bounded>(
             if (bucket.size > MAX_BUCKET_CAPACITY && !branched)
                 branch()
 
-            // Find all unique members of non-branched child nodes
-            val uniqueChildren = Collections.synchronizedList(LinkedList<E>())
-            // Whether any of the children are branched
-            var ignore = false
-
-            runBlocking {
-                coroutineScope {
-
-                    for (child in children)
-                        launch {
-                            // Recursive call to reevaluate
-                            child?.reevaluate()
-
-                            // Don't worry about pruning if the child is branched
-                            if (child?.branched == true)
-                                ignore = true
-                            else if (child?.bucket?.size ?: 0 > 0)
-                            {
-                                // Add all elements from child nodes into the array once
-                                for (subChild in child?.bucket!!)
-                                    if (!uniqueChildren.contains(subChild))
-                                        uniqueChildren.add(subChild)
-                            }
-                        }
-
-                }
-            }
-
-            // If the child nodes are not branched and all unique elements could fit in this node
-            if (!ignore && uniqueChildren.size + bucket.size <= MAX_BUCKET_CAPACITY)
-                // Prune the child nodes and merge into this node
-                prune()
+            for (child in children)
+                    // Recursive call to reevaluate
+                    child?.reevaluate()
         }
 
         /**

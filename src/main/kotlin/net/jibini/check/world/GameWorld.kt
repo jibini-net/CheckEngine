@@ -1,5 +1,8 @@
 package net.jibini.check.world
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -23,6 +26,7 @@ import org.lwjgl.opengl.GL11
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
@@ -481,6 +485,8 @@ class GameWorld : Initializable, Updatable
             {
                 log.error("Failed to run world post-load macro '${macro::class.simpleName}'", ex)
             }
+
+        room!!.rebuildMeshes()
     }
 
     fun reset()

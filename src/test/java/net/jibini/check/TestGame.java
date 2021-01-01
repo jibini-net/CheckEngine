@@ -6,6 +6,7 @@ import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
 import net.jibini.check.world.GameWorld;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
 
 public class TestGame implements CheckGame
 {
@@ -57,6 +58,8 @@ public class TestGame implements CheckGame
         ));
 
         gameWorld.setVisible(true);
+
+        GLFW.glfwSwapInterval(0);
     }
 
     /**
