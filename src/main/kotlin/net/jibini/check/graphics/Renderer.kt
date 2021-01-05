@@ -40,16 +40,16 @@ class Renderer : EngineAware()
         GL11.glBegin(GL11.GL_QUADS)
 
         // Coordinate zero
-        GL11.glTexCoord2f(baseX, baseY + dy)
+        GL11.glTexCoord2f(0.0f, dy)
         GL11.glVertex2f(x, y)
         // Coordinate one
-        GL11.glTexCoord2f(baseX + dx, baseY + dy)
+        GL11.glTexCoord2f(dx, dy)
         GL11.glVertex2f(x + width, y)
         // Coordinate two
-        GL11.glTexCoord2f(baseX + dx, baseY)
+        GL11.glTexCoord2f(dx, 0.0f)
         GL11.glVertex2f(x + width, y + height)
         // Coordinate three
-        GL11.glTexCoord2f(baseX, baseY)
+        GL11.glTexCoord2f(0.0f, 0.0f)
         GL11.glVertex2f(x, y + height)
 
         GL11.glEnd()

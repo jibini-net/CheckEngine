@@ -1,12 +1,18 @@
 package net.jibini.check.texture.impl
 
+import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.RegisterObject
+import net.jibini.check.graphics.impl.TempTexShaderImpl
 import net.jibini.check.texture.Texture
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL20
 
 @RegisterObject
 class TextureRegistry
 {
+    @EngineObject
+    private lateinit var tempTexShaderImpl: TempTexShaderImpl
+
     /**
      * Currently bound texture in the current thread
      */
@@ -36,6 +42,10 @@ class TextureRegistry
 
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.pointer)
         }
+
+        @Suppress("SENSELESS_COMPARISON")
+        if (texture.textureCoordinates != null)
+            tempTexShaderImpl.updateUniform(texture.textureCoordinates.baseX, texture.textureCoordinates.baseY)
 
         bound = texture
     }
