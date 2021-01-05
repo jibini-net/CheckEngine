@@ -17,12 +17,14 @@ class TempTexShaderImpl : Initializable
         uniform sampler2D tex;
         
         varying vec2 tex_coord;
+        varying vec4 color;
         
         void main()
         {
             gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
             
             tex_coord = gl_MultiTexCoord0.st + tex_offset;
+            color = gl_Color;
         }
     """.trimIndent()
 
@@ -32,10 +34,11 @@ class TempTexShaderImpl : Initializable
         uniform sampler2D tex;
         
         varying vec2 tex_coord;
+        varying vec4 color;
         
         void main()
         {
-            gl_FragColor = texture2D(tex, tex_coord);
+            gl_FragColor = texture2D(tex, tex_coord) * color;
         }
     """.trimIndent()
 
