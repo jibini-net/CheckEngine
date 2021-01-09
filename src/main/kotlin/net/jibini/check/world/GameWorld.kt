@@ -94,36 +94,31 @@ class GameWorld : Updatable
 
     private val portals = ConcurrentHashMap<BoundingBox, String>()
 
-    //TODO OpenGL ES
     private fun render()
     {
         if (!visible)
             return
         room ?: return
 
-        if (player != null)
-            GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
+//        if (player != null)
+//            //TODO OpenGL ES
+//            GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
 
         room?.update()
 
         // Update entities last for transparency
-        GL11.glPushMatrix()
+        //TODO OpenGL ES
+//        GL11.glPushMatrix()
 
         entities.sortByDescending { it.y }
 
         for (entity in entities)
         {
             // Translate forward to avoid transparency issues
-            GL11.glTranslatef(0.0f, 0.0f, 0.02f)
+            //TODO OpenGL ES
+//            GL11.glTranslatef(0.0f, 0.0f, 0.02f)
             entity.update()
         }
-
-        GL11.glTranslatef(0.0f, 0.0f, 0.02f)
-
-        if (keyboard.isPressed(GLFW.GLFW_KEY_F3) && !dualTexShaderImpl.claimRender)
-            quadTree.render()
-
-        GL11.glPopMatrix()
     }
 
     private fun quadTreeResolution()

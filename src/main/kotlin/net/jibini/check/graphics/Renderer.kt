@@ -2,7 +2,7 @@ package net.jibini.check.graphics
 
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
-import net.jibini.check.texture.Texture
+import net.jibini.check.graphics.impl.RenderGroup
 import net.jibini.check.texture.impl.TextureRegistry
 import org.lwjgl.opengl.GL11
 
@@ -17,6 +17,19 @@ class Renderer : EngineAware()
 {
     @EngineObject
     private lateinit var textureRegistry: TextureRegistry
+
+    private var renderGroup: RenderGroup? = null
+
+    fun beginGroup()
+    {
+        renderGroup = RenderGroup()
+    }
+
+    fun finalizeGroup()
+    {
+        renderGroup?.finalize()
+        renderGroup = null
+    }
 
     /**
      * Draws a rectangle with the given coordinates and size; uses the currently bound texture and its texture
@@ -36,21 +49,21 @@ class Renderer : EngineAware()
         val dx = coordinates?.deltaX ?: 0.0f
         val dy = coordinates?.deltaY ?: 0.0f
 
-        GL11.glBegin(GL11.GL_QUADS)
-
-        // Coordinate zero
-        GL11.glTexCoord2f(0.0f, dy)
-        GL11.glVertex2f(x, y)
-        // Coordinate one
-        GL11.glTexCoord2f(dx, dy)
-        GL11.glVertex2f(x + width, y)
-        // Coordinate two
-        GL11.glTexCoord2f(dx, 0.0f)
-        GL11.glVertex2f(x + width, y + height)
-        // Coordinate three
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex2f(x, y + height)
-
-        GL11.glEnd()
+//        GL11.glBegin(GL11.GL_QUADS)
+//
+//        // Coordinate zero
+//        GL11.glTexCoord2f(0.0f, dy)
+//        GL11.glVertex2f(x, y)
+//        // Coordinate one
+//        GL11.glTexCoord2f(dx, dy)
+//        GL11.glVertex2f(x + width, y)
+//        // Coordinate two
+//        GL11.glTexCoord2f(dx, 0.0f)
+//        GL11.glVertex2f(x + width, y + height)
+//        // Coordinate three
+//        GL11.glTexCoord2f(0.0f, 0.0f)
+//        GL11.glVertex2f(x, y + height)
+//
+//        GL11.glEnd()
     }
 }

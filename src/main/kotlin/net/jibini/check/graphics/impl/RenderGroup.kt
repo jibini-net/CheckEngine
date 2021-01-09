@@ -5,5 +5,8 @@ import org.lwjgl.opengles.GLES30
 
 class RenderGroup : Pointer<Int> by PointerImpl(GLES30.glGenVertexArrays())
 {
+    fun finalize()
+    {
 
+    }
 }

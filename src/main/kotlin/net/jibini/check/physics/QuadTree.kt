@@ -63,11 +63,6 @@ class QuadTree<E : Bounded>(
     @EngineObject
     private lateinit var textureRegistry: TextureRegistry
 
-    fun render()
-    {
-        textureRegistry.unbind()
-    }
-
     /**
      * The head node covering the entire x-y-plane of the quad-tree
      */

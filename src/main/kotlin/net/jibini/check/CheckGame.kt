@@ -27,12 +27,6 @@ interface CheckGame : Initializable, Updatable
         /**
          * Version of the application; used for window titles and logging
          */
-        val appVersion: String,
-
-        /**
-         * Version of OpenGL ES context to initialize (in form XY, where X is major version and Y is minor version);
-         * determines the hardware support conformance level of the game engine's validation layer
-         */
-        val contextVersion: Int
+        val appVersion: String
     )
 }

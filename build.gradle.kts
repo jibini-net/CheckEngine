@@ -74,6 +74,7 @@ dependencies {
     implementation("org.lwjgl", "lwjgl-glfw")
 
     implementation("org.lwjgl", "lwjgl-opengles")
+    implementation("org.lwjgl", "lwjgl-egl")
 
     // Runtime natives for current platform
     runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)

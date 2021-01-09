@@ -12,9 +12,13 @@ import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.input.Keyboard
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengles.GLES
 import org.lwjgl.opengles.GLES30
+import org.lwjgl.opengles.GLESCapabilities
+import org.lwjgl.system.Configuration
+import org.lwjgl.system.Library
 import org.slf4j.LoggerFactory
+import java.io.File
 import kotlin.concurrent.thread
 
 /**
@@ -118,7 +122,14 @@ object Check
 
             // Make and keep OpenGL context current
             window.makeCurrent()
-            GL.createCapabilities()
+
+            if (!File("opengl_es").exists())
+            {
+                Configuration.OPENGLES_EXPLICIT_INIT.set(true)
+                GLES.create(GL.getFunctionProvider()!!)
+            }
+
+            GLES.createCapabilities()
 
             // Create and place game's lifecycle
             val lifeCycle = LifeCycle()
@@ -143,7 +154,7 @@ object Check
             lifeCycle.registerTask({
                 GLES30.glClear(featureSet.clearFlags)
                 //TODO OpenGL ES
-                GL11.glLoadIdentity()
+//                GL11.glLoadIdentity()
 
                 val w = IntArray(1)
                 val h = IntArray(1)
@@ -155,10 +166,10 @@ object Check
                 val widthRatio = w[0].toDouble() / h[0]
 
                 //TODO OpenGL ES
-                GL11.glMatrixMode(GL11.GL_PROJECTION)
-                GL11.glLoadIdentity()
-                GL11.glOrtho(-widthRatio, widthRatio, -1.0, 1.0, -100.0, 100.0)
-                GL11.glMatrixMode(GL11.GL_MODELVIEW)
+//                GL11.glMatrixMode(GL11.GL_PROJECTION)
+//                GL11.glLoadIdentity()
+//                GL11.glOrtho(-widthRatio, widthRatio, -1.0, 1.0, -100.0, 100.0)
+//                GL11.glMatrixMode(GL11.GL_MODELVIEW)
             }, 0)
 
             // Register the OpenGL/GLFW window buffer swap
