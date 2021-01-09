@@ -4,6 +4,7 @@ import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.Updatable
 import net.jibini.check.graphics.Renderer
+import net.jibini.check.graphics.impl.TempTexShaderImpl
 import net.jibini.check.texture.Texture
 import org.lwjgl.opengl.GL11
 import kotlin.math.sin
@@ -34,6 +35,9 @@ class Room(
 {
     @EngineObject
     private lateinit var renderer: Renderer
+
+    @EngineObject
+    private lateinit var tempTexShaderImpl: TempTexShaderImpl
 
     /**
      * Two-dimensional tile array initialized to all null tiles
@@ -81,6 +85,8 @@ class Room(
         for ((tile, list) in registeredMeshes)
         {
             tile.texture.bind()
+
+            tempTexShaderImpl.updateBlocking(tile.blocking)
 
 //            GL11.glColor3f(sin(i.toFloat() * (2.0 * 3.14159 / 8)).toFloat(),
 //                sin(i.toFloat() * (2.0 * 3.14159 / 8) + (2.0 * 3.14159 / 3)).toFloat(),
