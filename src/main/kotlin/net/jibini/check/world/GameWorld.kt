@@ -1,8 +1,5 @@
 package net.jibini.check.world
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -26,7 +23,6 @@ import org.lwjgl.opengl.GL11
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
@@ -261,13 +257,13 @@ class GameWorld : Initializable, Updatable
     /**
      * Loads the given room from the program resources and spawns the entities as described in the level metadata
      *
-     * @param name Level resource folder relative to classpath location 'tile_sets/'
+     * @param name Level resource folder relative to file location 'worlds/'
      */
     fun loadRoom(name: String)
     {
         reset()
 
-        val roomImageFile = Resource.fromClasspath("tile_sets/$name/$name.png").stream
+        val roomImageFile = Resource.fromFile("worlds/$name/$name.png").stream
         val roomImage = ImageIO.read(roomImageFile)
 
         val colors = IntArray(roomImage.width * roomImage.height)
@@ -277,7 +273,7 @@ class GameWorld : Initializable, Updatable
         for (x in 0 until roomImage.width)
             colorIndices += colors[x]
 
-        val roomMetaFile = Resource.fromClasspath("tile_sets/$name/$name.txt").stream
+        val roomMetaFile = Resource.fromFile("worlds/$name/$name.txt").stream
         val roomMetaReader = roomMetaFile.bufferedReader()
 
         val roomTiles = mutableMapOf<Int, Tile>()
@@ -323,7 +319,7 @@ class GameWorld : Initializable, Updatable
                     {
                         "untextured" -> BitmapTextureImpl(2, 2)
 
-                        else -> Texture.load(Resource.fromClasspath("tile_sets/$name/${split[2]}"))
+                        else -> Texture.load(Resource.fromFile("worlds/$name/${split[2]}"))
                     }
 
                     val blocking = when(split[3])
