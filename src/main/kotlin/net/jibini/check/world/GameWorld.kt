@@ -10,6 +10,7 @@ import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.graphics.impl.DualTexShaderImpl
 import net.jibini.check.input.Keyboard
 import net.jibini.check.physics.Bounded
 import net.jibini.check.physics.BoundingBox
@@ -21,11 +22,13 @@ import org.joml.Math
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 import org.slf4j.LoggerFactory
+import java.awt.image.BufferedImage
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
+import javax.imageio.ImageTypeSpecifier
 import kotlin.math.abs
 
 /**
@@ -44,6 +47,9 @@ class GameWorld : Initializable, Updatable
 
     @EngineObject
     private lateinit var keyboard: Keyboard
+
+    @EngineObject
+    private lateinit var dualTexShaderImpl: DualTexShaderImpl
 
     /**
      * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
@@ -232,7 +238,10 @@ class GameWorld : Initializable, Updatable
     override fun update()
     {
         room ?: return
-        render()
+
+        dualTexShaderImpl.performDual {
+            render()
+        }
 
         runBlocking {
             physicsUpdateLock.withLock {

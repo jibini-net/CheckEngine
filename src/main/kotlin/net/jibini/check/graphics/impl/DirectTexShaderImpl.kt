@@ -6,9 +6,9 @@ import net.jibini.check.graphics.Shader
 import net.jibini.check.resource.Resource
 
 @RegisterObject
-class TempTexShaderImpl : Initializable
+class DirectTexShaderImpl : Initializable
 {
-    private lateinit var shader: Shader
+    lateinit var shader: Shader
 
     override fun initialize()
     {
@@ -29,9 +29,6 @@ class TempTexShaderImpl : Initializable
         }
     }
 
-    fun updateBlocking(blocking: Boolean)
-    {
-        if (this::shader.isInitialized)
-            shader.uniform("light_blocking", if (blocking) 1 else 0)
-    }
+    val init: Boolean
+        get() = this::shader.isInitialized
 }

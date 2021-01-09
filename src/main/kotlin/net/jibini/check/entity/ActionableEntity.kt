@@ -1,18 +1,14 @@
 package net.jibini.check.entity
 
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
+import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.entity.character.Attack
+import net.jibini.check.graphics.impl.DualTexShaderImpl
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
-import net.jibini.check.world.GameWorld
 import org.joml.Math.clamp
 import org.lwjgl.opengl.GL11
-import org.slf4j.LoggerFactory
 import kotlin.math.sqrt
 
 /**
@@ -48,6 +44,9 @@ abstract class ActionableEntity(
     private val walk = 1
 
     private val shadowTexture = Texture.load(Resource.fromClasspath("characters/shadow.png"))
+
+    @EngineObject
+    private lateinit var dualTex: DualTexShaderImpl
 
     /**
      * Character directional state (RIGHT/LEFT, or 0/1 respectively)
@@ -117,6 +116,9 @@ abstract class ActionableEntity(
         renderTexture.bind()
         // Update attack; this may override previous texture
         attack?.update()
+
+        if (dualTex.claimRender)
+            dualTex.updateBlocking(true)
 
         // Draw rectangle (centered on x, 0.4 x 0.4)
         GL11.glTranslatef(0.0f, 0.0f, 0.01f)

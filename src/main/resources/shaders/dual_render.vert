@@ -1,6 +1,7 @@
 #version 120
 
 uniform vec2 tex_offset;
+uniform sampler2D tex;
 
 varying vec2 tex_coord;
 varying vec4 color;
