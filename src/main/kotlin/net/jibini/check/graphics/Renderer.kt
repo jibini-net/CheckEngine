@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL11
  *
  * @author Zach Goethel
  */
+//TODO RENDER GROUPS = DISPLAY LIST
+//TODO OpenGL ES
 class Renderer : EngineAware()
 {
     @EngineObject
@@ -30,9 +32,6 @@ class Renderer : EngineAware()
     {
         val coordinates = textureRegistry.bound?.textureCoordinates
 
-        // Find coordinate start coordinates
-        val baseX = coordinates?.baseX ?: 0.0f
-        val baseY = coordinates?.baseY ?: 0.0f
         // Find texture width and height
         val dx = coordinates?.deltaX ?: 0.0f
         val dy = coordinates?.deltaY ?: 0.0f

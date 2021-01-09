@@ -1,6 +1,6 @@
 package net.jibini.check.engine
 
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengles.GLES30
 
 /**
  * Object for configuring OpenGL features on application initialization
@@ -12,7 +12,7 @@ class FeatureSet
     /**
      * OpenGL buffer flags for which buffers should be cleared each frame
      */
-    var clearFlags: Int = GL11.GL_COLOR_BUFFER_BIT
+    var clearFlags: Int = GLES30.GL_COLOR_BUFFER_BIT
 
     /**
      * Enables depth test and adds the depth buffer to the clear flags
@@ -20,8 +20,8 @@ class FeatureSet
     fun enableDepthTest(): FeatureSet
     {
         // Add depth clear flag and enable depth test
-        clearFlags = clearFlags or GL11.GL_DEPTH_BUFFER_BIT
-        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        clearFlags = clearFlags or GLES30.GL_DEPTH_BUFFER_BIT
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
 
         return this
     }
@@ -32,7 +32,7 @@ class FeatureSet
     fun enable2DTextures(): FeatureSet
     {
         // Enable 2D textures globally
-        GL11.glEnable(GL11.GL_TEXTURE_2D)
+        GLES30.glEnable(GLES30.GL_TEXTURE_2D)
 
         return this
     }
@@ -43,8 +43,8 @@ class FeatureSet
     fun enableTransparency(): FeatureSet
     {
         // Enable blending and set the blend function
-        GL11.glEnable(GL11.GL_BLEND)
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
 
         return this
     }

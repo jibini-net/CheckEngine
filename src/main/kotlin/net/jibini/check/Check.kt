@@ -13,6 +13,7 @@ import net.jibini.check.input.Keyboard
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengles.GLES30
 import org.slf4j.LoggerFactory
 import kotlin.concurrent.thread
 
@@ -140,7 +141,8 @@ object Check
 
             // Register the OpenGL clear and identity reset operations
             lifeCycle.registerTask({
-                GL11.glClear(featureSet.clearFlags)
+                GLES30.glClear(featureSet.clearFlags)
+                //TODO OpenGL ES
                 GL11.glLoadIdentity()
 
                 val w = IntArray(1)
@@ -148,10 +150,11 @@ object Check
 
                 GLFW.glfwGetWindowSize(window.pointer, w, h)
 
-                GL11.glViewport(0, 0, w[0], h[0])
+                GLES30.glViewport(0, 0, w[0], h[0])
 
                 val widthRatio = w[0].toDouble() / h[0]
 
+                //TODO OpenGL ES
                 GL11.glMatrixMode(GL11.GL_PROJECTION)
                 GL11.glLoadIdentity()
                 GL11.glOrtho(-widthRatio, widthRatio, -1.0, 1.0, -100.0, 100.0)

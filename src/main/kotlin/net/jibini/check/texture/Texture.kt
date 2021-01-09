@@ -1,6 +1,5 @@
 package net.jibini.check.texture
 
-import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.resource.Resource
@@ -9,7 +8,6 @@ import net.jibini.check.texture.impl.BitmapTextureImpl
 import net.jibini.check.texture.impl.FlippedTextureImpl
 import net.jibini.check.texture.impl.TextureRegistry
 import org.lwjgl.BufferUtils
-import org.lwjgl.opengl.GL11
 import java.awt.image.BufferedImage
 import java.nio.Buffer
 import java.nio.ByteBuffer

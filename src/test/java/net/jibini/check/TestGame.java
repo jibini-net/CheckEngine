@@ -98,9 +98,7 @@ public class TestGame implements CheckGame
         return new CheckGame.Profile(
                 /* App Name:    */ "Test Game",
                 /* App Version: */ "0.0",
-                /* GL Version:  */ 20,
-                /* GL Core:     */ false,
-                /* GL Forward:  */ false
+                /* GL Version:  */ 30
         );
     }
 }

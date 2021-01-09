@@ -3,7 +3,7 @@ package net.jibini.check.graphics
 import net.jibini.check.graphics.impl.ShaderImpl
 import net.jibini.check.graphics.impl.ShaderProgramImpl
 import net.jibini.check.resource.Resource
-import org.lwjgl.opengl.GL20
+import org.lwjgl.opengles.GLES30
 
 interface Shader
 {
@@ -18,8 +18,8 @@ interface Shader
         @JvmStatic
         fun create(vertex: Resource, fragment: Resource): Shader
         {
-            val vertShader = ShaderImpl.create(GL20.GL_VERTEX_SHADER, vertex.textContents)
-            val fragShader = ShaderImpl.create(GL20.GL_FRAGMENT_SHADER, fragment.textContents)
+            val vertShader = ShaderImpl.create(GLES30.GL_VERTEX_SHADER, vertex.textContents)
+            val fragShader = ShaderImpl.create(GLES30.GL_FRAGMENT_SHADER, fragment.textContents)
 
             val result = ShaderProgramImpl()
 

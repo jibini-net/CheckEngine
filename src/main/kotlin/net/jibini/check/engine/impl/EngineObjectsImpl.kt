@@ -73,7 +73,7 @@ object EngineObjectsImpl
         for (each in annotated)
         {
             val eachClass = each.loadClass()
-            log.debug("Found engine registration of class '${eachClass.name}'")
+            log.debug("Found engine registration of class '${eachClass.simpleName}'")
 
             try
             {

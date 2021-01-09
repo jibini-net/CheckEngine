@@ -22,13 +22,11 @@ import org.joml.Math
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 import org.slf4j.LoggerFactory
-import java.awt.image.BufferedImage
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
-import javax.imageio.ImageTypeSpecifier
 import kotlin.math.abs
 
 /**
@@ -37,7 +35,7 @@ import kotlin.math.abs
  * @author Zach Goethel
  */
 @RegisterObject
-class GameWorld : Initializable, Updatable
+class GameWorld : Updatable
 {
     var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
 
@@ -96,22 +94,7 @@ class GameWorld : Initializable, Updatable
 
     private val portals = ConcurrentHashMap<BoundingBox, String>()
 
-    override fun initialize()
-    {
-//        thread(isDaemon = true, name = "Quad-tree") {
-//            while (true)
-//                try
-//                {
-//                    quadTree.reevaluate()
-//
-//                    Thread.sleep(10)
-//                } catch (ex: ConcurrentModificationException)
-//                {
-//                    ex.printStackTrace()
-//                }
-//        }
-    }
-
+    //TODO OpenGL ES
     private fun render()
     {
         if (!visible)
@@ -137,7 +120,7 @@ class GameWorld : Initializable, Updatable
 
         GL11.glTranslatef(0.0f, 0.0f, 0.02f)
 
-        if (keyboard.isPressed(GLFW.GLFW_KEY_F3))
+        if (keyboard.isPressed(GLFW.GLFW_KEY_F3) && !dualTexShaderImpl.claimRender)
             quadTree.render()
 
         GL11.glPopMatrix()
@@ -460,7 +443,6 @@ class GameWorld : Initializable, Updatable
                 }
             }
         }
-
 
         roomMetaReader.close()
 

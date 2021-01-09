@@ -5,7 +5,7 @@ import net.jibini.check.engine.RegisterObject
 import net.jibini.check.graphics.impl.DirectTexShaderImpl
 import net.jibini.check.graphics.impl.DualTexShaderImpl
 import net.jibini.check.texture.Texture
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengles.GLES30
 
 @RegisterObject
 class TextureRegistry
@@ -43,7 +43,7 @@ class TextureRegistry
         {
             boundPointer = texture.pointer
 
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.pointer)
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture.pointer)
         }
 
         @Suppress("SENSELESS_COMPARISON")
@@ -60,7 +60,7 @@ class TextureRegistry
 
     fun unbind()
     {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
 
         bound = null
         boundPointer = 0

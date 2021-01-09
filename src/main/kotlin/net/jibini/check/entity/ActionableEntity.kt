@@ -121,18 +121,24 @@ abstract class ActionableEntity(
             dualTex.updateBlocking(true)
 
         // Draw rectangle (centered on x, 0.4 x 0.4)
+        //TODO OpenGL ES
         GL11.glTranslatef(0.0f, 0.0f, 0.01f)
         renderer.drawRectangle(
             x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32) + falseYOffset.toFloat(),
             0.4f, 0.4f
         )
 
+        if (dualTex.claimRender)
+            dualTex.updateBlocking(false)
+
         val shadowSize = clamp(0.1f, 0.2f, (0.2 - (falseYOffset / 3.2)).toFloat())
+        //TODO OpenGL ES
         GL11.glColor4f(1.0f, 1.0f, 1.0f, shadowSize * 5 - 0.25f)
 
         if (gameWorld.room?.isSideScroller == false && falseYOffset > 0.0)
         {
             shadowTexture.bind()
+            //TODO OpenGL ES
             GL11.glTranslatef(0.0f, 0.0f, -0.01f)
             renderer.drawRectangle(
                 x.toFloat() - shadowSize / 2, y.toFloat() - 0.01f,
@@ -140,6 +146,7 @@ abstract class ActionableEntity(
             )
         }
 
+        //TODO OpenGL ES
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
 
         // Update physics in entity last (after render to avoid shaking)

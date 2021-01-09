@@ -3,9 +3,7 @@ package net.jibini.check.physics
 import kotlinx.coroutines.*
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
-import net.jibini.check.graphics.Renderer
 import net.jibini.check.texture.impl.TextureRegistry
-import org.lwjgl.opengl.GL11
 import java.util.*
 
 /**
@@ -63,17 +61,11 @@ class QuadTree<E : Bounded>(
     }
 
     @EngineObject
-    private lateinit var renderer: Renderer
-
-    @EngineObject
     private lateinit var textureRegistry: TextureRegistry
 
     fun render()
     {
         textureRegistry.unbind()
-
-        rootNode.render(renderer)
-        GL11.glColor3f(1.0f, 1.0f, 1.0f)
     }
 
     /**
@@ -197,46 +189,6 @@ class QuadTree<E : Bounded>(
          */
         var branched = false
 
-        fun render(renderer: Renderer)
-        {
-            GL11.glColor3f(
-                if (bucket.size == 1) 1.0f else 0.0f,
-                if (bucket.size == 2) 1.0f else 0.0f,
-                if (bucket.size >= 3) 1.0f else 0.0f
-            )
-
-            renderer.drawRectangle(
-                x.toFloat(),
-                y.toFloat(),
-                width.toFloat(),
-                0.005f * bucket.size
-            )
-
-            renderer.drawRectangle(
-                x.toFloat(),
-                y.toFloat() + height.toFloat() - 0.005f * bucket.size,
-                width.toFloat(),
-                0.005f * bucket.size
-            )
-
-            renderer.drawRectangle(
-                x.toFloat(),
-                y.toFloat(),
-                0.005f * bucket.size,
-                height.toFloat()
-            )
-
-            renderer.drawRectangle(
-                x.toFloat() + width.toFloat() - 0.005f * bucket.size,
-                y.toFloat(),
-                0.005f * bucket.size,
-                height.toFloat()
-            )
-
-            for (child in children)
-                child?.render(renderer)
-        }
-
         /**
          * See [QuadTree.place].
          */
@@ -359,33 +311,33 @@ class QuadTree<E : Bounded>(
             branched = true
         }
 
-        /**
-         * Deletes this node's child nodes and moves all elements held in their buckets to this node's bucket
-         */
-        fun prune()
-        {
-            runBlocking {
-                coroutineScope {
-
-                    for (i in children.indices)
-                    {
-                        launch {
-                            // Recursively prune any branched child nodes
-                            if (children[i]?.branched == true)
-                                children[i]!!.prune()
-                            // Add any elements in the child node to this node
-                            bucket.addAll(children[i]?.bucket ?: listOf())
-
-                            // Remove reference to child node
-                            children[i] = null
-                        }
-                    }
-
-                }
-            }
-
-            // Record that this node is no longer branched
-            branched = false
-        }
+//        /**
+//         * Deletes this node's child nodes and moves all elements held in their buckets to this node's bucket
+//         */
+//        fun prune()
+//        {
+//            runBlocking {
+//                coroutineScope {
+//
+//                    for (i in children.indices)
+//                    {
+//                        launch {
+//                            // Recursively prune any branched child nodes
+//                            if (children[i]?.branched == true)
+//                                children[i]!!.prune()
+//                            // Add any elements in the child node to this node
+//                            bucket.addAll(children[i]?.bucket ?: listOf())
+//
+//                            // Remove reference to child node
+//                            children[i] = null
+//                        }
+//                    }
+//
+//                }
+//            }
+//
+//            // Record that this node is no longer branched
+//            branched = false
+//        }
     }
 }

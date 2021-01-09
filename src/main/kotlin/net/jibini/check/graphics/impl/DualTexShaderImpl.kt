@@ -7,7 +7,7 @@ import net.jibini.check.graphics.Shader
 import net.jibini.check.input.Keyboard
 import net.jibini.check.resource.Resource
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengles.GLES30
 
 @RegisterObject
 class DualTexShaderImpl : Initializable
@@ -44,8 +44,8 @@ class DualTexShaderImpl : Initializable
             shader.use()
         if (keyboard.isPressed(GLFW.GLFW_KEY_0)) //TODO TEMP
         {
-            GL11.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT or GL11.GL_DEPTH_BUFFER_BIT)
+            GLES30.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
+            GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
 
             renderTask()
         }
@@ -55,8 +55,8 @@ class DualTexShaderImpl : Initializable
             directTexShaderImpl.shader.use()
         if (!keyboard.isPressed(GLFW.GLFW_KEY_0)) //TODO TEMP
         {
-            GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT or GL11.GL_DEPTH_BUFFER_BIT)
+            GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+            GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
 
             renderTask()
         }

@@ -2,43 +2,43 @@ package net.jibini.check.graphics.impl
 
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.graphics.Shader
-import org.lwjgl.opengl.GL20
+import org.lwjgl.opengles.GLES30
 
-class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by PointerImpl(GL20.glCreateProgram())
+class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by PointerImpl(GLES30.glCreateProgram())
 {
     override fun destroy()
     {
-        GL20.glDeleteProgram(pointer)
+        GLES30.glDeleteProgram(pointer)
     }
 
     override fun use()
     {
-        GL20.glUseProgram(pointer)
+        GLES30.glUseProgram(pointer)
     }
 
     override fun uniform(name: String, x: Int)
     {
         use()
-        val location = GL20.glGetUniformLocation(pointer, name)
+        val location = GLES30.glGetUniformLocation(pointer, name)
 
-        GL20.glUniform1i(location, x)
+        GLES30.glUniform1i(location, x)
     }
 
     override fun uniform(name: String, x: Float, y: Float)
     {
         use()
-        val location = GL20.glGetUniformLocation(pointer, name)
+        val location = GLES30.glGetUniformLocation(pointer, name)
 
-        GL20.glUniform2f(location, x, y)
+        GLES30.glUniform2f(location, x, y)
     }
 
     fun attach(shaderImpl: ShaderImpl)
     {
-        GL20.glAttachShader(pointer, shaderImpl.pointer)
+        GLES30.glAttachShader(pointer, shaderImpl.pointer)
     }
 
     fun link()
     {
-        GL20.glLinkProgram(pointer)
+        GLES30.glLinkProgram(pointer)
     }
 }
