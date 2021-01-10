@@ -47,7 +47,7 @@ class BitmapTextureImpl(
             GLES30.GL_TEXTURE_2D, 0,
             GLES30.GL_RGBA,
             width, height, 0,
-            GLES30.GL_RGBA, GLES30.GL_FLOAT,
+            GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE,
             0L
         )
 

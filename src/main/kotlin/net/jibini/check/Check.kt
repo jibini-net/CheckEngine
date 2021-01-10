@@ -6,6 +6,7 @@ import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.LifeCycle
 import net.jibini.check.engine.Updatable
 import net.jibini.check.engine.timing.GlobalDeltaSync
+import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.DestroyableRegistry
@@ -14,9 +15,7 @@ import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengles.GLES
 import org.lwjgl.opengles.GLES30
-import org.lwjgl.opengles.GLESCapabilities
 import org.lwjgl.system.Configuration
-import org.lwjgl.system.Library
 import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.concurrent.thread
@@ -153,8 +152,7 @@ object Check
             // Register the OpenGL clear and identity reset operations
             lifeCycle.registerTask({
                 GLES30.glClear(featureSet.clearFlags)
-                //TODO OpenGL ES
-//                GL11.glLoadIdentity()
+                EngineObjectsImpl.get<Matrices>()[0].model.identity()
 
                 val w = IntArray(1)
                 val h = IntArray(1)
@@ -163,13 +161,15 @@ object Check
 
                 GLES30.glViewport(0, 0, w[0], h[0])
 
-                val widthRatio = w[0].toDouble() / h[0]
+                val widthRatio = w[0].toFloat() / h[0]
 
-                //TODO OpenGL ES
-//                GL11.glMatrixMode(GL11.GL_PROJECTION)
-//                GL11.glLoadIdentity()
-//                GL11.glOrtho(-widthRatio, widthRatio, -1.0, 1.0, -100.0, 100.0)
-//                GL11.glMatrixMode(GL11.GL_MODELVIEW)
+                EngineObjectsImpl.get<Matrices>()[0].projection
+                    .identity()
+                    .ortho(
+                        -widthRatio, widthRatio,
+                        -1.0f, 1.0f,
+                        -100.0f, 100.0f
+                    )
             }, 0)
 
             // Register the OpenGL/GLFW window buffer swap

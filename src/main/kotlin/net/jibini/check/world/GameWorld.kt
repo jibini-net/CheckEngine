@@ -10,6 +10,8 @@ import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.graphics.Matrices
+import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.impl.DualTexShaderImpl
 import net.jibini.check.input.Keyboard
 import net.jibini.check.physics.Bounded
@@ -19,8 +21,6 @@ import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
 import org.joml.Math
-import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL11
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
@@ -44,10 +44,13 @@ class GameWorld : Updatable
     val physicsUpdateLock = Mutex()
 
     @EngineObject
-    private lateinit var keyboard: Keyboard
+    private lateinit var dualTexShaderImpl: DualTexShaderImpl
 
     @EngineObject
-    private lateinit var dualTexShaderImpl: DualTexShaderImpl
+    private lateinit var uniforms: Uniforms
+
+    @EngineObject
+    private lateinit var matrices: Matrices
 
     /**
      * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
@@ -100,25 +103,24 @@ class GameWorld : Updatable
             return
         room ?: return
 
-//        if (player != null)
-//            //TODO OpenGL ES
-//            GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
+        if (player != null)
+            matrices.model.translate(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
 
         room?.update()
 
         // Update entities last for transparency
-        //TODO OpenGL ES
-//        GL11.glPushMatrix()
+        matrices.model.pushMatrix()
 
         entities.sortByDescending { it.y }
 
         for (entity in entities)
         {
             // Translate forward to avoid transparency issues
-            //TODO OpenGL ES
-//            GL11.glTranslatef(0.0f, 0.0f, 0.02f)
+            matrices.model.translate(0.0f, 0.0f, 0.02f)
             entity.update()
         }
+
+        matrices.model.popMatrix()
     }
 
     private fun quadTreeResolution()

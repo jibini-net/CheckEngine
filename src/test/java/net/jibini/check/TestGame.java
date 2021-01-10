@@ -7,6 +7,7 @@ import net.jibini.check.texture.Texture;
 import net.jibini.check.world.GameWorld;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengles.GLES30;
 
 public class TestGame implements CheckGame
 {

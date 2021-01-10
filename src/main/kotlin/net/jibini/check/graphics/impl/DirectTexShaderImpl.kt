@@ -16,19 +16,5 @@ class DirectTexShaderImpl : Initializable
             Resource.fromClasspath("shaders/textured.vert"),
             Resource.fromClasspath("shaders/textured.frag")
         )
-
-        shader.use()
     }
-
-    fun updateUniform(s: Float, t: Float)
-    {
-        if (this::shader.isInitialized)
-        {
-            shader.uniform("tex_offset", s, t)
-            shader.uniform("tex", 0)
-        }
-    }
-
-    val init: Boolean
-        get() = this::shader.isInitialized
 }

@@ -2,27 +2,36 @@ package net.jibini.check.graphics
 
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
-import net.jibini.check.graphics.impl.RenderGroup
 import net.jibini.check.texture.impl.TextureRegistry
-import org.lwjgl.opengl.GL11
+import org.joml.Vector2f
+import org.joml.Vector3f
+import org.joml.Vector4f
 
 /**
  * A per-context engine object which helps with rendering textured rectangles
  *
  * @author Zach Goethel
  */
-//TODO RENDER GROUPS = DISPLAY LIST
-//TODO OpenGL ES
 class Renderer : EngineAware()
 {
     @EngineObject
     private lateinit var textureRegistry: TextureRegistry
 
+    @EngineObject
+    private lateinit var matrices: Matrices
+
     private var renderGroup: RenderGroup? = null
 
-    fun beginGroup()
+    fun beginGroup(): RenderGroup
     {
         renderGroup = RenderGroup()
+
+        return renderGroup!!
+    }
+
+    fun continueGroup(group: RenderGroup)
+    {
+        renderGroup = group
     }
 
     fun finalizeGroup()
@@ -30,6 +39,8 @@ class Renderer : EngineAware()
         renderGroup?.finalize()
         renderGroup = null
     }
+
+    private val cachedTexture = HashMap<Pair<Float, Float>, RenderGroup>()
 
     /**
      * Draws a rectangle with the given coordinates and size; uses the currently bound texture and its texture
@@ -49,21 +60,62 @@ class Renderer : EngineAware()
         val dx = coordinates?.deltaX ?: 0.0f
         val dy = coordinates?.deltaY ?: 0.0f
 
-//        GL11.glBegin(GL11.GL_QUADS)
-//
-//        // Coordinate zero
-//        GL11.glTexCoord2f(0.0f, dy)
-//        GL11.glVertex2f(x, y)
-//        // Coordinate one
-//        GL11.glTexCoord2f(dx, dy)
-//        GL11.glVertex2f(x + width, y)
-//        // Coordinate two
-//        GL11.glTexCoord2f(dx, 0.0f)
-//        GL11.glVertex2f(x + width, y + height)
-//        // Coordinate three
-//        GL11.glTexCoord2f(0.0f, 0.0f)
-//        GL11.glVertex2f(x, y + height)
-//
-//        GL11.glEnd()
+        if (renderGroup == null)
+        {
+            val unitSquare = cachedTexture.getOrPut(dx to dy)
+            {
+                val result = beginGroup()
+
+                drawRectangle(0.0f, 0.0f, 1.0f, 1.0f)
+
+                finalizeGroup()
+                result
+            }
+
+            matrices.model.pushMatrix()
+            matrices.model.translate(x, y, 0.0f)
+            matrices.model.scale(width, height, 1.0f)
+
+            unitSquare.call()
+
+            matrices.model.popMatrix()
+        } else
+        {
+            renderGroup!!.consumeVertex(
+                Vector3f(x, y, 0.0f),
+                Vector4f(1.0f),
+                Vector2f(0.0f, dy)
+            )
+
+            renderGroup!!.consumeVertex(
+                Vector3f(x + width, y + height, 0.0f),
+                Vector4f(1.0f),
+                Vector2f(dx, 0.0f)
+            )
+
+            renderGroup!!.consumeVertex(
+                Vector3f(x, y + height, 0.0f),
+                Vector4f(1.0f),
+                Vector2f(0.0f, 0.0f)
+            )
+
+            renderGroup!!.consumeVertex(
+                Vector3f(x, y, 0.0f),
+                Vector4f(1.0f),
+                Vector2f(0.0f, dy)
+            )
+
+            renderGroup!!.consumeVertex(
+                Vector3f(x + width, y, 0.0f),
+                Vector4f(1.0f),
+                Vector2f(dx, dy)
+            )
+
+            renderGroup!!.consumeVertex(
+                Vector3f(x + width, y + height, 0.0f),
+                Vector4f(1.0f),
+                Vector2f(dx, 0.0f)
+            )
+        }
     }
 }

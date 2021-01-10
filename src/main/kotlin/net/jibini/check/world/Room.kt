@@ -1,12 +1,12 @@
 package net.jibini.check.world
 
-import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.Updatable
+import net.jibini.check.graphics.RenderGroup
 import net.jibini.check.graphics.Renderer
-import net.jibini.check.graphics.impl.DirectTexShaderImpl
+import net.jibini.check.graphics.Uniforms
+import net.jibini.check.graphics.impl.AbstractAutoDestroyable
 import net.jibini.check.graphics.impl.DualTexShaderImpl
-import org.lwjgl.opengl.GL11
 
 /**
  * A collection of tiles in the current game level
@@ -30,20 +30,20 @@ class Room(
     val tileSize: Double = 0.2,
 
     val isSideScroller: Boolean
-) : EngineAware(), Updatable
+) : AbstractAutoDestroyable(), Updatable
 {
     @EngineObject
     private lateinit var renderer: Renderer
 
     @EngineObject
-    private lateinit var dualTex: DualTexShaderImpl
+    private lateinit var uniforms: Uniforms
 
     /**
      * Two-dimensional tile array initialized to all null tiles
      */
     val tiles = Array(width) { Array<Tile?>(height) { null } }
 
-    private val registeredMeshes = mutableMapOf<Tile, Int>()
+    private val registeredMeshes = mutableMapOf<Tile, RenderGroup>()
 
     fun rebuildMeshes()
     {
@@ -60,11 +60,15 @@ class Room(
 
         for ((tile, tileCoordinates) in attributed)
         {
-            val renderList = registeredMeshes.getOrPut(tile) { GL11.glGenLists(1) }
+            val renderList = registeredMeshes.compute(tile)
+            { _, group ->
+                group?.destroy()
+                renderer.beginGroup()
+            }
 
             tile.texture.bind()
 
-            GL11.glNewList(renderList, GL11.GL_COMPILE)
+            renderer.continueGroup(renderList!!)
 
             for (coordinate in tileCoordinates)
             {
@@ -73,28 +77,24 @@ class Room(
                     tileSize.toFloat(), tileSize.toFloat())
             }
 
-            GL11.glEndList()
+            renderer.finalizeGroup()
         }
     }
 
     override fun update()
     {
-//        var i = 0;
-
         for ((tile, list) in registeredMeshes)
         {
             tile.texture.bind()
+            uniforms.blocking = tile.blocking
 
-            if (dualTex.claimRender)
-                dualTex.updateBlocking(tile.blocking)
-
-//            GL11.glColor3f(sin(i.toFloat() * (2.0 * 3.14159 / 8)).toFloat(),
-//                sin(i.toFloat() * (2.0 * 3.14159 / 8) + (2.0 * 3.14159 / 3)).toFloat(),
-//                sin(i.toFloat() * (2.0 * 3.14159 / 8) + (4.0 * 3.14159 / 3)).toFloat())
-
-            GL11.glCallList(list)
-
-//            i++
+            list.call()
         }
+    }
+
+    override fun destroy()
+    {
+        for ((_, list) in registeredMeshes)
+            list.destroy()
     }
 }

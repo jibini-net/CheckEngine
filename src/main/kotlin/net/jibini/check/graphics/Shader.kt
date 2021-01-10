@@ -3,6 +3,7 @@ package net.jibini.check.graphics
 import net.jibini.check.graphics.impl.ShaderImpl
 import net.jibini.check.graphics.impl.ShaderProgramImpl
 import net.jibini.check.resource.Resource
+import org.joml.Matrix4f
 import org.lwjgl.opengles.GLES30
 
 interface Shader
@@ -12,6 +13,12 @@ interface Shader
     fun uniform(name: String, x: Int)
 
     fun uniform(name: String, x: Float, y: Float)
+
+    fun uniform(name: String, x: Float, y: Float, z: Float)
+
+    fun uniform(name: String, x: Float, y: Float, z: Float, w: Float)
+
+    fun uniform(name: String, matrix: Matrix4f)
 
     companion object
     {

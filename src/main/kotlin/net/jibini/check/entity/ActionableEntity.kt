@@ -3,12 +3,13 @@ package net.jibini.check.entity
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.entity.character.Attack
-import net.jibini.check.graphics.impl.DualTexShaderImpl
+import net.jibini.check.graphics.Matrices
+import net.jibini.check.graphics.Uniforms
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import org.joml.Math.clamp
-import org.lwjgl.opengl.GL11
+import org.joml.Vector4f
 import kotlin.math.sqrt
 
 /**
@@ -46,7 +47,10 @@ abstract class ActionableEntity(
     private val shadowTexture = Texture.load(Resource.fromClasspath("characters/shadow.png"))
 
     @EngineObject
-    private lateinit var dualTex: DualTexShaderImpl
+    private lateinit var uniforms: Uniforms
+
+    @EngineObject
+    private lateinit var matrices: Matrices
 
     /**
      * Character directional state (RIGHT/LEFT, or 0/1 respectively)
@@ -117,37 +121,31 @@ abstract class ActionableEntity(
         // Update attack; this may override previous texture
         attack?.update()
 
-        if (dualTex.claimRender)
-            dualTex.updateBlocking(true)
+        uniforms.blocking = true
 
         // Draw rectangle (centered on x, 0.4 x 0.4)
-        //TODO OpenGL ES
-//        GL11.glTranslatef(0.0f, 0.0f, 0.01f)
+        matrices.model.translate(0.0f, 0.0f, 0.01f)
         renderer.drawRectangle(
             x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32) + falseYOffset.toFloat(),
             0.4f, 0.4f
         )
 
-        if (dualTex.claimRender)
-            dualTex.updateBlocking(false)
+        uniforms.blocking = false
 
         val shadowSize = clamp(0.1f, 0.2f, (0.2 - (falseYOffset / 3.2)).toFloat())
-        //TODO OpenGL ES
-//        GL11.glColor4f(1.0f, 1.0f, 1.0f, shadowSize * 5 - 0.25f)
+        uniforms.colorMultiple = Vector4f(1.0f, 1.0f, 1.0f, shadowSize * 5 - 0.25f)
 
         if (gameWorld.room?.isSideScroller == false && falseYOffset > 0.0)
         {
             shadowTexture.bind()
-            //TODO OpenGL ES
-//            GL11.glTranslatef(0.0f, 0.0f, -0.01f)
+            matrices.model.translate(0.0f, 0.0f, -0.01f)
             renderer.drawRectangle(
                 x.toFloat() - shadowSize / 2, y.toFloat() - 0.01f,
                 shadowSize, shadowSize
             )
         }
 
-        //TODO OpenGL ES
-//        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        uniforms.colorMultiple = Vector4f(1.0f)
 
         // Update physics in entity last (after render to avoid shaking)
         super.update()

@@ -13,14 +13,12 @@ out vec2 tex_coord;
 out vec4 color;
 
 uniform vec2 tex_offset;
-
 uniform mat4 uniform_matrix;
-uniform vec4 uniform_color;
 
 void main()
 {
     gl_Position = uniform_matrix * vec4(vertex, 1.0);
 
     tex_coord = vertex_tex_coord + tex_offset;
-    color = uniform_color;
+    color = vertex_color;
 }
