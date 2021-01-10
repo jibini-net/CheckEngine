@@ -55,6 +55,10 @@ dependencies {
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
 
+    implementation(fileTree("lib") {
+        include("*.jar")
+    })
+
     // Kotlin coroutine multithreading utilities
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.4.0")
 
