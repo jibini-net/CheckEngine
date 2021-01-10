@@ -1,5 +1,8 @@
 package net.jibini.check.engine
 
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.withLock
+import net.jibini.check.Check
 import org.slf4j.LoggerFactory
 
 /**
@@ -58,8 +61,14 @@ class LifeCycle
                 Thread.sleep(10)
             else
                 // Run all tasks
-                for (task in tasks)
-                    task.run()
+                    runBlocking {
+                        Check.pollMutex.withLock {
+                            for (task in tasks)
+                                task.run()
+                        }
+                    }
+
+
 
             Thread.yield()
         }
