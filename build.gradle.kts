@@ -55,6 +55,10 @@ dependencies {
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
 
+    implementation(fileTree("lib") {
+        include("*.jar")
+    })
+
     // Kotlin coroutine multithreading utilities
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.4.0")
 
@@ -73,11 +77,16 @@ dependencies {
     implementation("org.lwjgl", "lwjgl-opengl")
     implementation("org.lwjgl", "lwjgl-glfw")
 
+    implementation("org.lwjgl", "lwjgl-opengles")
+    implementation("org.lwjgl", "lwjgl-egl")
+
     // Runtime natives for current platform
     runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)
     runtimeOnly("org.lwjgl", "lwjgl-openal", classifier = lwjglNatives)
     runtimeOnly("org.lwjgl", "lwjgl-opengl", classifier = lwjglNatives)
     runtimeOnly("org.lwjgl", "lwjgl-glfw", classifier = lwjglNatives)
+
+    runtimeOnly("org.lwjgl", "lwjgl-opengles", classifier = lwjglNatives)
 
     // Java Open Math Library for physics
     implementation("org.joml", "joml", "1.9.25")

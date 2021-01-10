@@ -1,19 +1,30 @@
 package net.jibini.check
 
+import imgui.ImFontAtlas
+import imgui.ImGui
+import imgui.ImGuiIO
+import imgui.flag.ImGuiConfigFlags
+import imgui.gl3.ImGuiGLES30
+import imgui.glfw.ImGuiGLFW
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import net.jibini.check.engine.*
 import net.jibini.check.engine.impl.EngineObjectsImpl
-import net.jibini.check.engine.FeatureSet
-import net.jibini.check.engine.Initializable
-import net.jibini.check.engine.LifeCycle
-import net.jibini.check.engine.Updatable
 import net.jibini.check.engine.timing.GlobalDeltaSync
+import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.input.Keyboard
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengles.GLES
+import org.lwjgl.opengles.GLES30
+import org.lwjgl.system.Configuration
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.util.*
 import kotlin.concurrent.thread
 
 /**
@@ -23,6 +34,9 @@ import kotlin.concurrent.thread
  */
 object Check
 {
+    @JvmStatic
+    val pollMutex = Mutex()
+
     private val log = LoggerFactory.getLogger(javaClass)
 
     // Tracks if any contexts have already been created
@@ -31,6 +45,32 @@ object Check
 
     // Tracks duplicate instances of one game type
     private val instanceCount = mutableMapOf<String, Int>()
+
+    private fun addLibraryPath(pathToAdd: String)
+    {
+        try
+        {
+            val usrPathsField = ClassLoader::class.java.getDeclaredField("usr_paths")
+            usrPathsField.isAccessible = true
+
+            @Suppress("UNCHECKED_CAST")
+            val paths = usrPathsField[null] as Array<String>
+
+            for (path in paths)
+            {
+                if (path == pathToAdd)
+                    return
+            }
+
+            val newPaths = paths.copyOf(paths.size + 1)
+
+            newPaths[newPaths.size - 1] = pathToAdd
+            usrPathsField[null] = newPaths
+        } catch (ex: Exception)
+        {
+            ex.printStackTrace()
+        }
+    }
 
 //    @JvmStatic
 //    fun boot()
@@ -56,6 +96,7 @@ object Check
     {
         log.info("Booting application '${game.profile.appName}' version ${game.profile.appVersion} . . .")
 
+
         if (contextInit)
         {
             // Check that the game is booting from the same thread as the first game
@@ -71,6 +112,18 @@ object Check
 
             // Init GLFW
             GLFW.glfwInit()
+
+            val wdPath = System.getProperty("user.dir")
+            addLibraryPath("$wdPath/bin")
+
+            ImGui.createContext()
+
+            val io = ImGui.getIO()
+            io.iniFilename = null
+//            io.addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard)
+
+            val fontAtlas = io.fonts
+            fontAtlas.addFontDefault()
         }
 
         // If there are duplicate instances of a game, add a game number to the end of its title
@@ -92,14 +145,28 @@ object Check
         // Create and place game's window
         val window = Window(game.profile)
 
+        if (!File("opengl_es").exists())
+        {
+            Configuration.OPENGLES_EXPLICIT_INIT.set(true)
+            GLES.create(GL.getFunctionProvider()!!)
+        }
+
+        GLES.createCapabilities()
+
         // Create and place game's keyboard
         val keyboard = Keyboard(window)
 
-        // Enable VSync because screen tearing on high FPS
-//        GLFW.glfwSwapInterval(1)
-
         // Create and place game's feature set
         val featureSet = FeatureSet()
+
+
+        val glfw = ImGuiGLFW()
+        val gles30 = ImGuiGLES30()
+
+        window.makeCurrent()
+        glfw.init(window.pointer, true)
+        gles30.init()
+
 
         // Release the context (required for multithreading)
         GLFW.glfwMakeContextCurrent(0L)
@@ -115,9 +182,13 @@ object Check
             // The game itself is also an engine object
             EngineObjectsImpl.objects += game
 
+            EngineObjectsImpl.objects += glfw
+            EngineObjectsImpl.objects += gles30
+
             // Make and keep OpenGL context current
             window.makeCurrent()
-            GL.createCapabilities()
+
+            GLES.createCapabilities()
 
             // Create and place game's lifecycle
             val lifeCycle = LifeCycle()
@@ -140,28 +211,36 @@ object Check
 
             // Register the OpenGL clear and identity reset operations
             lifeCycle.registerTask({
-                GL11.glClear(featureSet.clearFlags)
-                GL11.glLoadIdentity()
+                GLES30.glClear(featureSet.clearFlags)
+                EngineObjectsImpl.get<Matrices>()[0].model.identity()
+
+                glfw.newFrame()
+                ImGui.newFrame()
 
                 val w = IntArray(1)
                 val h = IntArray(1)
 
                 GLFW.glfwGetWindowSize(window.pointer, w, h)
 
-                GL11.glViewport(0, 0, w[0], h[0])
+                GLES30.glViewport(0, 0, w[0], h[0])
 
-                val widthRatio = w[0].toDouble() / h[0]
+                val widthRatio = w[0].toFloat() / h[0]
 
-                GL11.glMatrixMode(GL11.GL_PROJECTION)
-                GL11.glLoadIdentity()
-                GL11.glOrtho(-widthRatio, widthRatio, -1.0, 1.0, -100.0, 100.0)
-                GL11.glMatrixMode(GL11.GL_MODELVIEW)
+                EngineObjectsImpl.get<Matrices>()[0].projection
+                    .identity()
+                    .ortho(
+                        -widthRatio, widthRatio,
+                        -1.0f, 1.0f,
+                        -100.0f, 100.0f
+                    )
             }, 0)
 
             // Register the OpenGL/GLFW window buffer swap
             lifeCycle.registerTask {
-                window.swapBuffers()
+                ImGui.render()
+                gles30.renderDrawData(ImGui.getDrawData())
 
+                window.swapBuffers()
                 EngineObjectsImpl.get<GlobalDeltaSync>()[0].globalAutoUpdate()
             }
 
@@ -193,7 +272,13 @@ object Check
         // Polls GLFW window inputs until all instances are closed
         log.debug("Entering infinite main thread polling . . .")
         while (instanceCount.isNotEmpty())
-            GLFW.glfwWaitEventsTimeout(0.1)
+            runBlocking {
+                pollMutex.withLock {
+                    GLFW.glfwPollEvents()
+                }
+            }
+
+
 
         // All instances are closed
         log.debug("Exited infinite polling; no instances remain")

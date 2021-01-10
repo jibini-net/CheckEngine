@@ -7,6 +7,7 @@ import net.jibini.check.texture.Texture;
 import net.jibini.check.world.GameWorld;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengles.GLES30;
 
 public class TestGame implements CheckGame
 {
@@ -71,21 +72,7 @@ public class TestGame implements CheckGame
      */
     public void update()
     {
-//        GL11.glBegin(GL11.GL_QUADS);
-//
-//        GL11.glTexCoord2f(0.0f, 1.0f);
-//        GL11.glVertex3f(-1.0f, -1.0f, 20.0f);
-//
-//        GL11.glTexCoord2f(1.0f, 1.0f);
-//        GL11.glVertex3f(-0.5f, -1.0f, 20.0f);
-//
-//        GL11.glTexCoord2f(1.0f, 0.0f);
-//        GL11.glVertex3f(-0.5f, -0.5f, 20.0f);
-//
-//        GL11.glTexCoord2f(0.0f, 0.0f);
-//        GL11.glVertex3f(-1.0f, -0.5f, 20.0f);
-//
-//        GL11.glEnd();
+
     }
 
     /**
@@ -97,10 +84,7 @@ public class TestGame implements CheckGame
     {
         return new CheckGame.Profile(
                 /* App Name:    */ "Test Game",
-                /* App Version: */ "0.0",
-                /* GL Version:  */ 20,
-                /* GL Core:     */ false,
-                /* GL Forward:  */ false
+                /* App Version: */ "0.0"
         );
     }
 }

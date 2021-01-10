@@ -2,19 +2,16 @@ package net.jibini.check.texture.impl
 
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.RegisterObject
-import net.jibini.check.graphics.impl.DirectTexShaderImpl
-import net.jibini.check.graphics.impl.DualTexShaderImpl
+import net.jibini.check.graphics.Uniforms
 import net.jibini.check.texture.Texture
-import org.lwjgl.opengl.GL11
+import org.joml.Vector2f
+import org.lwjgl.opengles.GLES30
 
 @RegisterObject
 class TextureRegistry
 {
     @EngineObject
-    private lateinit var tempTexShaderImpl: DirectTexShaderImpl
-
-    @EngineObject
-    private lateinit var dualTexShaderImpl: DualTexShaderImpl
+    private lateinit var uniforms: Uniforms
 
     /**
      * Currently bound texture in the current thread
@@ -43,24 +40,19 @@ class TextureRegistry
         {
             boundPointer = texture.pointer
 
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.pointer)
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture.pointer)
         }
 
         @Suppress("SENSELESS_COMPARISON")
         if (texture.textureCoordinates != null)
-        {
-            if (dualTexShaderImpl.claimRender)
-                dualTexShaderImpl.updateUniform(texture.textureCoordinates.baseX, texture.textureCoordinates.baseY)
-            else
-                tempTexShaderImpl.updateUniform(texture.textureCoordinates.baseX, texture.textureCoordinates.baseY)
-        }
+            uniforms.textureOffset = Vector2f(texture.textureCoordinates.baseX, texture.textureCoordinates.baseY)
 
         bound = texture
     }
 
     fun unbind()
     {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
 
         bound = null
         boundPointer = 0

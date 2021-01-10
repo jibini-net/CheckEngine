@@ -23,6 +23,6 @@ abstract class AbstractAutoDestroyable : EngineAware(), Destroyable
         // Register self to be auto-destroyed
         destroyableRegistry.registered += this
 
-        log.debug("Registered destroyable object $this")
+        log.debug("Registered destroyable object of type '${this::class.simpleName}'")
     }
 }

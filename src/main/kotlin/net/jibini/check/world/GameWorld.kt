@@ -10,6 +10,8 @@ import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.graphics.Matrices
+import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.impl.DualTexShaderImpl
 import net.jibini.check.input.Keyboard
 import net.jibini.check.physics.Bounded
@@ -19,16 +21,12 @@ import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
 import org.joml.Math
-import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL11
 import org.slf4j.LoggerFactory
-import java.awt.image.BufferedImage
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
-import javax.imageio.ImageTypeSpecifier
 import kotlin.math.abs
 
 /**
@@ -37,7 +35,7 @@ import kotlin.math.abs
  * @author Zach Goethel
  */
 @RegisterObject
-class GameWorld : Initializable, Updatable
+class GameWorld : Updatable
 {
     var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
 
@@ -46,10 +44,13 @@ class GameWorld : Initializable, Updatable
     val physicsUpdateLock = Mutex()
 
     @EngineObject
-    private lateinit var keyboard: Keyboard
+    private lateinit var dualTexShaderImpl: DualTexShaderImpl
 
     @EngineObject
-    private lateinit var dualTexShaderImpl: DualTexShaderImpl
+    private lateinit var uniforms: Uniforms
+
+    @EngineObject
+    private lateinit var matrices: Matrices
 
     /**
      * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
@@ -96,22 +97,6 @@ class GameWorld : Initializable, Updatable
 
     private val portals = ConcurrentHashMap<BoundingBox, String>()
 
-    override fun initialize()
-    {
-//        thread(isDaemon = true, name = "Quad-tree") {
-//            while (true)
-//                try
-//                {
-//                    quadTree.reevaluate()
-//
-//                    Thread.sleep(10)
-//                } catch (ex: ConcurrentModificationException)
-//                {
-//                    ex.printStackTrace()
-//                }
-//        }
-    }
-
     private fun render()
     {
         if (!visible)
@@ -119,28 +104,23 @@ class GameWorld : Initializable, Updatable
         room ?: return
 
         if (player != null)
-            GL11.glTranslatef(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
+            matrices.model.translate(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
 
         room?.update()
 
         // Update entities last for transparency
-        GL11.glPushMatrix()
+        matrices.model.pushMatrix()
 
         entities.sortByDescending { it.y }
 
         for (entity in entities)
         {
             // Translate forward to avoid transparency issues
-            GL11.glTranslatef(0.0f, 0.0f, 0.02f)
+            matrices.model.translate(0.0f, 0.0f, 0.02f)
             entity.update()
         }
 
-        GL11.glTranslatef(0.0f, 0.0f, 0.02f)
-
-        if (keyboard.isPressed(GLFW.GLFW_KEY_F3))
-            quadTree.render()
-
-        GL11.glPopMatrix()
+        matrices.model.popMatrix()
     }
 
     private fun quadTreeResolution()
@@ -460,7 +440,6 @@ class GameWorld : Initializable, Updatable
                 }
             }
         }
-
 
         roomMetaReader.close()
 
