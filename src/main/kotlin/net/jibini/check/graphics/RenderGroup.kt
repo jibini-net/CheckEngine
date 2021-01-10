@@ -30,6 +30,11 @@ class RenderGroup : EngineAware(), Destroyable
 
     private var size = 0
 
+    private var lastPushedModelMatrix: Matrix4f? = null
+    private var lastPushedProjectionMatrix: Matrix4f? = null
+
+    private var lastPushedShader: Shader? = null
+
     fun finalize()
     {
         val vertexData = BufferUtils.createFloatBuffer(vertexList!!.size * 3)
@@ -84,9 +89,20 @@ class RenderGroup : EngineAware(), Destroyable
         if (!finalized)
             finalize()
 
-        val combinationMatrix = Matrix4f()
-        matrices.projection.mul(matrices.model, combinationMatrix)
-        statefulShaderImpl.boundShader?.uniform("uniform_matrix", combinationMatrix)
+        if (
+            lastPushedModelMatrix != matrices.projection
+                || lastPushedProjectionMatrix != matrices.projection
+                || lastPushedShader != statefulShaderImpl.boundShader
+        )
+        {
+            val combinationMatrix = Matrix4f()
+            matrices.projection.mul(matrices.model, combinationMatrix)
+            statefulShaderImpl.boundShader?.uniform("uniform_matrix", combinationMatrix)
+
+            lastPushedModelMatrix = Matrix4f(matrices.model)
+            lastPushedProjectionMatrix = Matrix4f(matrices.projection)
+            lastPushedShader = statefulShaderImpl.boundShader
+        }
 
         GLES30.glEnableVertexAttribArray(0)
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vertexBuffer)

@@ -43,18 +43,6 @@ class Window(
             internalHeight = value
         }
 
-    /**
-     * Converts booleans to ones and zeros
-     */
-    private fun Boolean.toGLFWValue(): Int
-    {
-        // Convert boolean to int (0/1)
-        return if (this)
-            GLFW.GLFW_TRUE
-        else
-            GLFW.GLFW_FALSE
-    }
-
     init
     {
         GLFW.glfwDefaultWindowHints()

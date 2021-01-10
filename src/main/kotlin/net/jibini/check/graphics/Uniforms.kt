@@ -15,28 +15,40 @@ class Uniforms
     var texture = 0
         set(value)
         {
-            statefulShaderImpl.boundShader?.uniform("tex", value)
+            if (field != value)
+                statefulShaderImpl.boundShader?.uniform("tex", value)
             field = value
         }
 
     var textureOffset = Vector2f()
         set(value)
         {
-            statefulShaderImpl.boundShader?.uniform("tex_offset", value.x, value.y)
+            if (field != value)
+                statefulShaderImpl.boundShader?.uniform("tex_offset", value.x, value.y)
+            field = value
+        }
+
+    var textureDelta = Vector2f()
+        set(value)
+        {
+            if (field != value)
+                statefulShaderImpl.boundShader?.uniform("tex_delta", value.x, value.y)
             field = value
         }
 
     var blocking = false
         set(value)
         {
-            statefulShaderImpl.boundShader?.uniform("light_blocking", value.compareTo(false))
+            if (field != value)
+                statefulShaderImpl.boundShader?.uniform("light_blocking", value.compareTo(false))
             field = value
         }
 
     var colorMultiple = Vector4f(1.0f)
         set(value)
         {
-            statefulShaderImpl.boundShader?.uniform("color_mult", value.x, value.y, value.z, value.w)
+            if (field != value)
+                statefulShaderImpl.boundShader?.uniform("color_mult", value.x, value.y, value.z, value.w)
             field = value
         }
 }

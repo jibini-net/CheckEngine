@@ -6,7 +6,7 @@ import org.joml.Matrix4fStack
 @RegisterObject
 class Matrices
 {
-    val projection = Matrix4fStack(16)
+    val projection = Matrix4fStack(4096)
 
-    val model = Matrix4fStack(16)
+    val model = Matrix4fStack(4096)
 }

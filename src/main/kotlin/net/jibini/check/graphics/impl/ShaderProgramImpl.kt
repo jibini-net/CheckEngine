@@ -29,7 +29,9 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
             statefulShaderImpl.boundShader = this
 
             uniform("tex_offset", uniforms.textureOffset.x, uniforms.textureOffset.y)
+            uniform("tex_delta", uniforms.textureDelta.x, uniforms.textureDelta.y)
             uniform("tex", uniforms.texture)
+
             uniform("blocking", uniforms.blocking.compareTo(false))
         }
     }
@@ -66,15 +68,16 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
         GLES30.glUniform4f(location, x, y, z, w)
     }
 
+    private val floatBuffer16 = BufferUtils.createFloatBuffer(16)
+
     override fun uniform(name: String, matrix: Matrix4f)
     {
-        val buffer = BufferUtils.createFloatBuffer(16)
-        matrix.get(buffer)
+        matrix.get(floatBuffer16)
 
         use()
         val location = GLES30.glGetUniformLocation(pointer, name)
 
-        GLES30.glUniformMatrix4fv(location, false, buffer)
+        GLES30.glUniformMatrix4fv(location, false, floatBuffer16)
     }
 
     fun attach(shaderImpl: ShaderImpl)
