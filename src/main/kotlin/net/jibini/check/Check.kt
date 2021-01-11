@@ -1,9 +1,6 @@
 package net.jibini.check
 
-import imgui.ImFontAtlas
 import imgui.ImGui
-import imgui.ImGuiIO
-import imgui.flag.ImGuiConfigFlags
 import imgui.gl3.ImGuiGLES30
 import imgui.glfw.ImGuiGLFW
 import kotlinx.coroutines.runBlocking
@@ -26,6 +23,8 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.*
 import kotlin.concurrent.thread
+
+import java.lang.invoke.MethodHandles
 
 /**
  * Game engine entry point factory and lifecycle management
@@ -50,22 +49,15 @@ object Check
     {
         try
         {
-            val usrPathsField = ClassLoader::class.java.getDeclaredField("usr_paths")
-            usrPathsField.isAccessible = true
+            val cl = MethodHandles.privateLookupIn(ClassLoader::class.java, MethodHandles.lookup())
+            val sysPaths = cl.findStaticVarHandle(ClassLoader::class.java, "sys_paths", Array<String>::class.java)
 
             @Suppress("UNCHECKED_CAST")
-            val paths = usrPathsField[null] as Array<String>
+            val pathsArray = (sysPaths.get() as Array<String?>)
 
-            for (path in paths)
-            {
-                if (path == pathToAdd)
-                    return
-            }
-
-            val newPaths = paths.copyOf(paths.size + 1)
-
+            val newPaths = pathsArray.copyOf(pathsArray.size + 1)
             newPaths[newPaths.size - 1] = pathToAdd
-            usrPathsField[null] = newPaths
+            sysPaths.set(newPaths)
         } catch (ex: Exception)
         {
             ex.printStackTrace()
