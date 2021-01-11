@@ -15,6 +15,7 @@ import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.input.Keyboard
 import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengles.GLES
 import org.lwjgl.opengles.GLES30
@@ -104,6 +105,7 @@ object Check
 
             // Init GLFW
             GLFW.glfwInit()
+            GLFWErrorCallback.createPrint(System.err).set()
 
             val wdPath = System.getProperty("user.dir")
             addLibraryPath("$wdPath/bin")
