@@ -5,7 +5,9 @@ import net.jibini.check.engine.FeatureSet
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.graphics.*
+import net.jibini.check.input.Keyboard
 import net.jibini.check.resource.Resource
+import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengles.GLES30
 import java.awt.Frame
 
@@ -14,6 +16,9 @@ class LightingShaderImpl : Initializable
 {
     @EngineObject
     private lateinit var window: Window
+
+    @EngineObject
+    private lateinit var keyboard: Keyboard
 
     @EngineObject
     private lateinit var directTex: DirectTexShaderImpl
@@ -72,62 +77,70 @@ class LightingShaderImpl : Initializable
 
         captureTextures(renderTask)
 
-        shadowDownscale.bind()
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
-
         matrices.projection.identity()
         matrices.model.identity()
 
-        shadow.use()
+        if (keyboard.isPressed(GLFW.GLFW_KEY_L))
+        {
+            shadowDownscale.bind()
+            GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST)
-        GLES30.glEnable(GLES30.GL_BLEND)
-        GLES30.glBlendFunc(GLES30.GL_ONE, GLES30.GL_ONE)
+            shadow.use()
 
-        framebuffer.renderAttachments[1]
-            .flip(horizontal = false, vertical = true)
-            .bind()
+            GLES30.glDisable(GLES30.GL_DEPTH_TEST)
+            GLES30.glEnable(GLES30.GL_BLEND)
+            GLES30.glBlendFunc(GLES30.GL_ONE, GLES30.GL_ONE)
 
-        shadow.uniform("light", 0.2f, 0.5f)
-        shadow.uniform("light_color", 2.0f, 0.25f, 0.25f)
+            framebuffer.renderAttachments[1]
+                .flip(horizontal = false, vertical = true)
+                .bind()
+
+            shadow.uniform("light", 0.2f, 0.5f)
+            shadow.uniform("light_color", 0.5f, 0.25f, 0.25f)
+
+            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+
+            shadow.uniform("light", 0.8f, 0.5f)
+            shadow.uniform("light_color", 0.4f, 0.25f, 0.7f)
+
+            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+
+            shadow.uniform("light", 0.5f, 0.6f)
+            shadow.uniform("light_color", 0.5f, 1.0f, 0.5f)
+
+            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+
+            directTex.shader.use()
+
+            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+
+            GLES30.glBlendFunc(GLES30.GL_DST_COLOR, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+
+            framebuffer.renderAttachments[0]
+                .flip(horizontal = false, vertical = true)
+                .bind()
+
+            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+
+            GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+            GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+
+            Framebuffer.release()
+
+            GLES30.glViewport(0, 0, window.width, window.height)
+
+            directTex.shader.use()
+            shadowDownscale.renderAttachments[0]
+                .flip(horizontal = false, vertical = true)
+                .bind()
+        } else
+        {
+            GLES30.glViewport(0, 0, window.width, window.height)
+            framebuffer.renderAttachments[0]
+                .flip(horizontal = false, vertical = true)
+                .bind()
+        }
 
         renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
-
-        shadow.uniform("light", 0.8f, 0.5f)
-        shadow.uniform("light_color", 0.8f, 0.25f, 2.0f)
-
-        renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
-
-        shadow.uniform("light", 0.5f, 0.6f)
-        shadow.uniform("light_color", 0.8f, 1.5f, 0.8f)
-
-        renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
-
-        directTex.shader.use()
-
-        renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
-
-        framebuffer.renderAttachments[0]
-            .flip(horizontal = false, vertical = true)
-            .bind()
-
-        GLES30.glBlendFunc(GLES30.GL_DST_COLOR, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-
-        renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
-
-        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
-
-        Framebuffer.release()
-
-        GLES30.glViewport(0, 0, window.width, window.height)
-
-        directTex.shader.use()
-        shadowDownscale.renderAttachments[0]
-            .flip(horizontal = false, vertical = true)
-            .bind()
-
-        renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
-
     }
 }

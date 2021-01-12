@@ -89,7 +89,6 @@ object Check
     {
         log.info("Booting application '${game.profile.appName}' version ${game.profile.appVersion} . . .")
 
-
         if (contextInit)
         {
             // Check that the game is booting from the same thread as the first game

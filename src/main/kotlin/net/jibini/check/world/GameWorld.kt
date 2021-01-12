@@ -303,7 +303,7 @@ class GameWorld : Updatable
                     {
                         "untextured" -> BitmapTextureImpl(2, 2)
 
-                        else -> Texture.load(Resource.fromFile("worlds/$name/${split[2]}"))
+                        else -> Texture.load(Resource.fromClasspath("tiles/${split[2]}"))
                     }
 
                     val blocking = when(split[3])
