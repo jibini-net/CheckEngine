@@ -12,8 +12,7 @@ import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.Uniforms
-import net.jibini.check.graphics.impl.DualTexShaderImpl
-import net.jibini.check.input.Keyboard
+import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.physics.Bounded
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.physics.QuadTree
@@ -44,7 +43,7 @@ class GameWorld : Updatable
     val physicsUpdateLock = Mutex()
 
     @EngineObject
-    private lateinit var dualTexShaderImpl: DualTexShaderImpl
+    private lateinit var lightingShader: LightingShaderImpl
 
     @EngineObject
     private lateinit var uniforms: Uniforms
@@ -219,7 +218,7 @@ class GameWorld : Updatable
     {
         room ?: return
 
-        dualTexShaderImpl.performDual {
+        lightingShader.perform {
             render()
         }
 

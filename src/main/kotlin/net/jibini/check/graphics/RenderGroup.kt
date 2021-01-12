@@ -30,10 +30,13 @@ class RenderGroup : EngineAware(), Destroyable
 
     private var size = 0
 
-    private var lastPushedModelMatrix: Matrix4f? = null
-    private var lastPushedProjectionMatrix: Matrix4f? = null
+    companion object
+    {
+        private var lastPushedModelMatrix: Matrix4f? = null
+        private var lastPushedProjectionMatrix: Matrix4f? = null
 
-    private var lastPushedShader: Shader? = null
+        private var lastPushedShader: Shader? = null
+    }
 
     fun finalize()
     {
@@ -90,7 +93,7 @@ class RenderGroup : EngineAware(), Destroyable
             finalize()
 
         if (
-            lastPushedModelMatrix != matrices.projection
+            lastPushedModelMatrix != matrices.model
                 || lastPushedProjectionMatrix != matrices.projection
                 || lastPushedShader != statefulShaderImpl.boundShader
         )

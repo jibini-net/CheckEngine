@@ -15,9 +15,6 @@ import org.joml.Vector4f
 class Renderer : EngineAware()
 {
     @EngineObject
-    private lateinit var textureRegistry: TextureRegistry
-
-    @EngineObject
     private lateinit var matrices: Matrices
 
     private var renderGroup: RenderGroup? = null

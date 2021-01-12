@@ -1,6 +1,7 @@
 package net.jibini.check.graphics.impl
 
 import net.jibini.check.engine.EngineObject
+import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.graphics.Shader
 import net.jibini.check.graphics.Uniforms
@@ -12,6 +13,9 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
 {
     @EngineObject
     private lateinit var uniforms: Uniforms
+
+    @EngineObject
+    private lateinit var matrices: Matrices
 
     @EngineObject
     private lateinit var statefulShaderImpl: StatefulShaderImpl
@@ -32,7 +36,14 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
             uniform("tex_delta", uniforms.textureDelta.x, uniforms.textureDelta.y)
             uniform("tex", uniforms.texture)
 
-            uniform("blocking", uniforms.blocking.compareTo(false))
+            uniform("color_mult",
+                uniforms.colorMultiple.x,
+                uniforms.colorMultiple.y,
+                uniforms.colorMultiple.z,
+                uniforms.colorMultiple.w
+            )
+
+            uniform("light_blocking", uniforms.blocking.compareTo(false))
         }
     }
 

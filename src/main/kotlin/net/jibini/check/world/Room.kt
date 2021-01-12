@@ -6,7 +6,6 @@ import net.jibini.check.graphics.RenderGroup
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.impl.AbstractAutoDestroyable
-import net.jibini.check.graphics.impl.DualTexShaderImpl
 
 /**
  * A collection of tiles in the current game level
