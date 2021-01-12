@@ -1,6 +1,8 @@
 package net.jibini.check.entity
 
+import net.jibini.check.engine.EngineObject
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.graphics.Uniforms
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
@@ -23,6 +25,9 @@ class Platform(
 //        deltaTimer3.delta
     }
 
+    @EngineObject
+    private lateinit var uniforms: Uniforms
+
     private val texture = Texture.load(Resource.fromClasspath("entities/platform.png"))
     private val textureLeft = Texture.load(Resource.fromClasspath("entities/platform_left.png"))
     private val textureRight = textureLeft.flip()
@@ -36,6 +41,8 @@ class Platform(
     override fun update()
     {
         super.update()
+
+        uniforms.blocking = true
 
         textureLeft.bind()
         renderer.drawRectangle(x.toFloat(), y.toFloat() - 0.1f, 0.1f, 0.1f)

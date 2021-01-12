@@ -23,7 +23,9 @@ class BitmapTextureImpl(
     /**
      * Height of the texture in texels
      */
-    height: Int = TextureSpriteMapImpl.MAP_DIMENSION
+    height: Int = TextureSpriteMapImpl.MAP_DIMENSION,
+
+    interpolate: Boolean = false
 ) : AbstractAutoDestroyable(), Texture, Pointer<Int> by PointerImpl(GLES30.glGenTextures())
 {
     @EngineObject
@@ -39,8 +41,15 @@ class BitmapTextureImpl(
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
         // Set min/magnification filters
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST)
+        if (interpolate)
+        {
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
+        } else
+        {
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST)
+        }
 
         // Allocate video memory to the texture
         GLES30.glTexImage2D(

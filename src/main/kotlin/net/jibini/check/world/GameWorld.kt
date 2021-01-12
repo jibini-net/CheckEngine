@@ -11,7 +11,6 @@ import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.graphics.Matrices
-import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.physics.Bounded
 import net.jibini.check.physics.BoundingBox
@@ -44,9 +43,6 @@ class GameWorld : Updatable
 
     @EngineObject
     private lateinit var lightingShader: LightingShaderImpl
-
-    @EngineObject
-    private lateinit var uniforms: Uniforms
 
     @EngineObject
     private lateinit var matrices: Matrices

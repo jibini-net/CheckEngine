@@ -1,7 +1,6 @@
 package net.jibini.check.graphics.impl
 
 import net.jibini.check.engine.EngineObject
-import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.graphics.Shader
 import net.jibini.check.graphics.Uniforms
@@ -13,9 +12,6 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
 {
     @EngineObject
     private lateinit var uniforms: Uniforms
-
-    @EngineObject
-    private lateinit var matrices: Matrices
 
     @EngineObject
     private lateinit var statefulShaderImpl: StatefulShaderImpl
@@ -99,10 +95,5 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
     fun link()
     {
         GLES30.glLinkProgram(pointer)
-    }
-
-    companion object
-    {
-        private var bound = -1
     }
 }
