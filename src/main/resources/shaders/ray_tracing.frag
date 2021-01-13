@@ -1,7 +1,7 @@
 #version 300 es
 
 #define PI 3.1415926538
-#define MAX_RADIUS 0.5
+#define MAX_RADIUS 1.4
 #define PIXELS_PER_TILE 32.0
 
 precision highp float;
@@ -24,20 +24,22 @@ uniform vec2 light_position;
 
 void main()
 {
-    int x = int(round(x_interp));
-    int y = int(round(y_interp));
+    int x = int(ceil(x_interp));
+    int y = int(ceil(y_interp));
 
     int id = y * output_size + x;
 
-    float angle = 2.0 * PI * float(id) / float(output_size * output_size);
+    float angle = 2.0 * PI * (float(id) / float(output_size * output_size));
     float pixel_width = 1.0 / float(input_width);
     float pixel_height = 1.0 / float(input_height);
+
     vec2 direction = vec2(cos(angle), sin(angle));
 
-    float step_size = min(pixel_width, pixel_height);
+    float step_size = min(pixel_width, pixel_height) * 2.0;
     vec2 step = direction * step_size;
+    step.x *= float(input_height) / float(input_width);
 
-    vec2 coord = light_position * vec2(PIXELS_PER_TILE / float(input_width), PIXELS_PER_TILE / float(input_height));
+    vec2 coord = light_position * vec2(PIXELS_PER_TILE * pixel_width, PIXELS_PER_TILE * pixel_height);
     float distance = 0.0;
 
     for (distance; distance <= MAX_RADIUS; distance += step_size)
@@ -48,5 +50,5 @@ void main()
             break;
     }
 
-    frag_color = vec4((direction * distance) / (2.0 * MAX_RADIUS) + vec2(MAX_RADIUS / 2.0), 0.0, 1.0);
+    frag_color = vec4((direction * distance) / (2.0 * MAX_RADIUS) + vec2(0.5), 0.0, 1.0);
 }

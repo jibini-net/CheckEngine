@@ -5,9 +5,14 @@ import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.graphics.*
 import net.jibini.check.resource.Resource
+import net.jibini.check.texture.Texture
+import net.jibini.check.texture.impl.BitmapTextureImpl
 import net.jibini.check.world.GameWorld
 import org.joml.Matrix4f
+import org.joml.Vector2d
+import org.joml.Vector2f
 import org.lwjgl.opengles.GLES30
+import java.util.*
 
 @RegisterObject
 class LightingShaderImpl : Initializable
@@ -33,12 +38,16 @@ class LightingShaderImpl : Initializable
 
     private lateinit var rayTracer: Shader
     private lateinit var rays: Framebuffer
+    private lateinit var screenSpace: Framebuffer
+    private lateinit var screen: Framebuffer
 
     private val pixelsPerTile = 32
-    private val raysSize = 64
+    private val raysSize = 24
 
     private val offset = 0.3f
     private val scale = 1.4f
+
+    val lights = mutableListOf<Light>()
 
     override fun initialize()
     {
@@ -67,14 +76,25 @@ class LightingShaderImpl : Initializable
 
     private fun validateFramebuffers()
     {
-        val properWidth = gameWorld.room!!.width * pixelsPerTile
-        val properHeight = gameWorld.room!!.height * pixelsPerTile
+        var properWidth = gameWorld.room!!.width * pixelsPerTile
+        var properHeight = gameWorld.room!!.height * pixelsPerTile
 
         if (!this::worldSpace.isInitialized
             || worldSpace.width != properWidth
             || worldSpace.height != properHeight)
         {
             worldSpace = Framebuffer(properWidth, properHeight, 2)
+        }
+
+        properWidth = (window.width.toFloat() / 1.8f).toInt()
+        properHeight = (window.height.toFloat() / 1.8f).toInt()
+
+        if (!this::screenSpace.isInitialized
+            || screenSpace.width != properWidth
+            || screenSpace.height != properHeight)
+        {
+            screenSpace = Framebuffer(properWidth, properHeight, 2)
+            screen = Framebuffer(properWidth, properHeight, 2)
         }
     }
 
@@ -97,11 +117,8 @@ class LightingShaderImpl : Initializable
         Framebuffer.release()
     }
 
-    private fun drawPresentedCopy(renderTask: () -> Unit)
+    private fun worldTransform()
     {
-        textured.use()
-        GLES30.glViewport(0, 0, window.width, window.height)
-
         val windowRatio = window.width.toFloat() / window.height
 
         matrices.projection.identity()
@@ -116,18 +133,23 @@ class LightingShaderImpl : Initializable
         val playerX = gameWorld.player!!.x.toFloat()
         val playerY = gameWorld.player!!.y.toFloat()
 
-        //TODO REMOVE
-        matrices.model.pushMatrix()
-        matrices.model.translate(0.0f, 0.0f, 90.0f)
-        rays.renderAttachments[0].bind()
-        renderer.drawRectangle(-windowRatio, -1.0f, 0.5f, 0.5f)
-        matrices.model.popMatrix()
-        //TODO REMOVE
-
         matrices.model.scale(scale)
         matrices.model.translate(-playerX, -playerY - offset, 0.0f)
+    }
+
+    private fun generatePresentedCopy(renderTask: () -> Unit)
+    {
+        screenSpace.bind()
+        lightMask.use()
+
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
+        GLES30.glViewport(0, 0, screenSpace.width, screenSpace.height)
+
+        worldTransform()
 
         renderTask()
+
+        Framebuffer.release()
     }
 
     private fun generateRays(lightX: Float, lightY: Float)
@@ -185,19 +207,81 @@ class LightingShaderImpl : Initializable
 
         shadowAndLight.uniform("frag_matrix", matrix)
 
+        shadowAndLight.uniform("world_size", gameWorld.room!!.width.toFloat() * 0.2f, gameWorld.room!!.height.toFloat() * 0.2f)
+
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2.0f, 2.0f)
+    }
+
+    fun halfResolutionRender()
+    {
+
+        val windowRatio = window.width.toFloat() / window.height
+
+        screen.bind()
+
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
+        GLES30.glViewport(0, 0, screen.width, screen.height)
+
+        GLES30.glDisable(GLES30.GL_DEPTH_TEST)
+        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_ONE, GLES30.GL_ONE)
+
+        for (light in lights)
+        {
+            if (Vector2d(gameWorld.player!!.x, gameWorld.player!!.y).distance(
+                    Vector2d(light.x.toDouble() * 0.2, light.y.toDouble() * 0.2)) > 2.2)
+                continue
+
+            generateRays(light.x, light.y)
+            drawShadows(light.x, light.y, light.r, light.g, light.b)
+        }
+
+        textured.use()
+
+        matrices.projection.identity()
+            .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
+        matrices.model.identity()
+
+        screenSpace.renderAttachments[1]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
+
+        if (lights.isEmpty())
+            GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        else
+            GLES30.glBlendFunc(GLES30.GL_DST_COLOR, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+
+        screenSpace.renderAttachments[0]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
+
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+
+        Framebuffer.release()
     }
 
     fun perform(renderTask: () -> Unit)
     {
+        val windowRatio = window.width.toFloat() / window.height
+
         validateFramebuffers()
         generateLightMask(renderTask)
 
-        drawPresentedCopy(renderTask)
+        generatePresentedCopy(renderTask)
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST)
-        generateRays(3.0f, 2.0f)
-        drawShadows(3.0f, 2.0f, 1.0f, 0.3f, 1.0f)
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+        halfResolutionRender()
+
+        GLES30.glViewport(0, 0, window.width, window.height)
+
+        screen.renderAttachments[0]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
     }
 }

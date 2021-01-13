@@ -22,13 +22,13 @@ void main()
           gl_VertexID == 1
        || gl_VertexID == 4
        || gl_VertexID == 5
-    ) * output_size - 1);
+    ) * output_size) - 1.1;
 
     y_interp = float(int(
           gl_VertexID == 1
        || gl_VertexID == 2
        || gl_VertexID == 5
-    ) * output_size - 1);
+    ) * output_size) - 1.1;
 
     gl_Position = uniform_matrix * vec4(vertex, 1.0);
 }

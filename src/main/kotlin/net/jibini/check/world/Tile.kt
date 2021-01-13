@@ -21,7 +21,9 @@ class Tile(
     /**
      * Whether the tile blocks the player from moving
      */
-    val blocking: Boolean
+    val blocking: Boolean,
+
+    val lightBlocking: Boolean = blocking
 ) : EngineAware()
 {
     @EngineObject

@@ -1,7 +1,7 @@
 #version 300 es
 
 #define PI 3.1415926538
-#define MAX_RADIUS 0.5
+#define MAX_RADIUS 1.4
 
 precision highp float;
 precision mediump int;
@@ -17,6 +17,7 @@ uniform vec3 light_color;
 uniform vec2 light_position;
 
 uniform sampler2D tex;
+uniform vec2 world_size;
 uniform int input_size;
 
 uniform mat4 frag_matrix;
@@ -39,12 +40,11 @@ void main()
     );
 
     vec2 ref_vector = texture(tex, ref_coord).rg;
-    vec2 restored = (ref_vector - vec2(MAX_RADIUS / 2.0)) * 2.0 * MAX_RADIUS;
+    vec2 restored = (ref_vector - vec2(0.5)) * 2.0 * MAX_RADIUS * world_size.y;
 
-    if (length(frag_position - light_position * 0.2) < 0.3)
-        frag_color = vec4(float(x) / 32.0, float(y) / 32.0, 0.0, 0.5);
-    else if (length(frag_position - light_position * 0.2) < 0.4)
-        frag_color = vec4(to_fragment * 4.0, 0.0, 0.5);
-    else
-        frag_color = vec4(ref_vector, 0.0, 0.5);
+    float mask = float(int(length(restored) > length(to_fragment) - 0.015));
+    float len = length(to_fragment);
+
+    frag_color = vec4(light_color * 0.5 / len * mask * (-1.0 * len + MAX_RADIUS) +
+            light_color * (-1.2 * len + MAX_RADIUS * 0.6), 1.0);
 }

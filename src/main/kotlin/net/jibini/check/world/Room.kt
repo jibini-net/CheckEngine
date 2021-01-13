@@ -84,7 +84,7 @@ class Room(
         for ((tile, list) in registeredMeshes)
         {
             tile.texture.bind()
-            uniforms.blocking = tile.blocking
+            uniforms.blocking = tile.lightBlocking
 
             list.call()
         }

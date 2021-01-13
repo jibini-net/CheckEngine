@@ -10,6 +10,7 @@ import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.graphics.Light
 import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.physics.Bounded
@@ -312,10 +313,23 @@ class GameWorld : Updatable
 
                         "nonblocking" -> false
 
+                        "nlblocking" -> true
+
                         else -> throw IllegalStateException("Invalid blocking entry in meta file '${split[3]}'")
                     }
 
-                    roomTiles[colorIndices[index]] = Tile(texture, blocking)
+                    val nlBlocking = when(split[3])
+                    {
+                        "blocking" -> true
+
+                        "nonblocking" -> false
+
+                        "nlblocking" -> false
+
+                        else -> throw IllegalStateException("Invalid nlblocking entry in meta file '${split[3]}'")
+                    }
+
+                    roomTiles[colorIndices[index]] = Tile(texture, blocking, nlBlocking)
                 }
 
                 "spawn" ->
@@ -433,6 +447,18 @@ class GameWorld : Updatable
                         split[5].toDouble() * 0.2
                     )] = split[1]
                 }
+
+                "light" ->
+                {
+                    lightingShader.lights += Light(
+                        split[1].toFloat(),
+                        split[2].toFloat(),
+
+                        split[3].toFloat(),
+                        split[4].toFloat(),
+                        split[5].toFloat()
+                    )
+                }
             }
         }
 
@@ -474,5 +500,7 @@ class GameWorld : Updatable
         portals.clear()
 
         visible = false
+
+        lightingShader.lights.clear()
     }
 }
