@@ -2,7 +2,7 @@
 
 #define PI 3.1415926538
 #define MAX_RADIUS 0.5
-#define PIXELS_PER_TILE 64.0
+#define PIXELS_PER_TILE 32.0
 
 precision highp float;
 precision mediump int;
@@ -44,9 +44,9 @@ void main()
     {
         coord += step;
 
-        if (texture(light_mask, coord).b > 0.2)
+        if (texture(light_mask, coord).r > 0.2)
             break;
     }
 
-    frag_color = vec4((direction * distance) / MAX_RADIUS, 0.0, 1.0);
+    frag_color = vec4((direction * distance) / (2.0 * MAX_RADIUS) + vec2(MAX_RADIUS / 2.0), 0.0, 1.0);
 }
