@@ -23,8 +23,8 @@ class Window(
      */
     private var close = false
 
-    private var internalWidth = 1366;
-    private var internalHeight = 1000;
+    private var internalWidth = 1280;
+    private var internalHeight = 840;
 
     var width: Int
         get() = internalWidth;

@@ -92,16 +92,13 @@ class GameWorld : Updatable
 
     private val portals = ConcurrentHashMap<BoundingBox, String>()
 
-    private fun render()
+    fun render()
     {
         if (!visible)
             return
         room ?: return
 
-        if (player != null)
-            matrices.model.translate(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
-
-        room?.update()
+        room?.render()
 
         // Update entities last for transparency
         matrices.model.pushMatrix()
@@ -112,7 +109,7 @@ class GameWorld : Updatable
         {
             // Translate forward to avoid transparency issues
             matrices.model.translate(0.0f, 0.0f, 0.02f)
-            entity.update()
+            entity.render()
         }
 
         matrices.model.popMatrix()
@@ -217,6 +214,9 @@ class GameWorld : Updatable
         lightingShader.perform {
             render()
         }
+
+        for (entity in entities)
+            entity.update()
 
         runBlocking {
             physicsUpdateLock.withLock {

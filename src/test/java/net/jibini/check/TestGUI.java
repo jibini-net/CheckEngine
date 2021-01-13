@@ -19,7 +19,7 @@ public class TestGUI implements Updatable
     {
         ImGui.setNextWindowSize(500, 300, ImGuiCond.Once);
         ImGui.setNextWindowPos(100, 200, ImGuiCond.Once);
-        ImGui.setNextWindowCollapsed(true);
+        ImGui.setNextWindowCollapsed(true, ImGuiCond.Once);
 
         ImGui.begin("Test Window");
 

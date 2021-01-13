@@ -265,13 +265,15 @@ object Check
         // Polls GLFW window inputs until all instances are closed
         log.debug("Entering infinite main thread polling . . .")
         while (instanceCount.isNotEmpty())
+        {
             runBlocking {
                 pollMutex.withLock {
                     GLFW.glfwPollEvents()
                 }
             }
 
-
+            Thread.sleep(1000 / 60)
+        }
 
         // All instances are closed
         log.debug("Exited infinite polling; no instances remain")
