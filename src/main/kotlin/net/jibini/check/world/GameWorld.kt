@@ -10,6 +10,7 @@ import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
+import net.jibini.check.graphics.Light
 import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.physics.Bounded
@@ -92,16 +93,13 @@ class GameWorld : Updatable
 
     private val portals = ConcurrentHashMap<BoundingBox, String>()
 
-    private fun render()
+    fun render()
     {
         if (!visible)
             return
         room ?: return
 
-        if (player != null)
-            matrices.model.translate(-player!!.x.toFloat(), -player!!.y.toFloat() - 0.4f, 0.0f)
-
-        room?.update()
+        room?.render()
 
         // Update entities last for transparency
         matrices.model.pushMatrix()
@@ -112,7 +110,7 @@ class GameWorld : Updatable
         {
             // Translate forward to avoid transparency issues
             matrices.model.translate(0.0f, 0.0f, 0.02f)
-            entity.update()
+            entity.render()
         }
 
         matrices.model.popMatrix()
@@ -218,6 +216,9 @@ class GameWorld : Updatable
             render()
         }
 
+        for (entity in entities)
+            entity.update()
+
         runBlocking {
             physicsUpdateLock.withLock {
 
@@ -312,10 +313,23 @@ class GameWorld : Updatable
 
                         "nonblocking" -> false
 
+                        "nlblocking" -> true
+
                         else -> throw IllegalStateException("Invalid blocking entry in meta file '${split[3]}'")
                     }
 
-                    roomTiles[colorIndices[index]] = Tile(texture, blocking)
+                    val nlBlocking = when(split[3])
+                    {
+                        "blocking" -> true
+
+                        "nonblocking" -> false
+
+                        "nlblocking" -> false
+
+                        else -> throw IllegalStateException("Invalid nlblocking entry in meta file '${split[3]}'")
+                    }
+
+                    roomTiles[colorIndices[index]] = Tile(texture, blocking, nlBlocking)
                 }
 
                 "spawn" ->
@@ -433,6 +447,18 @@ class GameWorld : Updatable
                         split[5].toDouble() * 0.2
                     )] = split[1]
                 }
+
+                "light" ->
+                {
+                    lightingShader.lights += Light(
+                        split[1].toFloat(),
+                        split[2].toFloat(),
+
+                        split[3].toFloat(),
+                        split[4].toFloat(),
+                        split[5].toFloat()
+                    )
+                }
             }
         }
 
@@ -474,5 +500,7 @@ class GameWorld : Updatable
         portals.clear()
 
         visible = false
+
+        lightingShader.lights.clear()
     }
 }

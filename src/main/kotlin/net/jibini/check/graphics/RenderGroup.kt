@@ -9,6 +9,7 @@ import org.joml.Vector3f
 import org.joml.Vector4f
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
+import java.nio.Buffer
 
 class RenderGroup : EngineAware(), Destroyable
 {
@@ -65,9 +66,9 @@ class RenderGroup : EngineAware(), Destroyable
             texCoordData.put(texCoord.y)
         }
 
-        vertexData.flip()
-        colorData.flip()
-        texCoordData.flip()
+        (vertexData as Buffer).flip()
+        (colorData as Buffer).flip()
+        (texCoordData as Buffer).flip()
 
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vertexBuffer)
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, vertexData, GLES30.GL_STATIC_DRAW)

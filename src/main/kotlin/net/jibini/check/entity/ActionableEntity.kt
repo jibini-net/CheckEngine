@@ -116,6 +116,12 @@ abstract class ActionableEntity(
             falseYVelocity -= 9.8 * delta
         }
 
+        // Update physics in entity last (after render to avoid shaking)
+        super.update()
+    }
+
+    override fun render()
+    {
         // Bind render texture
         renderTexture.bind()
         // Update attack; this may override previous texture
@@ -146,9 +152,6 @@ abstract class ActionableEntity(
         }
 
         uniforms.colorMultiple = Vector4f(1.0f)
-
-        // Update physics in entity last (after render to avoid shaking)
-        super.update()
     }
 
     /**

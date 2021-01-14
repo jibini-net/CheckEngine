@@ -1,146 +1,287 @@
 package net.jibini.check.graphics.impl
 
 import net.jibini.check.engine.EngineObject
-import net.jibini.check.engine.FeatureSet
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.graphics.*
-import net.jibini.check.input.Keyboard
 import net.jibini.check.resource.Resource
-import org.lwjgl.glfw.GLFW
+import net.jibini.check.texture.Texture
+import net.jibini.check.texture.impl.BitmapTextureImpl
+import net.jibini.check.world.GameWorld
+import org.joml.Matrix4f
+import org.joml.Vector2d
+import org.joml.Vector2f
 import org.lwjgl.opengles.GLES30
-import java.awt.Frame
+import java.util.*
 
 @RegisterObject
 class LightingShaderImpl : Initializable
 {
     @EngineObject
+    private lateinit var renderer: Renderer
+
+    @EngineObject
     private lateinit var window: Window
 
     @EngineObject
-    private lateinit var keyboard: Keyboard
-
-    @EngineObject
-    private lateinit var directTex: DirectTexShaderImpl
-
-    @EngineObject
-    private lateinit var renderer: Renderer
+    private lateinit var gameWorld: GameWorld
 
     @EngineObject
     private lateinit var matrices: Matrices
 
-    @EngineObject
-    private lateinit var featureSet: FeatureSet
+    private lateinit var lightMask: Shader
+    private lateinit var worldSpace: Framebuffer
 
-    private lateinit var shader: Shader
-    private lateinit var framebuffer: Framebuffer
-    private lateinit var shadow: Shader
-    private lateinit var shadowDownscale: Framebuffer
+    private lateinit var shadowAndLight: Shader
+
+    private lateinit var textured: Shader
+
+    private lateinit var rayTracer: Shader
+    private lateinit var rays: Framebuffer
+    private lateinit var screenSpace: Framebuffer
+    private lateinit var screen: Framebuffer
+
+    private val pixelsPerTile = 32
+    private val raysSize = 32
+
+    private val offset = 0.3f
+    private val scale = 1.4f
+
+    val lights = mutableListOf<Light>()
 
     override fun initialize()
     {
-        shader = Shader.create(
+        lightMask = Shader.create(
             Resource.fromClasspath("shaders/textured.vert"),
             Resource.fromClasspath("shaders/light_mask.frag")
         )
 
-        shadow = Shader.create(
+        textured = Shader.create(
+            Resource.fromClasspath("shaders/textured.vert"),
+            Resource.fromClasspath("shaders/textured.frag")
+        )
+
+        rayTracer = Shader.create(
+            Resource.fromClasspath("shaders/ray_tracing.vert"),
+            Resource.fromClasspath("shaders/ray_tracing.frag")
+        )
+
+        shadowAndLight = Shader.create(
             Resource.fromClasspath("shaders/textured.vert"),
             Resource.fromClasspath("shaders/shadow.frag")
         )
 
-        framebuffer = Framebuffer(window.width, window.height, 2)
-        shadowDownscale = Framebuffer(window.width, window.height, 1)
+        rays = Framebuffer(raysSize, raysSize, 1)
     }
 
-    private fun captureTextures(renderTask: () -> Unit)
+    private fun validateFramebuffers()
     {
-        framebuffer.bind()
-        shader.use()
-        GLES30.glClear(featureSet.clearFlags)
+        var properWidth = gameWorld.room!!.width * pixelsPerTile
+        var properHeight = gameWorld.room!!.height * pixelsPerTile
+
+        if (!this::worldSpace.isInitialized
+            || worldSpace.width != properWidth
+            || worldSpace.height != properHeight)
+        {
+            worldSpace = Framebuffer(properWidth, properHeight, 2)
+        }
+
+        properWidth = (window.width.toFloat() / 1.8f).toInt()
+        properHeight = (window.height.toFloat() / 1.8f).toInt()
+
+        if (!this::screenSpace.isInitialized
+            || screenSpace.width != properWidth
+            || screenSpace.height != properHeight)
+        {
+            screenSpace = Framebuffer(properWidth, properHeight, 2)
+            screen = Framebuffer(properWidth, properHeight, 2)
+        }
+    }
+
+    private fun generateLightMask(renderTask: () -> Unit)
+    {
+        worldSpace.bind()
+        lightMask.use()
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
+
+        matrices.projection
+            .identity()
+            .ortho(
+                0.0f, 0.2f * gameWorld.room!!.width,
+                0.0f, 0.2f * gameWorld.room!!.height,
+                -100.0f, 100.0f
+            )
 
         renderTask()
 
         Framebuffer.release()
     }
 
-    fun perform(renderTask: () -> Unit)
+    private fun worldTransform()
     {
-//        if (framebuffer.width != window.width || framebuffer.height != window.height)
-//        {
-//            framebuffer.destroy()
-//            framebuffer = Framebuffer(window.width / 10, window.height / 10, 2)
-//
-//            shadowDownscale.destroy()
-//            shadowDownscale = Framebuffer(window.width / 4, window.height / 4)
-//        }
-
-        captureTextures(renderTask)
+        val windowRatio = window.width.toFloat() / window.height
 
         matrices.projection.identity()
         matrices.model.identity()
 
-        if (keyboard.isPressed(GLFW.GLFW_KEY_L))
-        {
-            shadowDownscale.bind()
-            GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
+        matrices.projection.ortho(
+            -windowRatio, windowRatio,
+            -1.0f, 1.0f,
+            -100.0f, 100.0f
+        )
 
-            shadow.use()
+        val playerX = gameWorld.player!!.x.toFloat()
+        val playerY = gameWorld.player!!.y.toFloat()
 
-            GLES30.glDisable(GLES30.GL_DEPTH_TEST)
-            GLES30.glEnable(GLES30.GL_BLEND)
-            GLES30.glBlendFunc(GLES30.GL_ONE, GLES30.GL_ONE)
+        matrices.model.scale(scale)
+        matrices.model.translate(-playerX, -playerY - offset, 0.0f)
+    }
 
-            framebuffer.renderAttachments[1]
-                .flip(horizontal = false, vertical = true)
-                .bind()
+    private fun generatePresentedCopy(renderTask: () -> Unit)
+    {
+        screenSpace.bind()
+        lightMask.use()
 
-            shadow.uniform("light", 0.2f, 0.5f)
-            shadow.uniform("light_color", 0.5f, 0.25f, 0.25f)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
+        GLES30.glViewport(0, 0, screenSpace.width, screenSpace.height)
 
-            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+        worldTransform()
 
-            shadow.uniform("light", 0.8f, 0.5f)
-            shadow.uniform("light_color", 0.4f, 0.25f, 0.7f)
+        renderTask()
 
-            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+        Framebuffer.release()
+    }
 
-            shadow.uniform("light", 0.5f, 0.6f)
-            shadow.uniform("light_color", 0.5f, 1.0f, 0.5f)
+    private fun generateRays(lightX: Float, lightY: Float)
+    {
+        rays.bind()
+        rayTracer.use()
 
-            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+        worldSpace.renderAttachments[1].bind()
 
-            directTex.shader.use()
+        rayTracer.uniform("output_size", raysSize)
+        rayTracer.uniform("input_width", worldSpace.width)
+        rayTracer.uniform("input_height", worldSpace.height)
+        rayTracer.uniform("light_mask", 0)
 
-            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+        rayTracer.uniform("light_position", lightX, lightY)
 
-            GLES30.glBlendFunc(GLES30.GL_DST_COLOR, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
 
-            framebuffer.renderAttachments[0]
-                .flip(horizontal = false, vertical = true)
-                .bind()
-
-            renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
-
-            GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-            GLES30.glEnable(GLES30.GL_DEPTH_TEST)
-
-            Framebuffer.release()
-
-            GLES30.glViewport(0, 0, window.width, window.height)
-
-            directTex.shader.use()
-            shadowDownscale.renderAttachments[0]
-                .flip(horizontal = false, vertical = true)
-                .bind()
-        } else
-        {
-            GLES30.glViewport(0, 0, window.width, window.height)
-            framebuffer.renderAttachments[0]
-                .flip(horizontal = false, vertical = true)
-                .bind()
-        }
+        matrices.projection.identity()
+            .ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
+        matrices.model.identity()
 
         renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
+
+        Framebuffer.release()
+    }
+
+    private fun drawShadows(lightX: Float, lightY: Float, r: Float, g: Float, b: Float)
+    {
+        shadowAndLight.use()
+        GLES30.glViewport(0, 0, window.width, window.height)
+
+        val windowRatio = window.width.toFloat() / window.height
+
+        matrices.projection.identity()
+            .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
+        matrices.model.identity()
+
+        rays.renderAttachments[0]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        val playerX = gameWorld.player!!.x.toFloat()
+        val playerY = gameWorld.player!!.y.toFloat()
+
+        val matrix = Matrix4f()
+            .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
+            .invertOrtho()
+            .translate(playerX * scale / windowRatio, (playerY + offset) * scale, 0.0f)
+            .scaleLocal(1.0f / scale, 1.0f / scale, 1.0f)
+
+        shadowAndLight.uniform("input_size", raysSize)
+        shadowAndLight.uniform("light_color", r, g, b)
+        shadowAndLight.uniform("light_position", lightX, lightY)
+
+        shadowAndLight.uniform("frag_matrix", matrix)
+
+        shadowAndLight.uniform("world_size", gameWorld.room!!.width.toFloat() * 0.2f, gameWorld.room!!.height.toFloat() * 0.2f)
+
+        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2.0f, 2.0f)
+    }
+
+    fun halfResolutionRender()
+    {
+
+        val windowRatio = window.width.toFloat() / window.height
+
+        screen.bind()
+
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
+        GLES30.glViewport(0, 0, screen.width, screen.height)
+
+        GLES30.glDisable(GLES30.GL_DEPTH_TEST)
+        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_ONE, GLES30.GL_ONE)
+
+        for (light in lights)
+        {
+            if (Vector2d(gameWorld.player!!.x, gameWorld.player!!.y).distance(
+                    Vector2d(light.x.toDouble() * 0.2, light.y.toDouble() * 0.2)) > windowRatio * 1.4f)
+                continue
+
+            generateRays(light.x, light.y)
+            drawShadows(light.x, light.y, light.r, light.g, light.b)
+        }
+
+        textured.use()
+
+        matrices.projection.identity()
+            .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
+        matrices.model.identity()
+
+        screenSpace.renderAttachments[1]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
+
+        if (lights.isEmpty())
+            GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        else
+            GLES30.glBlendFunc(GLES30.GL_DST_COLOR, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+
+        screenSpace.renderAttachments[0]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
+
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+
+        Framebuffer.release()
+    }
+
+    fun perform(renderTask: () -> Unit)
+    {
+        val windowRatio = window.width.toFloat() / window.height
+
+        validateFramebuffers()
+        generateLightMask(renderTask)
+
+        generatePresentedCopy(renderTask)
+
+        halfResolutionRender()
+
+        GLES30.glViewport(0, 0, window.width, window.height)
+
+        screen.renderAttachments[0]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
     }
 }

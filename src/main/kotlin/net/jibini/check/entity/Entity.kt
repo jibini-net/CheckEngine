@@ -64,6 +64,8 @@ abstract class Entity(
         behavior?.update(this)
     }
 
+    abstract fun render()
+
     class MovementRestrictions
     {
         var left: Boolean = false
