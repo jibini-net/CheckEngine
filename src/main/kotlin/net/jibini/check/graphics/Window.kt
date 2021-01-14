@@ -2,6 +2,7 @@ package net.jibini.check.graphics
 
 import net.jibini.check.CheckGame
 import org.lwjgl.glfw.GLFW
+import java.io.File
 
 /**
  * Wrapped GLFW window instance which handles the OpenGL context
@@ -22,8 +23,8 @@ class Window(
      */
     private var close = false
 
-    private var internalWidth = 1366;
-    private var internalHeight = 1000;
+    private var internalWidth = 1280;
+    private var internalHeight = 840;
 
     var width: Int
         get() = internalWidth;
@@ -43,29 +44,26 @@ class Window(
             internalHeight = value
         }
 
-    /**
-     * Converts booleans to ones and zeros
-     */
-    private fun Boolean.toGLFWValue(): Int
-    {
-        // Convert boolean to int (0/1)
-        return if (this)
-            GLFW.GLFW_TRUE
-        else
-            GLFW.GLFW_FALSE
-    }
-
     init
     {
         GLFW.glfwDefaultWindowHints()
 
-        // Configure OpenGL ES context
-        GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_ES_API)
+        if (File("opengl_es").exists())
+        {
+            // Configure OpenGL ES context
+            GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_ES_API)
 
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3)
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 1)
+            GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3)
+            GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 0)
 
-        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_ANY_PROFILE)
+            GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_ANY_PROFILE)
+        } else
+        {
+            GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4)
+            GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3)
+
+            GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE)
+        }
 
         // Create window with some defaults
         pointer = GLFW.glfwCreateWindow(

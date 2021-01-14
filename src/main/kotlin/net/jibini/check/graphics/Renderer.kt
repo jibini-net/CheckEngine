@@ -15,9 +15,6 @@ import org.joml.Vector4f
 class Renderer : EngineAware()
 {
     @EngineObject
-    private lateinit var textureRegistry: TextureRegistry
-
-    @EngineObject
     private lateinit var matrices: Matrices
 
     private var renderGroup: RenderGroup? = null
@@ -54,15 +51,15 @@ class Renderer : EngineAware()
      */
     fun drawRectangle(x: Float, y: Float, width: Float, height: Float)
     {
-        val coordinates = textureRegistry.bound?.textureCoordinates
+//        val coordinates = textureRegistry.bound?.textureCoordinates
 
         // Find texture width and height
-        val dx = coordinates?.deltaX ?: 0.0f
-        val dy = coordinates?.deltaY ?: 0.0f
+//        val dx = coordinates?.deltaX ?: 0.0f
+//        val dy = coordinates?.deltaY ?: 0.0f
 
         if (renderGroup == null)
         {
-            val unitSquare = cachedTexture.getOrPut(dx to dy)
+            val unitSquare = cachedTexture.getOrPut(1.0f to 1.0f)
             {
                 val result = beginGroup()
 
@@ -84,13 +81,13 @@ class Renderer : EngineAware()
             renderGroup!!.consumeVertex(
                 Vector3f(x, y, 0.0f),
                 Vector4f(1.0f),
-                Vector2f(0.0f, dy)
+                Vector2f(0.0f, 1.0f)
             )
 
             renderGroup!!.consumeVertex(
                 Vector3f(x + width, y + height, 0.0f),
                 Vector4f(1.0f),
-                Vector2f(dx, 0.0f)
+                Vector2f(1.0f, 0.0f)
             )
 
             renderGroup!!.consumeVertex(
@@ -102,19 +99,19 @@ class Renderer : EngineAware()
             renderGroup!!.consumeVertex(
                 Vector3f(x, y, 0.0f),
                 Vector4f(1.0f),
-                Vector2f(0.0f, dy)
+                Vector2f(0.0f, 1.0f)
             )
 
             renderGroup!!.consumeVertex(
                 Vector3f(x + width, y, 0.0f),
                 Vector4f(1.0f),
-                Vector2f(dx, dy)
+                Vector2f(1.0f, 1.0f)
             )
 
             renderGroup!!.consumeVertex(
                 Vector3f(x + width, y + height, 0.0f),
                 Vector4f(1.0f),
-                Vector2f(dx, 0.0f)
+                Vector2f(1.0f, 0.0f)
             )
         }
     }

@@ -18,7 +18,9 @@ public class TestGUI implements Updatable
     public void update()
     {
         ImGui.setNextWindowSize(500, 300, ImGuiCond.Once);
-        ImGui.setNextWindowPos(100, 200, ImGuiCond.Once);
+        ImGui.setNextWindowPos(30, 50, ImGuiCond.Once);
+        ImGui.setNextWindowCollapsed(true, ImGuiCond.Once);
+
         ImGui.begin("Test Window");
 
         ImGui.checkbox("This is epic?", epicToggle);

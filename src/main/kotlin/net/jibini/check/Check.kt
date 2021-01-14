@@ -1,8 +1,6 @@
 package net.jibini.check
 
-import imgui.ImFontAtlas
 import imgui.ImGui
-import imgui.ImGuiIO
 import imgui.flag.ImGuiConfigFlags
 import imgui.gl3.ImGuiGLES30
 import imgui.glfw.ImGuiGLFW
@@ -18,14 +16,18 @@ import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.input.Keyboard
 import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengles.GLES
 import org.lwjgl.opengles.GLES30
 import org.lwjgl.system.Configuration
+import org.lwjgl.system.Library
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.*
 import kotlin.concurrent.thread
+
+import java.lang.invoke.MethodHandles
 
 /**
  * Game engine entry point factory and lifecycle management
@@ -46,45 +48,6 @@ object Check
     // Tracks duplicate instances of one game type
     private val instanceCount = mutableMapOf<String, Int>()
 
-    private fun addLibraryPath(pathToAdd: String)
-    {
-        try
-        {
-            val usrPathsField = ClassLoader::class.java.getDeclaredField("usr_paths")
-            usrPathsField.isAccessible = true
-
-            @Suppress("UNCHECKED_CAST")
-            val paths = usrPathsField[null] as Array<String>
-
-            for (path in paths)
-            {
-                if (path == pathToAdd)
-                    return
-            }
-
-            val newPaths = paths.copyOf(paths.size + 1)
-
-            newPaths[newPaths.size - 1] = pathToAdd
-            usrPathsField[null] = newPaths
-        } catch (ex: Exception)
-        {
-            ex.printStackTrace()
-        }
-    }
-
-//    @JvmStatic
-//    fun boot()
-//    {
-//        EngineObjectsImpl.initialize()
-//
-//        val games = EngineObjectsImpl.get<CheckGame>()
-//        log.info("Found ${games.size} game class(es) on classpath")
-//
-//        for (game in games)
-//            boot(game)
-//        infinitelyPoll()
-//    }
-
     /**
      * Boots the given instance of the given game and sets up its context; the game will not function correctly until
      * [infinitelyPoll] is called from the main thread
@@ -95,7 +58,6 @@ object Check
     fun boot(game: CheckGame)
     {
         log.info("Booting application '${game.profile.appName}' version ${game.profile.appVersion} . . .")
-
 
         if (contextInit)
         {
@@ -112,15 +74,22 @@ object Check
 
             // Init GLFW
             GLFW.glfwInit()
+            GLFWErrorCallback.createPrint(System.err).set()
 
-            val wdPath = System.getProperty("user.dir")
-            addLibraryPath("$wdPath/bin")
+            val l = Library.loadNative(
+                Check::class.java,
+                "net.jibini.check",
+                "imgui-java${if (System.getProperty("os.arch").contains("64")) "64" else ""}",
+                false
+            )
+            log.info("Loading ImGui natives from '${l.name}'")
+            System.load(l.name)
 
             ImGui.createContext()
 
             val io = ImGui.getIO()
             io.iniFilename = null
-//            io.addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard)
+            io.addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard)
 
             val fontAtlas = io.fonts
             fontAtlas.addFontDefault()
@@ -272,13 +241,15 @@ object Check
         // Polls GLFW window inputs until all instances are closed
         log.debug("Entering infinite main thread polling . . .")
         while (instanceCount.isNotEmpty())
+        {
             runBlocking {
                 pollMutex.withLock {
                     GLFW.glfwPollEvents()
                 }
             }
 
-
+            Thread.sleep(1000 / 60)
+        }
 
         // All instances are closed
         log.debug("Exited infinite polling; no instances remain")

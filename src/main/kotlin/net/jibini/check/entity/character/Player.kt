@@ -1,9 +1,5 @@
 package net.jibini.check.entity.character
 
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.input.Keyboard
@@ -43,6 +39,8 @@ class Player(
     @EngineObject
     private lateinit var keyboard: Keyboard
 
+    private var queueJump = false
+
     init
     {
         // Listen to space to trigger attack
@@ -50,27 +48,18 @@ class Player(
 
         // Listen to left shift to trigger jump
         keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) {
-            runBlocking {
-                try
-                {
-                    // Synchronize jump to avoid jumping while updating physics
-                    withTimeout(50) {
-                        gameWorld.physicsUpdateLock.withLock {
-
-                            jump(0.55)
-
-                        }
-                    }
-                } catch (ex: TimeoutCancellationException)
-                {
-                    log.warn("Consumed jump callback exception due to timeout", ex)
-                }
-            }
+            queueJump = true
         }
     }
 
     override fun update()
     {
+        if (queueJump)
+        {
+            queueJump = false
+            jump(0.55)
+        }
+
         // Check WASD keys
         val w = keyboard.isPressed(GLFW.GLFW_KEY_W) && !(gameWorld.room?.isSideScroller ?: false)
         val a = keyboard.isPressed(GLFW.GLFW_KEY_A)

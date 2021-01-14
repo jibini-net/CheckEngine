@@ -1,12 +1,10 @@
 package net.jibini.check.world
 
 import net.jibini.check.engine.EngineObject
-import net.jibini.check.engine.Updatable
 import net.jibini.check.graphics.RenderGroup
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.impl.AbstractAutoDestroyable
-import net.jibini.check.graphics.impl.DualTexShaderImpl
 
 /**
  * A collection of tiles in the current game level
@@ -30,7 +28,7 @@ class Room(
     val tileSize: Double = 0.2,
 
     val isSideScroller: Boolean
-) : AbstractAutoDestroyable(), Updatable
+) : AbstractAutoDestroyable()
 {
     @EngineObject
     private lateinit var renderer: Renderer
@@ -81,12 +79,12 @@ class Room(
         }
     }
 
-    override fun update()
+    fun render()
     {
         for ((tile, list) in registeredMeshes)
         {
             tile.texture.bind()
-            uniforms.blocking = tile.blocking
+            uniforms.blocking = tile.lightBlocking
 
             list.call()
         }

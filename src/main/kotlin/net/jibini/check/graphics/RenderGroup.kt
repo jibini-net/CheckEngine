@@ -9,6 +9,7 @@ import org.joml.Vector3f
 import org.joml.Vector4f
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
+import java.nio.Buffer
 
 class RenderGroup : EngineAware(), Destroyable
 {
@@ -29,6 +30,14 @@ class RenderGroup : EngineAware(), Destroyable
     private val texCoordBuffer = GLES30.glGenBuffers()
 
     private var size = 0
+
+    companion object
+    {
+        private var lastPushedModelMatrix: Matrix4f? = null
+        private var lastPushedProjectionMatrix: Matrix4f? = null
+
+        private var lastPushedShader: Shader? = null
+    }
 
     fun finalize()
     {
@@ -57,9 +66,9 @@ class RenderGroup : EngineAware(), Destroyable
             texCoordData.put(texCoord.y)
         }
 
-        vertexData.flip()
-        colorData.flip()
-        texCoordData.flip()
+        (vertexData as Buffer).flip()
+        (colorData as Buffer).flip()
+        (texCoordData as Buffer).flip()
 
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vertexBuffer)
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, vertexData, GLES30.GL_STATIC_DRAW)
@@ -84,9 +93,20 @@ class RenderGroup : EngineAware(), Destroyable
         if (!finalized)
             finalize()
 
-        val combinationMatrix = Matrix4f()
-        matrices.projection.mul(matrices.model, combinationMatrix)
-        statefulShaderImpl.boundShader?.uniform("uniform_matrix", combinationMatrix)
+        if (
+            lastPushedModelMatrix != matrices.model
+                || lastPushedProjectionMatrix != matrices.projection
+                || lastPushedShader != statefulShaderImpl.boundShader
+        )
+        {
+            val combinationMatrix = Matrix4f()
+            matrices.projection.mul(matrices.model, combinationMatrix)
+            statefulShaderImpl.boundShader?.uniform("uniform_matrix", combinationMatrix)
+
+            lastPushedModelMatrix = Matrix4f(matrices.model)
+            lastPushedProjectionMatrix = Matrix4f(matrices.projection)
+            lastPushedShader = statefulShaderImpl.boundShader
+        }
 
         GLES30.glEnableVertexAttribArray(0)
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vertexBuffer)

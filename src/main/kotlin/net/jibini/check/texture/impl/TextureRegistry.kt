@@ -45,7 +45,10 @@ class TextureRegistry
 
         @Suppress("SENSELESS_COMPARISON")
         if (texture.textureCoordinates != null)
+        {
             uniforms.textureOffset = Vector2f(texture.textureCoordinates.baseX, texture.textureCoordinates.baseY)
+            uniforms.textureDelta = Vector2f(texture.textureCoordinates.deltaX, texture.textureCoordinates.deltaY)
+        }
 
         bound = texture
     }
