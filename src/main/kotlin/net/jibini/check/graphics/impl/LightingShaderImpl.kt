@@ -42,7 +42,7 @@ class LightingShaderImpl : Initializable
     private lateinit var screen: Framebuffer
 
     private val pixelsPerTile = 32
-    private val raysSize = 24
+    private val raysSize = 32
 
     private val offset = 0.3f
     private val scale = 1.4f
@@ -229,7 +229,7 @@ class LightingShaderImpl : Initializable
         for (light in lights)
         {
             if (Vector2d(gameWorld.player!!.x, gameWorld.player!!.y).distance(
-                    Vector2d(light.x.toDouble() * 0.2, light.y.toDouble() * 0.2)) > 2.2)
+                    Vector2d(light.x.toDouble() * 0.2, light.y.toDouble() * 0.2)) > windowRatio * 1.4f)
                 continue
 
             generateRays(light.x, light.y)
