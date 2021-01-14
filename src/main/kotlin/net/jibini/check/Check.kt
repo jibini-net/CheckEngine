@@ -76,7 +76,13 @@ object Check
             GLFW.glfwInit()
             GLFWErrorCallback.createPrint(System.err).set()
 
-            val l = Library.loadNative(Check::class.java, "net.jibini.check", "imgui-java64", false)
+            val l = Library.loadNative(
+                Check::class.java,
+                "net.jibini.check",
+                "imgui-java${if (System.getProperty("os.arch").contains("64")) "64" else ""}",
+                false
+            )
+            log.info("Loading ImGui natives from '${l.name}'")
             System.load(l.name)
 
             ImGui.createContext()
