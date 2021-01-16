@@ -12,6 +12,8 @@ interface Shader
 
     fun uniform(name: String, x: Int)
 
+    fun uniform(name: String, x: Float)
+
     fun uniform(name: String, x: Float, y: Float)
 
     fun uniform(name: String, x: Float, y: Float, z: Float)
@@ -36,6 +38,7 @@ interface Shader
             fragShader.destroy()
 
             result.link()
+            result.verify()
 
             return result
         }

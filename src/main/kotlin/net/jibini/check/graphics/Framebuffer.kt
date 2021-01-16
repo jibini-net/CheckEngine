@@ -18,14 +18,14 @@ class Framebuffer(
     {
         bind()
 
-        val renderBuffer = GLES30.glGenRenderbuffers()
-        GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER, renderBuffer)
-        GLES30.glRenderbufferStorage(GLES30.GL_RENDERBUFFER, GLES30.GL_DEPTH_COMPONENT, width, height)
+        //val renderBuffer = GLES30.glGenRenderbuffers()
+        //GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER, renderBuffer)
+        //GLES30.glRenderbufferStorage(GLES30.GL_RENDERBUFFER, GLES30.GL_DEPTH_COMPONENT, width, height)
 
-        GLES30.glFramebufferRenderbuffer(
-            GLES30.GL_FRAMEBUFFER, GLES30.GL_DEPTH_ATTACHMENT,
-            GLES30.GL_RENDERBUFFER, renderBuffer
-        )
+        //GLES30.glFramebufferRenderbuffer(
+        //    GLES30.GL_FRAMEBUFFER, GLES30.GL_DEPTH_ATTACHMENT,
+        //    GLES30.GL_RENDERBUFFER, renderBuffer
+        //)
 
         for (i in 0 until numberRenderAttachments)
             GLES30.glFramebufferTexture2D(
