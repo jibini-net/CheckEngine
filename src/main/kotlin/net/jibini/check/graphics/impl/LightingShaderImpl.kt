@@ -41,8 +41,8 @@ class LightingShaderImpl : Initializable
     private lateinit var screenSpace: Framebuffer
     private lateinit var screen: Framebuffer
 
-    private val pixelsPerTile = 32
-    private val raysSize = 32
+    private val pixelsPerTile = 16
+    private val raysSize = 16
 
     private val offset = 0.3f
     private val scale = 1.4f
@@ -67,7 +67,7 @@ class LightingShaderImpl : Initializable
         )
 
         shadowAndLight = Shader.create(
-            Resource.fromClasspath("shaders/textured.vert"),
+            Resource.fromClasspath("shaders/shadow.vert"),
             Resource.fromClasspath("shaders/shadow.frag")
         )
 
@@ -86,8 +86,8 @@ class LightingShaderImpl : Initializable
             worldSpace = Framebuffer(properWidth, properHeight, 2)
         }
 
-        properWidth = (window.width.toFloat() / 1.8f).toInt()
-        properHeight = (window.height.toFloat() / 1.8f).toInt()
+        properWidth = (window.width.toFloat() / 4.7f).toInt()
+        properHeight = (window.height.toFloat() / 5.5f).toInt()
 
         if (!this::screenSpace.isInitialized
             || screenSpace.width != properWidth
@@ -174,13 +174,13 @@ class LightingShaderImpl : Initializable
 
         renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
 
-        Framebuffer.release()
+        //Framebuffer.release()
     }
 
     private fun drawShadows(lightX: Float, lightY: Float, r: Float, g: Float, b: Float)
     {
         shadowAndLight.use()
-        GLES30.glViewport(0, 0, window.width, window.height)
+        //GLES30.glViewport(0, 0, window.width, window.height)
 
         val windowRatio = window.width.toFloat() / window.height
 
@@ -198,7 +198,7 @@ class LightingShaderImpl : Initializable
         val matrix = Matrix4f()
             .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
             .invertOrtho()
-            .translate(playerX * scale / windowRatio, (playerY + offset) * scale, 0.0f)
+            .translate(playerX / windowRatio * scale, (playerY + offset) * scale, 0.0f)
             .scaleLocal(1.0f / scale, 1.0f / scale, 1.0f)
 
         shadowAndLight.uniform("input_size", raysSize)
@@ -206,8 +206,7 @@ class LightingShaderImpl : Initializable
         shadowAndLight.uniform("light_position", lightX, lightY)
 
         shadowAndLight.uniform("frag_matrix", matrix)
-
-        shadowAndLight.uniform("world_size", gameWorld.room!!.width.toFloat() * 0.2f, gameWorld.room!!.height.toFloat() * 0.2f)
+        shadowAndLight.uniform("ray_scale", 1.0f / scale)
 
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2.0f, 2.0f)
     }
@@ -218,7 +217,6 @@ class LightingShaderImpl : Initializable
         val windowRatio = window.width.toFloat() / window.height
 
         screen.bind()
-
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glViewport(0, 0, screen.width, screen.height)
 
@@ -229,10 +227,11 @@ class LightingShaderImpl : Initializable
         for (light in lights)
         {
             if (Vector2d(gameWorld.player!!.x, gameWorld.player!!.y).distance(
-                    Vector2d(light.x.toDouble() * 0.2, light.y.toDouble() * 0.2)) > windowRatio * 1.4f)
+                    Vector2d(light.x.toDouble() * 0.2, light.y.toDouble() * 0.2)) > windowRatio * 1.2f)
                 continue
 
             generateRays(light.x, light.y)
+            screen.bind()
             drawShadows(light.x, light.y, light.r, light.g, light.b)
         }
 
@@ -260,7 +259,7 @@ class LightingShaderImpl : Initializable
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
 
         GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+        //GLES30.glEnable(GLES30.GL_DEPTH_TEST)
 
         Framebuffer.release()
     }
@@ -275,6 +274,8 @@ class LightingShaderImpl : Initializable
         generatePresentedCopy(renderTask)
 
         halfResolutionRender()
+        
+        textured.use()
 
         GLES30.glViewport(0, 0, window.width, window.height)
 
@@ -283,5 +284,11 @@ class LightingShaderImpl : Initializable
             .bind()
 
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
+
+        rays.renderAttachments[0]
+            .flip(horizontal = false, vertical = true)
+            .bind()
+
+        renderer.drawRectangle(-windowRatio, -1.0f, 0.5f, 0.5f)
     }
 }

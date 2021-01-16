@@ -7,9 +7,12 @@ import net.jibini.check.graphics.Uniforms
 import org.joml.Matrix4f
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
+import org.slf4j.LoggerFactory
 
 class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by PointerImpl(GLES30.glCreateProgram())
 {
+    private val log = LoggerFactory.getLogger(this::class.java)
+    
     @EngineObject
     private lateinit var uniforms: Uniforms
 
@@ -49,6 +52,14 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
         val location = GLES30.glGetUniformLocation(pointer, name)
 
         GLES30.glUniform1i(location, x)
+    }
+
+    override fun uniform(name: String, x: Float)
+    {
+        use()
+        val location = GLES30.glGetUniformLocation(pointer, name)
+
+        GLES30.glUniform1f(location, x)
     }
 
     override fun uniform(name: String, x: Float, y: Float)
@@ -95,5 +106,14 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
     fun link()
     {
         GLES30.glLinkProgram(pointer)
+    }
+
+    fun verify()
+    {
+        val errorLog = GLES30.glGetProgramInfoLog(pointer)
+        if (errorLog.isNotEmpty())
+            log.error("PROGRAM LINK LOG:\n$errorLog")
+        else
+            log.debug("Shader compiled with no errors logged")
     }
 }
