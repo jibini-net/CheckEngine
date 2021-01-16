@@ -54,6 +54,14 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
         GLES30.glUniform1i(location, x)
     }
 
+    override fun uniform(name: String, x: Float)
+    {
+        use()
+        val location = GLES30.glGetUniformLocation(pointer, name)
+
+        GLES30.glUniform1f(location, x)
+    }
+
     override fun uniform(name: String, x: Float, y: Float)
     {
         use()

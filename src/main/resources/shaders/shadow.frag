@@ -17,10 +17,10 @@ uniform vec3 light_color;
 uniform vec2 light_position;
 
 uniform sampler2D tex;
-uniform vec2 world_size;
 uniform int input_size;
 
 uniform mat4 frag_matrix;
+uniform float ray_scale;
 
 void main()
 {
@@ -41,12 +41,10 @@ void main()
         float(y) / float(input_size)
     );
 
-    vec2 ref_vector = texture(tex, ref_coord).rg;
+    vec2 ref_vector = texture(tex, ref_coord).rg * ray_scale;
     vec2 restored = ref_vector * float(MAX_RADIUS) / PIXELS_PER_TILE * 0.2;
-    
-    restored.x /= 2.2;
 
-    float mask = float(int(length(restored) > length(to_fragment) - 0.012));
+    float mask = float(int(length(restored) > length(to_fragment) - 0.015));
 
     frag_color = vec4(light_color * 0.5 / len * mask * (-1.0 * len + 1.4) +
             light_color * (-1.2 * len + 1.4 * 0.6), 1.0);

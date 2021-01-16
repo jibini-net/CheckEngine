@@ -24,8 +24,15 @@ uniform vec2 light_position;
 
 void main()
 {
-    float angle = y_interp + x_interp;
-    angle *= 1.02;
+    //float angle = y_interp + x_interp;
+
+    int x = int(floor(x_interp));
+    int y = int(floor(y_interp));
+
+    int id = y * output_size + x;
+
+    float angle = 2.0 * PI * (float(id) / float(output_size * output_size));
+    angle *= 1.003;
 
     vec2 direction = vec2(cos(angle), sin(angle));
     vec2 coord = light_position * PIXELS_PER_TILE;

@@ -20,11 +20,14 @@ uniform int output_size;
 
 void main()
 {
-    float width = (2.0 * PI) / float(output_size);
-    float height = (2.0 * PI) * (1.0 - 1.0 / float(output_size));
+    //float width = (2.0 * PI) / float(output_size);
+    //float height = (2.0 * PI) * (1.0 - 1.0 / float(output_size));
   
-    x_interp = vertex_tex_coord.x * width;
-    y_interp = (1.0 - vertex_tex_coord.y) * height;
+    //x_interp = vertex_tex_coord.x * width * 1.03;
+    //y_interp = (1.0 - vertex_tex_coord.y) * height * 1.03;
+
+    x_interp = vertex_tex_coord.x * float(output_size) + 0.1;
+    y_interp = (1.0 - vertex_tex_coord.y) * float(output_size) + 0.1;
 
     gl_Position = uniform_matrix * vec4(vertex, 1.0);
 }

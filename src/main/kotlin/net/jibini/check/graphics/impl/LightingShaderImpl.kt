@@ -198,16 +198,15 @@ class LightingShaderImpl : Initializable
         val matrix = Matrix4f()
             .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
             .invertOrtho()
-            .scale(1.0f / scale, 1.0f / scale, 1.0f)
-            .translateLocal(playerX, playerY + offset, 0.0f)
+            .translate(playerX / windowRatio * scale, (playerY + offset) * scale, 0.0f)
+            .scaleLocal(1.0f / scale, 1.0f / scale, 1.0f)
 
         shadowAndLight.uniform("input_size", raysSize)
         shadowAndLight.uniform("light_color", r, g, b)
         shadowAndLight.uniform("light_position", lightX, lightY)
 
         shadowAndLight.uniform("frag_matrix", matrix)
-
-        shadowAndLight.uniform("world_size", gameWorld.room!!.width.toFloat() * 0.2f, gameWorld.room!!.height.toFloat() * 0.2f)
+        shadowAndLight.uniform("ray_scale", 1.0f / scale)
 
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2.0f, 2.0f)
     }
