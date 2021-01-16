@@ -36,6 +36,7 @@ interface Shader
             fragShader.destroy()
 
             result.link()
+            result.verify()
 
             return result
         }

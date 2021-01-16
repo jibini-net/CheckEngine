@@ -1,7 +1,7 @@
 #version 300 es
 
 #define PI 3.1415926538
-#define MAX_RADIUS 128
+#define MAX_RADIUS 1.0
 #define PIXELS_PER_TILE 16.0
 
 precision highp float;
@@ -9,7 +9,8 @@ precision mediump int;
 precision lowp sampler2D;
 precision lowp samplerCube;
 
-in vec2 frag_position;
+in vec2 tex_coord;
+in vec4 color;
 
 layout(location = 0) out vec4 frag_color;
 
@@ -24,10 +25,8 @@ uniform mat4 frag_matrix;
 
 void main()
 {
+    vec2 frag_position = (frag_matrix * vec4(tex_coord * 2.0 - vec2(1.0), 0.0, 1.0)).xy;
     vec2 to_fragment = frag_position - light_position * 0.2;
-    float len = length(to_fragment);
-    if (len > 1.4)
-        discard;
     float angle = atan(to_fragment.y, to_fragment.x);
     if (angle < 0.0)
         angle += 2.0 * PI;
@@ -42,12 +41,11 @@ void main()
     );
 
     vec2 ref_vector = texture(tex, ref_coord).rg;
-    vec2 restored = ref_vector * float(MAX_RADIUS) / PIXELS_PER_TILE * 0.2;
-    
-    restored.x /= 2.2;
+    vec2 restored = (ref_vector - vec2(0.5)) * 2.0 * MAX_RADIUS * world_size.y;
 
-    float mask = float(int(length(restored) > length(to_fragment) - 0.012));
+    float mask = float(int(length(restored) > length(to_fragment) - 0.022));
+    float len = length(to_fragment);
 
-    frag_color = vec4(light_color * 0.5 / len * mask * (-1.0 * len + 1.4) +
-            light_color * (-1.2 * len + 1.4 * 0.6), 1.0);
+    frag_color = vec4(light_color * 0.5 / len * mask * (-1.0 * len + MAX_RADIUS) +
+            light_color * (-1.2 * len + MAX_RADIUS * 0.6), 1.0);
 }

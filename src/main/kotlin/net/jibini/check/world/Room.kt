@@ -72,7 +72,7 @@ class Room(
             {
                 renderer.drawRectangle(tileSize.toFloat() * coordinate.first,
                     tileSize.toFloat() * coordinate.second,
-                    tileSize.toFloat(), tileSize.toFloat())
+                    tileSize.toFloat() + 0.000006f, tileSize.toFloat() + 0.000006f)
             }
 
             renderer.finalizeGroup()

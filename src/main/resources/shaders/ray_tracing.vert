@@ -1,7 +1,9 @@
 #version 300 es
 
+#define PI 3.1415926538
+
 precision highp float;
-precision highp int;
+precision mediump int;
 precision lowp sampler2D;
 precision lowp samplerCube;
 
@@ -18,17 +20,11 @@ uniform int output_size;
 
 void main()
 {
-    x_interp = float(int(
-          gl_VertexID == 1
-       || gl_VertexID == 4
-       || gl_VertexID == 5
-    ) * output_size) - 1.1;
-
-    y_interp = float(int(
-          gl_VertexID == 1
-       || gl_VertexID == 2
-       || gl_VertexID == 5
-    ) * output_size) - 1.1;
+    float width = (2.0 * PI) / float(output_size);
+    float height = (2.0 * PI) * (1.0 - 1.0 / float(output_size));
+  
+    x_interp = vertex_tex_coord.x * width;
+    y_interp = (1.0 - vertex_tex_coord.y) * height;
 
     gl_Position = uniform_matrix * vec4(vertex, 1.0);
 }

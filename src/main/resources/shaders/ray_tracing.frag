@@ -1,8 +1,8 @@
 #version 300 es
 
 #define PI 3.1415926538
-#define MAX_RADIUS 1.4
-#define PIXELS_PER_TILE 32.0
+#define MAX_RADIUS 128
+#define PIXELS_PER_TILE 16.0
 
 precision highp float;
 precision mediump int;
@@ -24,31 +24,24 @@ uniform vec2 light_position;
 
 void main()
 {
-    int x = int(ceil(x_interp));
-    int y = int(ceil(y_interp));
-
-    int id = y * output_size + x;
-
-    float angle = 2.0 * PI * (float(id) / float(output_size * output_size));
-    float pixel_width = 1.0 / float(input_width);
-    float pixel_height = 1.0 / float(input_height);
+    float angle = y_interp + x_interp;
+    angle *= 1.02;
 
     vec2 direction = vec2(cos(angle), sin(angle));
+    vec2 coord = light_position * PIXELS_PER_TILE;
+    
+    int distance = 0;
 
-    float step_size = min(pixel_width, pixel_height) * 2.0;
-    vec2 step = direction * step_size;
-    step.x *= float(input_height) / float(input_width);
-
-    vec2 coord = light_position * vec2(PIXELS_PER_TILE * pixel_width, PIXELS_PER_TILE * pixel_height);
-    float distance = 0.0;
-
-    for (distance; distance <= MAX_RADIUS; distance += step_size)
+    for (distance; distance <= MAX_RADIUS; distance++)
     {
-        coord += step;
-
-        if (texture(light_mask, coord).r > 0.2)
+        coord += direction;
+        
+        ivec2 coord_cast = ivec2(int(coord.x), int(coord.y));
+        vec4 texel_value = texelFetch(light_mask, coord_cast, 0);
+        
+        if (texel_value.r > 0.2)
             break;
     }
 
-    frag_color = vec4((direction * distance) / (2.0 * MAX_RADIUS) + vec2(0.5), 0.0, 1.0);
+    frag_color = vec4(vec3(float(distance) / float(MAX_RADIUS)), 1.0);
 }
