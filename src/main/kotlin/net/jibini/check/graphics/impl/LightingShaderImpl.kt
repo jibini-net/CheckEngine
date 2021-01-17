@@ -117,11 +117,14 @@ class LightingShaderImpl : Initializable
      */
     val lights = mutableListOf<Light>()
 
+    var properWidth = 0
+    var properHeight = 0
+
     /**
      * The ratio of the window width to the window height.
      */
     private val windowRatio: Float
-        get() = window.width.toFloat() / window.height
+        get() = properWidth.toFloat() / properHeight
 
     override fun initialize()
     {
@@ -154,8 +157,8 @@ class LightingShaderImpl : Initializable
      */
     private fun validateFramebuffers()
     {
-        var properWidth = gameWorld.room!!.width * pixelsPerTile
-        var properHeight = gameWorld.room!!.height * pixelsPerTile
+        properWidth = gameWorld.room!!.width * pixelsPerTile
+        properHeight = gameWorld.room!!.height * pixelsPerTile
 
         if (!this::worldSpace.isInitialized
             || worldSpace.width != properWidth
@@ -164,8 +167,10 @@ class LightingShaderImpl : Initializable
             worldSpace = Framebuffer(properWidth, properHeight, 2)
         }
 
-        properWidth = (window.width.toFloat() / 4.7f).toInt()
-        properHeight = (window.height.toFloat() / 5.5f).toInt()
+        properHeight = (2.0f / scale / 0.2f * 16.0f).toInt();
+        properWidth = (properHeight.toFloat() * (window.width.toFloat() / window.height)).toInt()
+
+        properWidth -= properWidth % (16.0f * scale).toInt()
 
         if (!this::screenSpace.isInitialized
             || screenSpace.width != properWidth
@@ -221,8 +226,14 @@ class LightingShaderImpl : Initializable
         val playerX = gameWorld.player!!.x.toFloat()
         val playerY = gameWorld.player!!.y.toFloat()
 
+        // Snap to pixel
+        var translateX = -playerX
+        translateX -= translateX % (0.2f / 16)
+        var translateY = -playerY - offset
+        translateY -= translateY % (0.2f / 16)
+
         matrices.model.scale(scale)
-        matrices.model.translate(-playerX, -playerY - offset, 0.0f)
+        matrices.model.translate(translateX, translateY, 0.0f)
     }
 
     /**
@@ -341,7 +352,7 @@ class LightingShaderImpl : Initializable
                 ).distance(Vector2d(
                     light.x.toDouble() * 0.2,
                     light.y.toDouble() * 0.2)
-                ) > windowRatio * 1.2f
+                ) > windowRatio * 1.6f
             ) continue
 
             generateRays(light.x, light.y)
@@ -405,12 +416,12 @@ class LightingShaderImpl : Initializable
             .flip(horizontal = false, vertical = true)
             .bind()
 
-        renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
+        renderer.drawRectangle(-windowRatio - 0.1f, -1.1f, windowRatio * 2.2f, 2.2f)
 
         rays.renderAttachments[0]
             .flip(horizontal = false, vertical = true)
             .bind()
 
-        renderer.drawRectangle(-windowRatio, -1.0f, 0.5f, 0.5f)
+        renderer.drawRectangle(-windowRatio + 0.075f, -0.925f, 0.5f, 0.5f)
     }
 }

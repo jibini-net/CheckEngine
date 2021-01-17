@@ -32,7 +32,6 @@ void main()
     int id = y * output_size + x;
 
     float angle = 2.0 * PI * (float(id) / float(output_size * output_size));
-    angle *= 1.003;
 
     vec2 direction = vec2(cos(angle), sin(angle));
     vec2 coord = light_position * PIXELS_PER_TILE;

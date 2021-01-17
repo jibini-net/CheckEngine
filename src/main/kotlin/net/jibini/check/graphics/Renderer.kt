@@ -104,9 +104,13 @@ class Renderer : EngineAware()
                 result
             }
 
+            // Snap to pixel
+            val adjustX = x - x % (0.2f / 16)
+            val adjustY = y - y % (0.2f / 16)
+
             // Scale and transform to the requested size/position
             matrices.model.pushMatrix()
-            matrices.model.translate(x, y, 0.0f)
+            matrices.model.translate(adjustX, adjustY, 0.0f)
             matrices.model.scale(width, height, 1.0f)
 
             // Immediately render the requested quad

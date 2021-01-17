@@ -26,8 +26,8 @@ class Window(
     private var close = false
 
     // Staring size of the window
-    private var internalWidth = 1620;
-    private var internalHeight = 1000;
+    private var internalWidth = 1280;
+    private var internalHeight = 800;
 
     /**
      * Width of the window in pixels. Setting this field will resize the

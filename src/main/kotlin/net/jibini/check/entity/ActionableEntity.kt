@@ -42,7 +42,7 @@ abstract class ActionableEntity(
     /**
      * Character's left-facing walking texture.
      */
-    walkLeft: Texture = idleRight.flip()
+    walkLeft: Texture = walkRight.flip()
 ) : Entity()
 {
     // Animation array indices
@@ -134,6 +134,8 @@ abstract class ActionableEntity(
 
     override fun update()
     {
+        walk(0.0, 0.0)
+
         super.update()
 
         // Update the movement delta time
@@ -167,7 +169,7 @@ abstract class ActionableEntity(
 
         // Draw rectangle (centered on x-coordinate, 0.4 x 0.4)
         renderer.drawRectangle(
-            x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32) + falseYOffset.toFloat(),
+            x.toFloat() - 0.2f, y.toFloat() - (0.4f / 32 * 0.99f) + falseYOffset.toFloat(),
             0.4f, 0.4f
         )
 
@@ -185,7 +187,7 @@ abstract class ActionableEntity(
             uniforms.colorMultiple = Vector4f(1.0f, 1.0f, 1.0f, 0.1f)
 
             renderer.drawRectangle(
-                x.toFloat() - shadowSize / 2, y.toFloat() - 0.027f,
+                x.toFloat() - shadowSize / 2, y.toFloat() - 0.012f,
                 shadowSize, shadowSize
             )
 
