@@ -1,10 +1,13 @@
 game_type top_down
 
-run_macro TestMacro
+run_macro GiveForbesHisAxe
 
-spawn player forbes 3 10
-
-tile 0 floor_tile0.png blocking
+tile 0 electric_walls.gif blocking
 tile 1 floor_tile1.png nonblocking
 tile 2 floor_tile1.png nonblocking
 tile 3 floor_tile1.png nonblocking
+
+spawn character gendrau 4.0 31.0 GendreauBehavior
+spawn player forbes 5.0 30.0
+
+portal main_hub 57.0 51.0 3 5

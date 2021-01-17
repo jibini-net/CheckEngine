@@ -6,6 +6,7 @@ import net.jibini.check.input.Keyboard
 import net.jibini.check.texture.Texture
 import net.jibini.check.world.GameWorld
 import org.lwjgl.glfw.GLFW
+import kotlin.math.abs
 
 /**
  * Keyboard-controlled [actionable character][ActionableEntity] which is
@@ -76,7 +77,6 @@ class Player(
         // Calculate x/y movement based on key input
         val x = (if (a) -1 else 0) + (if (d) 1 else 0).toDouble()
         val y = (if (s) -1 else 0) + (if (w) 1 else 0).toDouble()
-
 
         // Walk based on previous movement
         this.walk(x, y)
