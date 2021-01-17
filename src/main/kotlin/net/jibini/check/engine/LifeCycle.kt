@@ -6,7 +6,8 @@ import net.jibini.check.Check
 import org.slf4j.LoggerFactory
 
 /**
- * Collects and executes life-cycle tasks to be executed on loop during the execution of the application
+ * Collects and executes lifecycle tasks to be executed in a looped
+ * fashion during the runtime of the application.
  *
  * @author Zach Goethel
  */
@@ -15,14 +16,14 @@ class LifeCycle
     private val log = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Collection of update tasks
+     * Ordered collection of update tasks.
      */
     private val tasks = mutableListOf<Runnable>()
 
     /**
-     * Adds the given task to the collection of update tasks
+     * Adds the given task to the collection of update tasks.
      *
-     * @param task Task to register at the end-index
+     * @param task Task to register at the end-index.
      */
     fun registerTask(task: Runnable)
     {
@@ -33,10 +34,10 @@ class LifeCycle
     }
 
     /**
-     * Adds the given task to the collection of update tasks
+     * Adds the given task to the collection of update tasks.
      *
-     * @param task Task to register at the given index
-     * @param index Index at which to register the task
+     * @param task Task to register at the given index.
+     * @param index Index at which to register the task.
      */
     fun registerTask(task: Runnable, index: Int)
     {
@@ -47,9 +48,11 @@ class LifeCycle
     }
 
     /**
-     * Infinitely loop and call all update tasks in order until the predicate returns false
+     * Infinitely loop and call all update tasks in order until the
+     * predicate returns false.
      *
-     * @param predicate The life-cycle will execute until this predicate returns false
+     * @param predicate The life-cycle will execute until this predicate
+     *     returns false.
      */
     fun start(predicate: () -> Boolean)
     {
@@ -61,14 +64,12 @@ class LifeCycle
                 Thread.sleep(10)
             else
                 // Run all tasks
-                    runBlocking {
-                        Check.pollMutex.withLock {
-                            for (task in tasks)
-                                task.run()
-                        }
+                runBlocking {
+                    Check.pollMutex.withLock {
+                        for (task in tasks)
+                            task.run()
                     }
-
-
+                }
 
             Thread.yield()
         }

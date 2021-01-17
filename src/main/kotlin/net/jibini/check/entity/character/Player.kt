@@ -4,41 +4,47 @@ import net.jibini.check.engine.EngineObject
 import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.input.Keyboard
 import net.jibini.check.texture.Texture
+import net.jibini.check.world.GameWorld
 import org.lwjgl.glfw.GLFW
-import org.slf4j.LoggerFactory
 
 /**
- * Keyboard-controlled [actionable character][ActionableEntity] which is likely a human sprite-set
+ * Keyboard-controlled [actionable character][ActionableEntity] which is
+ * likely a human sprite-set.
+ *
+ * There should only ever be one instance of this type. The instance can
+ * be accessed via the [GameWorld] engine object.
  *
  * @author Zach Goethel
  */
 class Player(
     /**
-     * Character's right-facing idle texture
+     * Character's right-facing idle texture.
      */
     idleRight: Texture,
 
     /**
-     * Character's left-facing idle texture
+     * Character's left-facing idle texture.
      */
     idleLeft: Texture = idleRight.flip(),
 
     /**
-     * Character's right-facing walking texture
+     * Character's right-facing walking texture.
      */
     walkRight: Texture,
 
     /**
-     * Character's left-facing walking texture
+     * Character's left-facing walking texture.
      */
     walkLeft: Texture = idleRight.flip()
 ) : ActionableEntity(idleRight, idleLeft, walkRight, walkLeft)
 {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     @EngineObject
     private lateinit var keyboard: Keyboard
 
+    /**
+     * Flag set to true if the jump key has been pressed since the last
+     * frame (asynchronous callback on the main thread).
+     */
     private var queueJump = false
 
     init
@@ -47,13 +53,12 @@ class Player(
         keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, this::attack)
 
         // Listen to left shift to trigger jump
-        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) {
-            queueJump = true
-        }
+        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) { queueJump = true }
     }
 
     override fun update()
     {
+        // Jump if the jump flag is set
         if (queueJump)
         {
             queueJump = false
@@ -69,7 +74,6 @@ class Player(
         // Calculate x/y movement based on key input
         val x = (if (a) -1 else 0) + (if (d) 1 else 0).toDouble()
         val y = (if (s) -1 else 0) + (if (w) 1 else 0).toDouble()
-
         // Walk based on previous movement
         this.walk(x, y)
 

@@ -212,9 +212,7 @@ class GameWorld : Updatable
     {
         room ?: return
 
-        lightingShader.perform {
-            render()
-        }
+        lightingShader.perform { render() }
 
         for (entity in entities)
             entity.update()

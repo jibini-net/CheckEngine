@@ -8,61 +8,72 @@ import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.AnimatedTextureImpl
 
 /**
- * An action completed by a game character which has an associated animation, cool-down time, and stats; can be
- * performed by a player or non-player character
+ * An action completed by a game character which has an associated
+ * animation, cool-down time, and stats; can be performed by a player or
+ * non-player character.
  *
  * @author Zach Goethel
  */
 class Attack(
     /**
-     * Animation to display during the attack when the character's state is right-facing
+     * Animation to display during the attack when the character's state
+     * is right-facing.
      */
     private val textureRight: Texture,
+
     /**
-     * Animation to display during the attack when the character's state is left-facing
+     * Animation to display during the attack when the character's state
+     * is left-facing.
      */
     private val textureLeft: Texture,
 
     /**
-     * How long to display the animation starting when the attack is triggered
+     * How long to display the animation starting when the attack is
+     * triggered.
      */
     private val animationTime: Double = 0.5,
 
     /**
-     * The time after the animation is triggered until the attack can be re-triggered
+     * The time after the animation is triggered until the attack can be
+     * re-triggered.
      */
     private val coolDown: Double = 0.35,
 
     /**
-     * If true, restart the animation every time it is triggered; if false, only re-trigger if animation time is passed
-     * and the attack is re-triggered
+     * If true, restart the animation every time it is triggered; if
+     * false, only re-trigger if animation time is passed and the attack
+     * is re-triggered.
      */
     private val restartAnimationOnReTrigger: Boolean = false,
 
     /**
-     * Amount of damage dealt by this attack when it affects an entity
+     * Amount of damage dealt by this attack when it affects an entity.
      */
+    //TODO IMPLEMENT DAMAGE AND HEALTH, OR MAKE EXTERNAL
     var damageAmount: Double = 1.0,
 
     /**
-     * Movement speed modifier while the attack animation is in progress (1.0 is full speed, 0.5 is half, etc.)
+     * Movement speed modifier while the attack animation is in progress
+     * (1.0 is full speed, 0.5 is half, and so on).
      */
     var movementModifier: Double = 0.5
 ) : EngineAware(), Updatable
 {
     /**
-     * Non-resetting timer reset every time the attack is triggered
+     * Non-resetting timer reset every time the attack is triggered.
      */
     private val attackTimer = DeltaTimer(false)
 
     /**
-     * Attacker which triggered the attack; null if no attack has been triggered
+     * Attacker which triggered the attack; null if no attack has been
+     * triggered.
      */
     private var triggered: ActionableEntity? = null
 
     /**
-     * Movement modifier of the attack; 1.0 if the attack is not triggered, the value of the movement modifier if the
-     * attack animation is in process
+     * Movement modifier of the attack; 1.0 if the attack is not
+     * triggered, the value of the movement modifier if the attack
+     * animation is in process.
      */
     var effectiveMovementModifier: Double = 1.0
 
@@ -91,10 +102,11 @@ class Attack(
     }
 
     /**
-     * Triggers the attack animation and resets the cool-down timer; only has an effect if the cool-down time is elapsed
-     * or there is no in-progress attack
+     * Triggers the attack animation and resets the cool-down timer;
+     * only has an effect if the cool-down time is elapsed or there is
+     * no in-progress attack.
      *
-     * @param triggered The attacker (used to access directional state)
+     * @param triggered The attacker (used to access directional state).
      */
     fun trigger(triggered: ActionableEntity)
     {

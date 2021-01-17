@@ -1,7 +1,8 @@
 package net.jibini.check.engine
 
 /**
- * Indicates that the annotated field should be filled with the current thread's engine object instance
+ * Indicates that the annotated field is an injection point for engine
+ * object instances on the current thread.
  *
  * @author Zach Goethel
  */

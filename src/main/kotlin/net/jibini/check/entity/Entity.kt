@@ -6,30 +6,29 @@ import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.graphics.Renderer
 import net.jibini.check.physics.Bounded
-import net.jibini.check.physics.BoundingBox
 import net.jibini.check.world.GameWorld
-import org.joml.Math.clamp
 import org.joml.Vector2d
-import kotlin.math.abs
 
 /**
- * A dynamic being with position and velocity; may affected by gravity unless the entity is static
+ * A dynamic being with position and velocity; may affected by gravity
+ * unless the entity is static. Will serve as a platform or wall if
+ * blocking.
  *
  * @author Zach Goethel
  */
 abstract class Entity(
     /**
-     * Entity's x-position; aligned with horizontal center of entity
+     * Entity's x-position; aligned with horizontal center of entity.
      */
     var x: Double = 0.0,
 
     /**
-     * Entity's y-position; aligned with vertical bottom of entity
+     * Entity's y-position; aligned with vertical bottom of entity.
      */
     var y: Double = 0.0,
 
     /**
-     * Entity's velocity vector; initialized to <0.0, 0.0>
+     * Entity's velocity vector; initialized to zeros.
      */
     val velocity: Vector2d = Vector2d()
 ) : EngineAware(), Bounded
