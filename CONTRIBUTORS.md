@@ -33,12 +33,10 @@ Project contributors (appended chronologically)
   * Story/brainstorming
   * Level design
 
-    
 [<img align="right" width="50px" src="https://avatars3.githubusercontent.com/u/58642303"/> Chris Hoffman](https://github.com/Hoffman-Chris)
 =======
   * MakeShift game team
 
-    
-[<img align="right" width="50px" src="https://avatars3.githubusercontent.com/u/"/> Tyler __________](https://github.com/)
+Tyler Lappe
 =======
   * MakeShift game team
