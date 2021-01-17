@@ -2,40 +2,43 @@ package net.jibini.check.physics
 
 import kotlinx.coroutines.*
 import net.jibini.check.engine.EngineAware
-import net.jibini.check.engine.EngineObject
-import net.jibini.check.texture.impl.TextureRegistry
 import java.util.*
 
 /**
- * A branched tree structure where each node has four child nodes; nodes are given a two-dimensional bounding box for
- * within which they are responsible for any elements, and each node has a bucket of elements held within its bounds.
+ * A branched tree structure where each node has four child nodes; nodes
+ * are given a two-dimensional bounding box for within which they are
+ * responsible for any elements, and each node has a bucket of elements
+ * held within its bounds.
  *
- * The tree will attempt to allocate each element with the largest possible node where that element is the only element
- * contained within the node.  If such a node cannot be created, multiple elements will exist in one node, which
- * indicates a possible overlapping of elements.
+ * The tree will attempt to allocate each element with the largest
+ * possible node where that element is the only element contained
+ * within the node. If such a node cannot be created, multiple elements
+ * will exist in one node, which indicates a possible overlapping of
+ * elements.
  *
- * Upon querying the tree for possible collisions with a bounded area, collisions will be detected between the given
- * bounded area, any elements in the node where that area would be placed, any parent nodes to that node, and any
- * child nodes of that node.
+ * Upon querying the tree for possible collisions with a bounded area,
+ * collisions will be detected between the given bounded area, any
+ * elements in the node where that area would be placed, any parent
+ * nodes to that node, and any child nodes of that node.
  *
  * @author Zach Goethel
  */
 class QuadTree<E : Bounded>(
     /**
-     * The base x-coordinate of the quad-tree
+     * The base x-coordinate of the quad-tree.
      */
     x: Double,
     /**
-     * The base y-coordinate of the quad-tree
+     * The base y-coordinate of the quad-tree.
      */
     y: Double,
 
     /**
-     * The width of the quad-tree's head node
+     * The width of the quad-tree's head node.
      */
     width: Double,
     /**
-     * The height of the quad-tree's head node
+     * The height of the quad-tree's head node.
      */
     height: Double
 ) : EngineAware()
@@ -43,47 +46,49 @@ class QuadTree<E : Bounded>(
     companion object
     {
         /**
-         * When possible, limit the number of elements in each node to this amount; branch out nodes if this number is
-         * exceeded
+         * When possible, limit the number of elements in each node to
+         * this amount; branch out nodes if this number is exceeded.
          */
         const val MAX_BUCKET_CAPACITY = 1
 
         /**
-         * Do not branch out a node if it would create nodes smaller than this size
+         * Do not branch out a node if it would create nodes smaller
+         * than this size.
          */
         const val MIN_BUCKET_SIZE = 0.1
 
         /**
-         * The width of the array of child nodes; the number of child nodes will be the perfect square created by
-         * multiplying this number by itself
+         * The width of the array of child nodes; the number of child
+         * nodes will be the perfect square created by multiplying this
+         * number by itself.
          */
         const val CHILD_ARRAY_WIDTH = 2
     }
 
-    @EngineObject
-    private lateinit var textureRegistry: TextureRegistry
-
     /**
-     * The head node covering the entire x-y-plane of the quad-tree
+     * The head node covering the entire x-y-plane of the quad-tree.
      */
     private val rootNode = QuadTreeNode<E>(null, x, y, width, height)
 
     /**
-     * Recursively places the given element within the tree in the largest available node which will fit the element
-     * completely; if that node is at its maximum capacity, it may be branched out
+     * Recursively places the given element within the tree in the
+     * largest available node which will fit the element completely; if
+     * that node is at its maximum capacity, it may be branched out.
      *
-     * @param value The [bounded][Bounded] element to place in the tree
-     *
-     * @return Whether the element was placed (and therefore belongs) within this node or any of its children
+     * @param value The [bounded][Bounded] element to place in the tree.
+     * @return Whether the element was placed (and therefore belongs)
+     *     within this node or any of its children.
      */
     fun place(value: E): Boolean = rootNode.place(value)
 
     /**
-     * Recursively checks the placement of all elements in all nodes to determine if any nodes should be reorganized.
+     * Recursively checks the placement of all elements in all nodes to
+     * determine if any nodes should be reorganized.
      *
-     * Each element will only be moved one node up or down per call.  If an element no longer belongs within a node, it
-     * will be moved to that node's parent.  If an element can be moved into one of a node's child nodes, it will be
-     * moved into that child node.
+     * Each element will only be moved one node up or down per call.
+     * If an element no longer belongs within a node, it will be moved
+     * to that node's parent. If an element can be moved into one of
+     * a node's child nodes, it will be moved into that child node.
      */
     fun reevaluate()
     {
@@ -91,26 +96,46 @@ class QuadTree<E : Bounded>(
     }
 
     /**
-     * Iterates through unique combinations of two elements which may be colliding; no two pairs of bounded elements
-     * will appear in two iterations.
+     * Iterates through unique combinations of two elements which may be
+     * colliding; no two pairs of bounded elements will appear in two
+     * iterations.
      *
-     * Thus `(u: E, v: E) == (v: E, u: E)` for the purposes of this iteration.
+     * Thus `(u: E, v: E) == (v: E, u: E)` for the purposes of this
+     * iteration.
      */
+    //TODO STORE COLLISIONS IN ENTITY
     fun iteratePairs(action: (E, E) -> Unit)
     {
         rootNode.iteratePairs(action)
     }
 
     /**
-     * Internal class representing a quadrant node
+     * Internal class representing a quadrant node.
      */
     private class QuadTreeNode<E : Bounded>(
+        /**
+         * Parent node of this node.
+         */
         var parent: QuadTreeNode<E>?,
 
+        /**
+         * Base x-position of this node.
+         */
         val x: Double,
+
+        /**
+         * Base y-position of this node.
+         */
         val y: Double,
 
+        /**
+         * Width of this node.
+         */
         val width: Double,
+
+        /**
+         * Height of this node.
+         */
         val height: Double
     )
     {
@@ -133,8 +158,7 @@ class QuadTree<E : Bounded>(
                         for ((i, element) in climb.bucket.subList(0, climb.bucket.size - 1).withIndex())
                         {
                             for (with in climb.bucket.subList(i + 1, climb.bucket.size))
-//                            if (element != with)
-                                    action(element, with)
+                                action(element, with)
                         }
 
                     climb.reactWithParents(action)
@@ -144,8 +168,8 @@ class QuadTree<E : Bounded>(
         }
 
         /**
-         * Calls the given lambda function with pairs of the current node crossed with the buckets of each parent of the
-         * current node
+         * Calls the given lambda function with pairs of the current
+         * node crossed with the buckets of each parent.
          */
         fun reactWithParents(action: (E, E) -> Unit)
         {
@@ -164,23 +188,26 @@ class QuadTree<E : Bounded>(
         }
 
         /**
-         * The bounded area within which any elements will be in this node's or one if its children's buckets
+         * The bounded area within which any elements will be in this
+         * node's or one if its children's buckets.
          */
         val boundingBox = BoundingBox(x, y, width, height)
 
         /**
-         * All the child nodes of this node (initialized to null-pointers if not yet branched)
+         * All the child nodes of this node (initialized to
+         * null-pointers if not yet branched).
          */
         val children = Array<QuadTreeNode<E>?>(CHILD_ARRAY_WIDTH * CHILD_ARRAY_WIDTH) { null }
 
         /**
-         * This node's contained values in a mutable list
+         * This node's contained values as a mutable list.
          */
         val bucket: MutableList<E> = ArrayList(4)
 
         /**
-         * Whether this node currently has any child nodes; initialized to false, set to true upon branching, and set to
-         * false upon pruning
+         * Whether this node currently has any child nodes; initialized
+         * to false, set to true upon branching, and set to false upon
+         * pruning.
          */
         var branched = false
 
@@ -281,7 +308,8 @@ class QuadTree<E : Bounded>(
         }
 
         /**
-         * Branches out the quad-tree node into four child nodes; no changes are performed on this node's bucket
+         * Branches out the quad-tree node into four child nodes; no
+         * changes are performed on this node's bucket.
          */
         fun branch()
         {
@@ -307,7 +335,8 @@ class QuadTree<E : Bounded>(
         }
 
 //        /**
-//         * Deletes this node's child nodes and moves all elements held in their buckets to this node's bucket
+//         * Deletes this node's child nodes and moves all elements held
+//         * in their buckets to this node's bucket.
 //         */
 //        fun prune()
 //        {

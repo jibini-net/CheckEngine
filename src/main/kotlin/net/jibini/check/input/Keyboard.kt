@@ -7,26 +7,26 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Wrapped GLFW keyboard functions linked to a window and context
+ * Wrapped GLFW keyboard functions linked to a window and context.
  *
  * @author Zach Goethel
  */
 class Keyboard(
     /**
-     * Related window on the same context
+     * Related window on the same context.
      */
     window: Window
 )
 {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = LoggerFactory.getLogger(this::class.java)
 
     /**
-     * Cached key states (GLFW does not provide this information)
+     * Cached key states (GLFW does not provide this information).
      */
     private val keyStates = ConcurrentHashMap<Int, Boolean>()
 
     /**
-     * Registered per-key listeners
+     * Registered per-key listeners.
      */
     private val keyListeners = ConcurrentHashMap<Int, MutableList<Runnable>>()
 
@@ -63,17 +63,17 @@ class Keyboard(
     }
 
     /**
-     * Checks if the given key index is currently pressed
+     * Checks if the given key index is currently pressed.
      *
-     * @param key GLFW key index (use GLFW constants)
+     * @param key GLFW key index (use GLFW constants).
      */
     fun isPressed(key: Int) = keyStates[key] ?: false
 
     /**
-     * Adds a listener which will be invoked when the key is pressed
+     * Adds a listener which will be invoked when the key is pressed.
      *
-     * @param key GLFW key index (use GLFW constants)
-     * @param runnable Runnable which will be invoked upon key-press
+     * @param key GLFW key index (use GLFW constants).
+     * @param runnable Runnable which will be invoked upon key-press.
      */
     fun addKeyListener(key: Int, runnable: Runnable)
     {
@@ -83,7 +83,7 @@ class Keyboard(
     }
 
     /**
-     * Deletes all key-listeners on the keyboard
+     * Deletes all key-listeners on the keyboard.
      */
     fun clearKeyListeners()
     {
@@ -91,9 +91,9 @@ class Keyboard(
     }
 
     /**
-     * Deletes all key-listeners on the keyboard for the specified key
+     * Deletes all key-listeners on the keyboard for the specified key.
      *
-     * @param key GLFW key index (use GLFW constants)
+     * @param key GLFW key index (use GLFW constants).
      */
     fun clearKeyListeners(key: Int)
     {

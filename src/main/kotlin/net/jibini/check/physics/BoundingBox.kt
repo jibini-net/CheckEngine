@@ -1,48 +1,67 @@
 package net.jibini.check.physics
 
 import net.jibini.check.engine.EngineAware
-import net.jibini.check.engine.EngineObject
 import net.jibini.check.entity.Entity
-import net.jibini.check.graphics.Renderer
 import org.joml.Vector2d
 import kotlin.math.abs
 
 /**
- * An axis-aligned bounding box with x and y coordinates and a width and height
+ * An axis-aligned bounding box with x- and y-coordinates and a width
+ * and height. The bounding box can also resolve simple collisions.
  *
  * @author Zach Goethel
  */
 class BoundingBox(
+    /**
+     * Base x-position of the bounding box.
+     */
     var x: Double,
+
+    /**
+     * Base y-position of the bounding box.
+     */
     var y: Double,
 
+    /**
+     * Width of the bounding box.
+     */
     var width: Double,
+
+    /**
+     * Height of the bounding box.
+     */
     var height: Double
 ) : EngineAware()
 {
+    /**
+     * @return Whether the given box overlaps this one.
+     */
     fun overlaps(box: BoundingBox): Boolean
     {
         return (box.x + box.width >= x && box.x <= x + width)
                 && (box.y + box.height >= y && box.y <= y + height)
     }
 
+    /**
+     * @return Whether this box contains the given other box.
+     */
     fun contains(box: BoundingBox): Boolean
     {
         return (box.x > x && box.x + box.width < x + width)
                 && (box.y > y && box.y + box.height < y + height)
     }
 
-    @EngineObject
-    private lateinit var renderer: Renderer
-
     /**
-     * Detects and corrects bounding-box collisions on the horizontal and vertical axes
+     * Detects and corrects bounding-box collisions on the horizontal
+     * and vertical axes.
      *
-     * @param static Bounding box of static object against which to check collisions
-     * @param deltaPosition Vector representing the movement performed on this specific frame; delta x and y of entity
-     *      position between the previous frame and this one
-     * @param entity Entity whose position and velocity to correct depending on overlap; also updates movement
-     *      restrictions
+     * @param static Bounding box of static object against which to
+     *     check collisions.
+     * @param deltaPosition Vector representing the movement performed
+     *     on this specific frame; delta x and y of entity
+     *     position between the previous frame and this one.
+     * @param entity Entity whose position and velocity to correct
+     *     depending on overlap; also updates movement restrictions.
      */
     @Deprecated("Part of old entity-based physics system")
     fun resolve(static: BoundingBox, deltaPosition: Vector2d, entity: Entity)

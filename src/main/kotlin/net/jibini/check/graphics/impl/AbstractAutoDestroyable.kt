@@ -6,15 +6,19 @@ import net.jibini.check.graphics.Destroyable
 import org.slf4j.LoggerFactory
 
 /**
- * A destroyable object which will automatically be destroyed upon exiting the game
+ * A destroyable object which will automatically be destroyed upon
+ * exiting the game. Objects will be disposed in the order they are
+ * created (first in, first out).
  *
  * @author Zach Goethel
  */
+//TODO RUNTIME DESTROYABLE ALLOCATION AND DESTRUCTION STACK
 @Suppress("LeakingThis")
 abstract class AbstractAutoDestroyable : EngineAware(), Destroyable
 {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = LoggerFactory.getLogger(this::class.java)
 
+    // Required in order for destroyable objects to register themselves upon construction
     @EngineObject
     private lateinit var destroyableRegistry: DestroyableRegistry
 

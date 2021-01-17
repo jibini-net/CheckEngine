@@ -5,51 +5,123 @@ import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.graphics.*
 import net.jibini.check.resource.Resource
-import net.jibini.check.texture.Texture
-import net.jibini.check.texture.impl.BitmapTextureImpl
 import net.jibini.check.world.GameWorld
 import org.joml.Matrix4f
 import org.joml.Vector2d
-import org.joml.Vector2f
 import org.lwjgl.opengles.GLES30
-import java.util.*
 
+/**
+ * The lighting engine and lighting algorithm pipeline. This is an
+ * implementation class and is subject to change.
+ *
+ * @author Zach Goethel
+ */
 @RegisterObject
 class LightingShaderImpl : Initializable
 {
+    // Required to draw quads to process render passes
     @EngineObject
     private lateinit var renderer: Renderer
 
+    // Required to access the current window size
     @EngineObject
     private lateinit var window: Window
 
+    // Required to access the world's tile array size
     @EngineObject
     private lateinit var gameWorld: GameWorld
 
+    // Required to modify the transform matrices
     @EngineObject
     private lateinit var matrices: Matrices
 
+    /**
+     * A shader program which will produce two output textures: one
+     * with color and textures, and one black and white mask of which
+     * elements in the world are light-blocking.
+     */
     private lateinit var lightMask: Shader
+
+    /**
+     * A framebuffer which spans over the entire level.
+     */
     private lateinit var worldSpace: Framebuffer
 
+    /**
+     * A shader program which compares fragments on screen to the rays
+     * recorded in the ray atlas. It draws shadows and assigns light
+     * values to fragments.
+     */
     private lateinit var shadowAndLight: Shader
 
+    /**
+     * Simple shader program for textured and colored drawing.
+     */
     private lateinit var textured: Shader
 
+    /**
+     * Generates a ray atlas for a light into a small output texture.
+     */
     private lateinit var rayTracer: Shader
+
+    /**
+     * Ray atlas which stores the traced rays for each light.
+     */
     private lateinit var rays: Framebuffer
+
+    /**
+     * A framebuffer which spans over the screen, which may be
+     * downscaled.
+     */
     private lateinit var screenSpace: Framebuffer
+
+    /**
+     * A framebuffer which spans over the screen, which may be
+     * downscaled.
+     *
+     * This framebuffer is used to combine multiple lights.
+     */
     private lateinit var screen: Framebuffer
 
+    /**
+     * Number of pixels per tile in the world-space framebuffer. Decides
+     * the resolution of the world-space framebuffer.
+     */
     private val pixelsPerTile = 16
+
+    /**
+     * The ray atlas will have this many rays across one edge of its
+     * texture. The number of rays will be this number squared.
+     */
     private val raysSize = 16
 
+    /**
+     * The offset of the character compared to the center of the screen.
+     */
     private val offset = 0.3f
+
+    /**
+     * World tiles and entities will be rendered with this size scale.
+     */
     private val scale = 1.4f
 
+    /**
+     * When this flag is set to true, non-light-blocking entities which
+     * should be bright despite any surrounding lighting should be
+     * rendered as light-blocking.
+     */
     var nlBlockingOverride = false
 
+    /**
+     * The global collection of lights in the level.
+     */
     val lights = mutableListOf<Light>()
+
+    /**
+     * The ratio of the window width to the window height.
+     */
+    private val windowRatio: Float
+        get() = window.width.toFloat() / window.height
 
     override fun initialize()
     {
@@ -76,6 +148,10 @@ class LightingShaderImpl : Initializable
         rays = Framebuffer(raysSize, raysSize, 1)
     }
 
+    /**
+     * Compares the resolution of the framebuffers to what they should
+     * be and recreates them if necessary.
+     */
     private fun validateFramebuffers()
     {
         var properWidth = gameWorld.room!!.width * pixelsPerTile
@@ -100,12 +176,19 @@ class LightingShaderImpl : Initializable
         }
     }
 
+    /**
+     * Renders the entirety of the level into the world-space
+     * framebuffer. This creates a world-wide mask of which elements
+     * block light.
+     */
     private fun generateLightMask(renderTask: () -> Unit)
     {
         worldSpace.bind()
         lightMask.use()
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
 
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
+
+        // Set the projection matrix to cover the whole world
         matrices.projection
             .identity()
             .ortho(
@@ -113,24 +196,27 @@ class LightingShaderImpl : Initializable
                 0.0f, 0.2f * gameWorld.room!!.height,
                 -100.0f, 100.0f
             )
+        matrices.model.identity()
 
         renderTask()
 
         Framebuffer.release()
     }
 
+    /**
+     * Applies a scale and translation to correctly center the player on
+     * the screen and the world around the player.
+     */
     private fun worldTransform()
     {
-        val windowRatio = window.width.toFloat() / window.height
-
-        matrices.projection.identity()
+        matrices.projection
+            .identity()
+            .ortho(
+                -windowRatio, windowRatio,
+                -1.0f, 1.0f,
+                -100.0f, 100.0f
+            )
         matrices.model.identity()
-
-        matrices.projection.ortho(
-            -windowRatio, windowRatio,
-            -1.0f, 1.0f,
-            -100.0f, 100.0f
-        )
 
         val playerX = gameWorld.player!!.x.toFloat()
         val playerY = gameWorld.player!!.y.toFloat()
@@ -139,13 +225,16 @@ class LightingShaderImpl : Initializable
         matrices.model.translate(-playerX, -playerY - offset, 0.0f)
     }
 
+    /**
+     * Renders the portion of the level which is currently on screen.
+     * During this render process, the [nlBlockingOverride] is set.
+     */
     private fun generatePresentedCopy(renderTask: () -> Unit)
     {
         screenSpace.bind()
         lightMask.use()
 
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-        GLES30.glViewport(0, 0, screenSpace.width, screenSpace.height)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
 
         worldTransform()
 
@@ -156,40 +245,55 @@ class LightingShaderImpl : Initializable
         Framebuffer.release()
     }
 
+    /**
+     * Performs the ray-tracing for one light position.
+     */
     private fun generateRays(lightX: Float, lightY: Float)
     {
         rays.bind()
         rayTracer.use()
 
-        worldSpace.renderAttachments[1].bind()
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
 
+        matrices.projection.identity()
+            .ortho(
+                -1.0f, 1.0f,
+                -1.0f, 1.0f,
+                -1.0f, 1.0f
+            )
+        matrices.model.identity()
+
+        // Bind the global light mask
+        worldSpace
+            .renderAttachments[1]
+            .bind()
+
+        // Set the ray-tracer uniforms
         rayTracer.uniform("output_size", raysSize)
         rayTracer.uniform("input_width", worldSpace.width)
         rayTracer.uniform("input_height", worldSpace.height)
         rayTracer.uniform("light_mask", 0)
-
         rayTracer.uniform("light_position", lightX, lightY)
-
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-
-        matrices.projection.identity()
-            .ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
-        matrices.model.identity()
 
         renderer.drawRectangle(-1.0f, -1.0f, 2.0f, 2.0f)
 
-        //Framebuffer.release()
+        Framebuffer.release()
     }
 
+    /**
+     * Draws the shadows in screen-space for one light position.
+     */
     private fun drawShadows(lightX: Float, lightY: Float, r: Float, g: Float, b: Float)
     {
+        screen.bind()
         shadowAndLight.use()
-        //GLES30.glViewport(0, 0, window.width, window.height)
-
-        val windowRatio = window.width.toFloat() / window.height
 
         matrices.projection.identity()
-            .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
+            .ortho(
+                -windowRatio, windowRatio,
+                -1.0f, 1.0f,
+                -1.0f, 1.0f
+            )
         matrices.model.identity()
 
         rays.renderAttachments[0]
@@ -208,40 +312,51 @@ class LightingShaderImpl : Initializable
         shadowAndLight.uniform("input_size", raysSize)
         shadowAndLight.uniform("light_color", r, g, b)
         shadowAndLight.uniform("light_position", lightX, lightY)
-
         shadowAndLight.uniform("frag_matrix", matrix)
         shadowAndLight.uniform("ray_scale", 1.0f / scale)
 
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2.0f, 2.0f)
+
+        Framebuffer.release()
     }
 
+    /**
+     * Performs a blend of all of the lights, a [nlBlockingOverride]
+     * mask, and the world colors.
+     */
     private fun halfResolutionRender()
     {
-        val windowRatio = window.width.toFloat() / window.height
-
         screen.bind()
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-        GLES30.glViewport(0, 0, screen.width, screen.height)
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
+
         GLES30.glEnable(GLES30.GL_BLEND)
         GLES30.glBlendFunc(GLES30.GL_ONE, GLES30.GL_ONE)
 
         for (light in lights)
         {
-            if (Vector2d(gameWorld.player!!.x, gameWorld.player!!.y).distance(
-                    Vector2d(light.x.toDouble() * 0.2, light.y.toDouble() * 0.2)) > windowRatio * 1.2f)
-                continue
+            if (Vector2d(
+                    gameWorld.player!!.x,
+                    gameWorld.player!!.y
+                ).distance(Vector2d(
+                    light.x.toDouble() * 0.2,
+                    light.y.toDouble() * 0.2)
+                ) > windowRatio * 1.2f
+            ) continue
 
             generateRays(light.x, light.y)
-            screen.bind()
             drawShadows(light.x, light.y, light.r, light.g, light.b)
         }
 
+        screen.bind()
         textured.use()
 
         matrices.projection.identity()
-            .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
+            .ortho(
+                -windowRatio, windowRatio,
+                -1.0f, 1.0f,
+                -1.0f, 1.0f
+            )
         matrices.model.identity()
 
         screenSpace.renderAttachments[1]
@@ -262,18 +377,22 @@ class LightingShaderImpl : Initializable
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2, 2.0f)
 
         GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-        //GLES30.glEnable(GLES30.GL_DEPTH_TEST)
 
         Framebuffer.release()
     }
 
+    /**
+     * Performs a lit render of the given lambda collection of render
+     * calls. This can include rendering of entities and world rooms,
+     * but should not include updates to physics or AI.
+     *
+     * @param renderTask Lambda containing render calls for lighting.
+     */
     fun perform(renderTask: () -> Unit)
     {
-        val windowRatio = window.width.toFloat() / window.height
-
         validateFramebuffers()
-        generateLightMask(renderTask)
 
+        generateLightMask(renderTask)
         generatePresentedCopy(renderTask)
 
         halfResolutionRender()

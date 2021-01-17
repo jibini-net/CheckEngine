@@ -9,13 +9,20 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
 import org.slf4j.LoggerFactory
 
+/**
+ * Implementation of an OpenGL shader program.
+ *
+ * @author Zach Goethel
+ */
 class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by PointerImpl(GLES30.glCreateProgram())
 {
     private val log = LoggerFactory.getLogger(this::class.java)
-    
+
+    // Required to access uniforms which should be written
     @EngineObject
     private lateinit var uniforms: Uniforms
 
+    // Required to read and write the currently bound shader
     @EngineObject
     private lateinit var statefulShaderImpl: StatefulShaderImpl
 
@@ -86,6 +93,9 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
         GLES30.glUniform4f(location, x, y, z, w)
     }
 
+    /**
+     * A shared buffer for writing four-by-four matrices.
+     */
     private val floatBuffer16 = BufferUtils.createFloatBuffer(16)
 
     override fun uniform(name: String, matrix: Matrix4f)
@@ -98,19 +108,31 @@ class ShaderProgramImpl : AbstractAutoDestroyable(), Shader, Pointer<Int> by Poi
         GLES30.glUniformMatrix4fv(location, false, floatBuffer16)
     }
 
-    fun attach(shaderImpl: ShaderImpl)
+    /**
+     * Attaches the given shader to the shader program.
+     *
+     * @param shader Shader to attach.
+     */
+    fun attach(shader: ShaderImpl)
     {
-        GLES30.glAttachShader(pointer, shaderImpl.pointer)
+        GLES30.glAttachShader(pointer, shader.pointer)
     }
 
+    /**
+     * Links the shader program to the OpenGL pipeline.
+     */
     fun link()
     {
         GLES30.glLinkProgram(pointer)
     }
 
+    /**
+     * Checks the program link log for errors and warnings.
+     */
     fun verify()
     {
         val errorLog = GLES30.glGetProgramInfoLog(pointer)
+
         if (errorLog.isNotEmpty())
             log.error("PROGRAM LINK LOG:\n$errorLog")
         else

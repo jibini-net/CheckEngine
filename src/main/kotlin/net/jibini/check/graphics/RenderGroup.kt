@@ -11,34 +11,92 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
 import java.nio.Buffer
 
+/**
+ * A collection of vertices which share a common texture and will be
+ * rendered together. This is useful for mass rendering of identical
+ * tiles.
+ *
+ * Each render group can be rendered with one OpenGL array draw.
+ *
+ * @author Zach Goethel
+ */
 class RenderGroup : EngineAware(), Destroyable
 {
+    // Required to set the matrix uniforms of the current shader
     @EngineObject
-    private lateinit var statefulShaderImpl: StatefulShaderImpl
+    private lateinit var statefulShader: StatefulShaderImpl
 
+    // Required to access the current transformation matrices
     @EngineObject
     private lateinit var matrices: Matrices
 
+    /**
+     * Whether this render group has been finalized. A render group
+     * should not be added to after it is finalized.
+     */
     private var finalized = false
 
+    /**
+     * A mutable list of all vertices added to this render group prior
+     * to finalizing.
+     */
     private var vertexList: MutableList<Vector3f>? = mutableListOf()
+
+    /**
+     * A mutable list of all color data added to this render group prior
+     * to finalizing.
+     */
     private var colorList: MutableList<Vector4f>? = mutableListOf()
+
+    /**
+     * A mutable list of all tex coords added to this render group prior
+     * to finalizing.
+     */
     private var texCoordList: MutableList<Vector2f>? = mutableListOf()
 
+    /**
+     * The generated OpenGL buffer for vertex data.
+     */
     private val vertexBuffer = GLES30.glGenBuffers()
+
+    /**
+     * The generated OpenGL buffer for color data.
+     */
     private val colorBuffer = GLES30.glGenBuffers()
+
+    /**
+     * The generated OpenGL buffer for texture data.
+     */
     private val texCoordBuffer = GLES30.glGenBuffers()
 
+    /**
+     * Number of vertices in this render group. It is also the number of
+     * triangles times three.
+     */
     private var size = 0
 
     companion object
     {
+        /**
+         * Stored matrix to check if the model matrix has changed.
+         */
         private var lastPushedModelMatrix: Matrix4f? = null
+
+        /**
+         * Stored matrix to check if the projection matrix has changed.
+         */
         private var lastPushedProjectionMatrix: Matrix4f? = null
 
+        /**
+         * Stored shader to check if the bound shader has changed.
+         */
         private var lastPushedShader: Shader? = null
     }
 
+    /**
+     * Builds the OpenGL buffers for the render group. After finalized,
+     * additional vertices cannot be added to this group.
+     */
     fun finalize()
     {
         val vertexData = BufferUtils.createFloatBuffer(vertexList!!.size * 3)
@@ -66,6 +124,7 @@ class RenderGroup : EngineAware(), Destroyable
             texCoordData.put(texCoord.y)
         }
 
+        // Cast to Buffer for JDK 9+ support
         (vertexData as Buffer).flip()
         (colorData as Buffer).flip()
         (texCoordData as Buffer).flip()
@@ -81,13 +140,19 @@ class RenderGroup : EngineAware(), Destroyable
 
         size = vertexList!!.size
 
+        // Remove references to list so they can be GCed
         vertexList = null
         colorList = null
         texCoordList = null
-
+        // Mask as finalized
         finalized = true
     }
 
+    /**
+     * Performs an OpenGL array render call for the generated buffers.
+     * If the group is not yet [finalized][finalize], it will be
+     * finalized.
+     */
     fun call()
     {
         if (!finalized)
@@ -96,16 +161,16 @@ class RenderGroup : EngineAware(), Destroyable
         if (
             lastPushedModelMatrix != matrices.model
                 || lastPushedProjectionMatrix != matrices.projection
-                || lastPushedShader != statefulShaderImpl.boundShader
+                || lastPushedShader != statefulShader.boundShader
         )
         {
             val combinationMatrix = Matrix4f()
             matrices.projection.mul(matrices.model, combinationMatrix)
-            statefulShaderImpl.boundShader?.uniform("uniform_matrix", combinationMatrix)
+            statefulShader.boundShader?.uniform("uniform_matrix", combinationMatrix)
 
             lastPushedModelMatrix = Matrix4f(matrices.model)
             lastPushedProjectionMatrix = Matrix4f(matrices.projection)
-            lastPushedShader = statefulShaderImpl.boundShader
+            lastPushedShader = statefulShader.boundShader
         }
 
         GLES30.glEnableVertexAttribArray(0)
@@ -134,6 +199,13 @@ class RenderGroup : EngineAware(), Destroyable
         GLES30.glDeleteBuffers(texCoordBuffer)
     }
 
+    /**
+     * Adds the given vertex data to the render group.
+     *
+     * @throws NullPointerException If the render group has already been
+     *     finalized. No additional geometry
+     *     can be added after finalization.
+     */
     fun consumeVertex(vertex: Vector3f, color: Vector4f, texCoord: Vector2f)
     {
         vertexList!! += vertex

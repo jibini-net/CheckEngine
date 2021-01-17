@@ -6,27 +6,40 @@ import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
 import org.lwjgl.opengles.GLES30
 
+/**
+ * An OpenGL framebuffer which has the specified number of render
+ * attachments for color output.
+ *
+ * @author Zach Goethel
+ */
 class Framebuffer(
+    /**
+     * Width of the framebuffer and its attachments in pixels.
+     */
     val width: Int,
+
+    /**
+     * Height of the framebuffer and its attachments in pixels.
+     */
     val height: Int,
 
+    /**
+     * The number of render attachment texture to create.
+     */
     numberRenderAttachments: Int = 1
 ): AbstractAutoDestroyable(), Pointer<Int> by PointerImpl(GLES30.glGenFramebuffers())
 {
+    /**
+     * A collection of render attachment textures which are
+     * automatically created and attached to the framebuffer. The index
+     * of each texture corresponds to the index of the color render
+     * attachment.
+     */
     val renderAttachments = Array<Texture>(numberRenderAttachments) { BitmapTextureImpl(width, height) }
 
     init
     {
         bind()
-
-        //val renderBuffer = GLES30.glGenRenderbuffers()
-        //GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER, renderBuffer)
-        //GLES30.glRenderbufferStorage(GLES30.GL_RENDERBUFFER, GLES30.GL_DEPTH_COMPONENT, width, height)
-
-        //GLES30.glFramebufferRenderbuffer(
-        //    GLES30.GL_FRAMEBUFFER, GLES30.GL_DEPTH_ATTACHMENT,
-        //    GLES30.GL_RENDERBUFFER, renderBuffer
-        //)
 
         for (i in 0 until numberRenderAttachments)
                 GLES30.glFramebufferTexture2D(
@@ -40,6 +53,10 @@ class Framebuffer(
         release()
     }
 
+    /**
+     * Binds the framebuffer for rendering and sets the viewport state
+     * to the framebuffer size.
+     */
     fun bind()
     {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, pointer)
@@ -59,6 +76,10 @@ class Framebuffer(
 
     companion object
     {
+        /**
+         * Releases any bound framebuffer to render directly to the
+         * screen.
+         */
         @JvmStatic
         fun release()
         {
