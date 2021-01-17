@@ -8,6 +8,7 @@ import net.jibini.check.texture.impl.BitmapTextureImpl
 import net.jibini.check.texture.impl.FlippedTextureImpl
 import net.jibini.check.texture.impl.TextureRegistry
 import org.lwjgl.BufferUtils
+import org.lwjgl.opengles.GLES30
 import java.awt.image.BufferedImage
 import java.nio.Buffer
 import java.nio.ByteBuffer
@@ -25,7 +26,12 @@ interface Texture : Pointer<Int>
      */
     fun bind()
     {
-        EngineObjectsImpl.get<TextureRegistry>()[0].bind(this)
+        bind(GLES30.GL_TEXTURE_2D)
+    }
+
+    fun bind(target: Int)
+    {
+        EngineObjectsImpl.get<TextureRegistry>()[0].bind(this, target)
     }
 
     /**
@@ -117,6 +123,7 @@ interface Texture : Pointer<Int>
                 texture.putData(0, 0, image)
 
                 registry.cache[resource.uniqueIdentifier] = texture
+
                 texture
             }
         }

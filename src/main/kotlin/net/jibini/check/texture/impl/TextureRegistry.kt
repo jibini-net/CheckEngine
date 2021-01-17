@@ -33,14 +33,14 @@ class TextureRegistry
      *
      * @param texture Texture to bind
      */
-    fun bind(texture: Texture)
+    fun bind(texture: Texture, target: Int = GLES30.GL_TEXTURE_2D)
     {
         // Only change bind if the currently bound state is different
         if (texture.pointer != boundPointer)
         {
             boundPointer = texture.pointer
 
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture.pointer)
+            GLES30.glBindTexture(target, texture.pointer)
         }
 
         @Suppress("SENSELESS_COMPARISON")
@@ -53,9 +53,9 @@ class TextureRegistry
         bound = texture
     }
 
-    fun unbind()
+    fun unbind(target: Int = GLES30.GL_TEXTURE_2D)
     {
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
+        GLES30.glBindTexture(target, 0)
 
         bound = null
         boundPointer = 0
