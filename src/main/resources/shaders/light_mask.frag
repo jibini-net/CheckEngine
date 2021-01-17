@@ -18,5 +18,5 @@ uniform vec4 color_mult;
 void main()
 {
     frag_color = texture(tex, tex_coord) * color * color_mult;
-    light_mask = vec4(int(light_blocking && frag_color.a > 0.2));
+    light_mask = vec4(int(light_blocking && frag_color.a > 0.0));
 }

@@ -47,6 +47,8 @@ class LightingShaderImpl : Initializable
     private val offset = 0.3f
     private val scale = 1.4f
 
+    var nlBlockingOverride = false
+
     val lights = mutableListOf<Light>()
 
     override fun initialize()
@@ -147,7 +149,9 @@ class LightingShaderImpl : Initializable
 
         worldTransform()
 
+        nlBlockingOverride = true
         renderTask()
+        nlBlockingOverride = false
 
         Framebuffer.release()
     }
@@ -211,9 +215,8 @@ class LightingShaderImpl : Initializable
         renderer.drawRectangle(-windowRatio, -1.0f, windowRatio * 2.0f, 2.0f)
     }
 
-    fun halfResolutionRender()
+    private fun halfResolutionRender()
     {
-
         val windowRatio = window.width.toFloat() / window.height
 
         screen.bind()

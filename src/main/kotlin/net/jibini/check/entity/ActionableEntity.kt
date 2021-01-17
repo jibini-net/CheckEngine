@@ -5,6 +5,7 @@ import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.entity.character.Attack
 import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.Uniforms
+import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
@@ -51,6 +52,9 @@ abstract class ActionableEntity(
 
     @EngineObject
     private lateinit var matrices: Matrices
+
+    @EngineObject
+    private lateinit var lightingShader: LightingShaderImpl
 
     /**
      * Character directional state (RIGHT/LEFT, or 0/1 respectively)
@@ -122,12 +126,13 @@ abstract class ActionableEntity(
 
     override fun render()
     {
+
         // Bind render texture
         renderTexture.bind()
         // Update attack; this may override previous texture
         attack?.update()
 
-        uniforms.blocking = true
+        uniforms.blocking = (gameWorld.room?.isSideScroller == true) || lightingShader.nlBlockingOverride
 
         // Draw rectangle (centered on x, 0.4 x 0.4)
         matrices.model.translate(0.0f, 0.0f, 0.01f)
@@ -136,22 +141,29 @@ abstract class ActionableEntity(
             0.4f, 0.4f
         )
 
-        uniforms.blocking = false
 
-        val shadowSize = clamp(0.1f, 0.2f, (0.2 - (falseYOffset / 3.2)).toFloat())
-        uniforms.colorMultiple = Vector4f(1.0f, 1.0f, 1.0f, shadowSize * 5 - 0.25f)
+        uniforms.blocking = gameWorld.room?.isSideScroller == false && !lightingShader.nlBlockingOverride
 
-        if (gameWorld.room?.isSideScroller == false && falseYOffset > 0.0)
+        val shadowSize = clamp(0.1f, 0.3f, (0.3 - (falseYOffset / 3.2)).toFloat())
+
+        if (gameWorld.room?.isSideScroller == false && !lightingShader.nlBlockingOverride)// && falseYOffset > 0.0)
         {
             shadowTexture.bind()
+
+            uniforms.colorMultiple = Vector4f(1.0f, 1.0f, 1.0f, 0.1f)
+
             matrices.model.translate(0.0f, 0.0f, -0.01f)
             renderer.drawRectangle(
-                x.toFloat() - shadowSize / 2, y.toFloat() - 0.01f,
+                x.toFloat() - shadowSize / 2, y.toFloat() - 0.027f,
                 shadowSize, shadowSize
             )
+
+            uniforms.colorMultiple = Vector4f(1.0f)
         }
 
-        uniforms.colorMultiple = Vector4f(1.0f)
+
+
+        uniforms.blocking = false
     }
 
     /**

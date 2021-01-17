@@ -46,7 +46,7 @@ void main()
         ivec2 coord_cast = ivec2(int(coord.x), int(coord.y));
         vec4 texel_value = texelFetch(light_mask, coord_cast, 0);
         
-        if (texel_value.r > 0.2)
+        if (texel_value.a > 0.0)
             break;
     }
 
