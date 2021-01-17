@@ -24,22 +24,22 @@ import org.lwjgl.system.Configuration
 import org.lwjgl.system.Library
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.util.*
 import kotlin.concurrent.thread
 
-import java.lang.invoke.MethodHandles
-
 /**
- * Game engine entry point factory and lifecycle management
+ * Game engine entry point factory and lifecycle management.
  *
  * @author Zach Goethel
  */
 object Check
 {
+    private val log = LoggerFactory.getLogger(this::class.java)
+
+    /**
+     * Ensures GLFW doesn't poll events while rendering is in process.
+     */
     @JvmStatic
     val pollMutex = Mutex()
-
-    private val log = LoggerFactory.getLogger(javaClass)
 
     // Tracks if any contexts have already been created
     private var contextInit = false
@@ -49,10 +49,11 @@ object Check
     private val instanceCount = mutableMapOf<String, Int>()
 
     /**
-     * Boots the given instance of the given game and sets up its context; the game will not function correctly until
-     * [infinitelyPoll] is called from the main thread
+     * Boots the given instance of the given game and sets up
+     * its context; the game will not function correctly until
+     * [infinitelyPoll] is called from the main thread.
      *
-     * @param game Game to boot and initialize context
+     * @param game Game to boot and initialize context.
      */
     @JvmStatic
     fun boot(game: CheckGame)
@@ -125,10 +126,6 @@ object Check
         // Create and place game's keyboard
         val keyboard = Keyboard(window)
 
-        // Create and place game's feature set
-        val featureSet = FeatureSet()
-
-
         val glfw = ImGuiGLFW()
         val gles30 = ImGuiGLES30()
 
@@ -147,7 +144,6 @@ object Check
             // Add created engine objects
             EngineObjectsImpl.objects += window
             EngineObjectsImpl.objects += keyboard
-            EngineObjectsImpl.objects += featureSet
             // The game itself is also an engine object
             EngineObjectsImpl.objects += game
 
@@ -180,7 +176,7 @@ object Check
 
             // Register the OpenGL clear and identity reset operations
             lifeCycle.registerTask({
-                GLES30.glClear(featureSet.clearFlags)
+                GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
                 EngineObjectsImpl.get<Matrices>()[0].model.identity()
 
                 glfw.newFrame()
@@ -233,7 +229,8 @@ object Check
     }
 
     /**
-     * Polls and waits for GLFW input events on the main thread; hangs until all game instances are closed
+     * Polls and waits for GLFW input events on the main thread; hangs
+     * until all game instances are closed.
      */
     @JvmStatic
     fun infinitelyPoll()

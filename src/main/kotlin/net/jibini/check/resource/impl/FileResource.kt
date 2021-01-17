@@ -5,13 +5,13 @@ import java.io.File
 import java.io.FileInputStream
 
 /**
- * A resource which is stored in a file
+ * A resource which is stored in a file.
  *
  * @author Zach Goethel
  */
 class FileResource(
     /**
-     * File pointing to the resource
+     * File pointing to the resource.
      */
     file: File,
 

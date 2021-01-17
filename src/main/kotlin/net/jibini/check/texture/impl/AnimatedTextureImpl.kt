@@ -8,54 +8,52 @@ import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 import javax.imageio.metadata.IIOMetadataNode
 import javax.imageio.stream.ImageInputStream
-import kotlin.concurrent.thread
 
 /**
- * A texture which iterates through several cropped sprite frames stored in centralized sprite-sheets
+ * A texture which iterates through several cropped sprite frames stored
+ * in centralized sprite-sheets.
  *
  * @author Zach Goethel
  */
 class AnimatedTextureImpl(
     /**
-     * Image stream from which to load image frames
+     * Image stream from which to load image frames.
      */
     stream: ImageInputStream
 ) : Texture
 {
     /**
-     * Count of current frame being displayed
+     * Count of current frame being displayed.
      */
     var currentFrameIndex = 0
 
     /**
-     * List of all frames in the animation
+     * List of all frames in the animation.
      */
     private val animation = mutableListOf<AnimationFrame>()
 
     /**
-     * Timer for tracking current frame's time displayed
+     * Timer for tracking current frame's time displayed.
      */
     private val timer = DeltaTimer(false)
 
     /**
-     * A textured frame with a given frame time
-     *
-     * @author Zach Goethel
+     * A textured frame with a given frame time.
      */
     class AnimationFrame(
         /**
-         * Frame texture object
+         * Frame texture object.
          */
         val texture: Texture,
 
         /**
-         * Frame display time in milliseconds
+         * Frame display time in milliseconds.
          */
         val time: Int
     )
 
     /**
-     * Iterates to the next frame in the animation and resets the frame timer
+     * Iterates to the next frame in the animation and resets the frame timer.
      */
     private fun nextFrame()
     {

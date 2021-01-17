@@ -15,30 +15,37 @@ import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 
 /**
- * An OpenGL texture which can be contextually bound and rendered onto geometry
+ * An OpenGL texture which can be contextually bound and rendered onto
+ * geometry.
  *
  * @author Zach Goethel
  */
 interface Texture : Pointer<Int>
 {
     /**
-     * Changes the OpenGL texture bind state if it is not already correct
+     * Changes the OpenGL texture bind state if it is not already
+     * correct.
      */
     fun bind()
     {
         bind(GLES30.GL_TEXTURE_2D)
     }
 
+    /**
+     * Binds the texture to the given target.
+     *
+     * @param target OpenGL bind point.
+     */
     fun bind(target: Int)
     {
         EngineObjectsImpl.get<TextureRegistry>()[0].bind(this, target)
     }
 
     /**
-     * Creates a texture object which has invertex texture coordinates
+     * Creates a texture object which has inverted texture coordinates.
      *
-     * @param horizontal Whether or not to flip horizontally
-     * @param vertical Whether or not to flip vertically
+     * @param horizontal Whether or not to flip horizontally.
+     * @param vertical Whether or not to flip vertically.
      */
     fun flip(horizontal: Boolean = true, vertical: Boolean = false): Texture
     {
@@ -46,30 +53,30 @@ interface Texture : Pointer<Int>
     }
 
     /**
-     * Returns the base texture coordinate and directional offsets
+     * Returns the base texture coordinate and directional offsets.
      */
     val textureCoordinates: TextureCoordinates
 
     /**
-     * Puts texture data into the texture at the given locations
+     * Puts texture data into the texture at the given location.
      *
-     * @param offsetX Texture data start x-offset
-     * @param offsetY Texture data start y-offset
+     * @param offsetX Texture data start x-offset.
+     * @param offsetY Texture data start y-offset.
      *
-     * @param width Width of given texture data
-     * @param height Height of given texture data
+     * @param width Width of given texture data.
+     * @param height Height of given texture data.
      *
-     * @param data Byte-encoded RGBA texture data
+     * @param data Byte-encoded RGBA texture data.
      */
     fun putData(offsetX: Int, offsetY: Int, width: Int, height: Int, data: ByteBuffer)
 
     /**
-     * Puts texture data into the texture at the given locations
+     * Puts texture data into the texture at the given location.
      *
-     * @param offsetX Texture data start x-offset
-     * @param offsetY Texture data start y-offset
+     * @param offsetX Texture data start x-offset.
+     * @param offsetY Texture data start y-offset.
      *
-     * @param data Image to collect data from and get width/height
+     * @param data Image to collect data from and get width/height.
      */
     fun putData(offsetX: Int, offsetY: Int, data: BufferedImage)
     {
@@ -79,7 +86,8 @@ interface Texture : Pointer<Int>
     companion object
     {
         /**
-         * Loads a texture from the given resource; animated textures will automatically be detected
+         * Loads a texture from the given resource; animated textures
+         * will automatically be detected.
          */
         @JvmStatic
         fun load(resource: Resource): Texture
@@ -129,7 +137,7 @@ interface Texture : Pointer<Int>
         }
 
         /**
-         * Converts an image to a byte-buffer of RGBA data
+         * Converts an image to a byte-buffer of RGBA data.
          */
         fun BufferedImage.toUnsignedBytes(): ByteBuffer
         {

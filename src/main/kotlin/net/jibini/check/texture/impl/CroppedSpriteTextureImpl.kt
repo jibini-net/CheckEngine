@@ -7,28 +7,29 @@ import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
 
 /**
- * A decorated texture which crops a parent texture down to a single sprite
+ * A decorated texture which crops a parent texture down to a single
+ * sprite.
  *
  * @author Zach Goethel
  */
 class CroppedSpriteTextureImpl(
     /**
-     * Decorated parent texture instance
+     * Decorated parent texture instance.
      */
     private val internal: Texture,
 
     /**
-     * Size of the sprite in texels
+     * Size of the sprite in pixels.
      */
     private val dimension: Int,
 
     /**
-     * Size of the sprite's parent sheet in texels
+     * Size of the sprite's parent sheet in pixels.
      */
     private val sheetDimension: Int,
 
     /**
-     * Index of the sprite as registered in the sprite-sheet
+     * Index of the sprite as registered in the sprite sheet.
      */
     private val index: Int
 ) : Texture by internal
@@ -56,7 +57,7 @@ class CroppedSpriteTextureImpl(
     }
 
     /**
-     * Texture-coordinate increment per sprite
+     * Texture-coordinate increment per sprite.
      */
     private val increment = dimension.toFloat() / sheetDimension
 

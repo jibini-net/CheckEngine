@@ -7,31 +7,38 @@ import net.jibini.check.texture.Texture
 import org.joml.Vector2f
 import org.lwjgl.opengles.GLES30
 
+/**
+ * Maintains cached textures and stateful data about bound textures.
+ *
+ * @author Zach Goethel
+ */
 @RegisterObject
 class TextureRegistry
 {
+    // Required to access texture uniforms
     @EngineObject
     private lateinit var uniforms: Uniforms
 
     /**
-     * Currently bound texture in the current thread
+     * Currently bound texture in the current thread.
      */
     var bound: Texture? = null
 
     /**
-     * Currently bound pointer in the current thread
+     * Currently bound pointer in the current thread.
      */
     private var boundPointer: Int = 0
 
     /**
-     * Textures which have already been loaded and allocated, matched by their resources' unique identifiers
+     * Textures which have already been loaded and allocated, matched by
+     * their resources' unique identifiers.
      */
     val cache = mutableMapOf<String, Texture>()
 
     /**
-     * Binds the given texture in the current thread
+     * Binds the given texture in the current thread.
      *
-     * @param texture Texture to bind
+     * @param texture Texture to bind.
      */
     fun bind(texture: Texture, target: Int = GLES30.GL_TEXTURE_2D)
     {
@@ -51,13 +58,5 @@ class TextureRegistry
         }
 
         bound = texture
-    }
-
-    fun unbind(target: Int = GLES30.GL_TEXTURE_2D)
-    {
-        GLES30.glBindTexture(target, 0)
-
-        bound = null
-        boundPointer = 0
     }
 }

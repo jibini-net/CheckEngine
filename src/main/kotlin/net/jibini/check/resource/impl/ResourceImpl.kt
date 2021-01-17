@@ -5,7 +5,9 @@ import java.io.InputStream
 import java.util.*
 
 /**
- * A resource which is accessible through the given stream
+ * A resource which is accessible through a given stream.
+ *
+ * @author Zach Goethel
  */
 class ResourceImpl(
     override val stream: InputStream,

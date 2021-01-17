@@ -10,22 +10,20 @@ import org.lwjgl.opengles.GLES30
 import java.nio.ByteBuffer
 
 /**
- * A texture which is backed by a byte-buffer of RGBA data
+ * A texture which is backed by a byte buffer of RGBA data.
  *
  * @author Zach Goethel
  */
 class BitmapTextureImpl(
     /**
-     * Width of the texture in texels
+     * Width of the texture in pixels.
      */
     width: Int = TextureSpriteMapImpl.MAP_DIMENSION,
 
     /**
-     * Height of the texture in texels
+     * Height of the texture in pixels.
      */
-    height: Int = TextureSpriteMapImpl.MAP_DIMENSION,
-
-    interpolate: Boolean = false
+    height: Int = TextureSpriteMapImpl.MAP_DIMENSION
 ) : AbstractAutoDestroyable(), Texture, Pointer<Int> by PointerImpl(GLES30.glGenTextures())
 {
     @EngineObject
@@ -41,15 +39,8 @@ class BitmapTextureImpl(
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
         // Set min/magnification filters
-        if (interpolate)
-        {
-            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
-            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST)
-        } else
-        {
-            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST)
-            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST)
-        }
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST)
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_NEAREST)
 
         // Allocate video memory to the texture
         GLES30.glTexImage2D(

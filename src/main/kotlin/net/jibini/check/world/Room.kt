@@ -7,42 +7,55 @@ import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.impl.AbstractAutoDestroyable
 
 /**
- * A collection of tiles in the current game level
+ * A collection of tiles in the current game level. Can be either a
+ * side-scrolling platformer or a top-down dungeon crawler room.
  *
  * @author Zach Goethel
  */
 class Room(
     /**
-     * Two-dimensional tile array width
+     * Two-dimensional tile array width.
      */
     val width: Int,
 
     /**
-     * Two-dimensional tile array height
+     * Two-dimensional tile array height.
      */
     val height: Int,
 
     /**
-     * Each tile size (for rendering and physics)
+     * Each tile size (for rendering and physics).
      */
     val tileSize: Double = 0.2,
 
+    /**
+     * Set to true if platformer mode and gravity is enabled.
+     */
     val isSideScroller: Boolean
 ) : AbstractAutoDestroyable()
 {
+    // Required to draw rectangles in render groups
     @EngineObject
     private lateinit var renderer: Renderer
 
+    // Required to set light-blocking flag for blocking tiles
     @EngineObject
     private lateinit var uniforms: Uniforms
 
     /**
-     * Two-dimensional tile array initialized to all null tiles
+     * Two-dimensional tile array initialized to all null tiles.
      */
     val tiles = Array(width) { Array<Tile?>(height) { null } }
 
+    /**
+     * Cache of render groups for each type of tile.
+     */
     private val registeredMeshes = mutableMapOf<Tile, RenderGroup>()
 
+    /**
+     * Creates new render groups for the tiles in this room. This
+     * optimizes the rendering process.
+     */
     fun rebuildMeshes()
     {
         val attributed = mutableMapOf<Tile, MutableList<Pair<Int, Int>>>()
@@ -79,6 +92,9 @@ class Room(
         }
     }
 
+    /**
+     * Renders all render groups of the current room.
+     */
     fun render()
     {
         for ((tile, list) in registeredMeshes)

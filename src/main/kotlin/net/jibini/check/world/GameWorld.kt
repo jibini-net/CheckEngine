@@ -1,8 +1,5 @@
 package net.jibini.check.world
 
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.jibini.check.engine.*
 import net.jibini.check.entity.Entity
 import net.jibini.check.entity.character.NonPlayer
@@ -29,28 +26,32 @@ import javax.imageio.ImageIO
 import kotlin.math.abs
 
 /**
- * An engine object which manages the game's current room and entities
+ * An engine object which manages the game's current room and entities.
  *
  * @author Zach Goethel
  */
 @RegisterObject
 class GameWorld : Updatable
 {
+    private val log = LoggerFactory.getLogger(this::class.java)
+
+    /**
+     * Quad-tree index of entities in the world.
+     */
     var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
 
-    private val log = LoggerFactory.getLogger(javaClass)
-
-    val physicsUpdateLock = Mutex()
-
+    // Required to render the room with lighting
     @EngineObject
     private lateinit var lightingShader: LightingShaderImpl
 
+    // Required to modify transformation matrices
     @EngineObject
     private lateinit var matrices: Matrices
 
     /**
-     * Whether the world should be rendered and updated (set to false by default; should be changed to true once the
-     * game is initialized and ready to start a level)
+     * Whether the world should be rendered and updated (set to false by
+     * default; should be changed to true once the game is initialized
+     * and ready to start a level).
      */
     var visible = false
         set(value)
@@ -63,17 +64,20 @@ class GameWorld : Updatable
         }
 
     /**
-     * Entities in the world; can be directly added to by the game
+     * Entities in the world; can be directly added to by the game.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     val entities: MutableList<Entity> = CopyOnWriteArrayList()
 
     /**
-     * Current room to update and render; set to null if no room should be rendered
+     * Current room to update and render; set to null if no room should
+     * be rendered.
      */
     var room: Room? = null
 
     /**
-     * A controllable character on which the renderer will center the screen
+     * A controllable character on which the renderer will center the
+     * screen.
      */
     var player: Player? = null
         set(value)
@@ -91,8 +95,14 @@ class GameWorld : Updatable
             field = value
         }
 
+    /**
+     * A collection of world portals which trigger world loads.
+     */
     private val portals = ConcurrentHashMap<BoundingBox, String>()
 
+    /**
+     * Renders the game world and all of the entities within.
+     */
     fun render()
     {
         if (!visible)
@@ -116,6 +126,9 @@ class GameWorld : Updatable
         matrices.model.popMatrix()
     }
 
+    /**
+     * Updates the quad-tree index and resolves collisions.
+     */
     private fun quadTreeResolution()
     {
         quadTree.reevaluate()
@@ -137,6 +150,9 @@ class GameWorld : Updatable
         }
     }
 
+    /**
+     * Resolves collisions with static world tiles.
+     */
     private fun tileResolution(entity: Entity)
     {
         // Reset delta position aggregation
@@ -168,6 +184,9 @@ class GameWorld : Updatable
             }
     }
 
+    /**
+     * Detects collisions with portals in the world.
+     */
     private fun portalResolution()
     {
         for ((box, world) in portals)
@@ -179,6 +198,9 @@ class GameWorld : Updatable
             }
     }
 
+    /**
+     * Updates physics, position, and gravity for entities.
+     */
     private fun preResetUpdate(entity: Entity)
     {
         // Get delta time since last frame
@@ -199,6 +221,7 @@ class GameWorld : Updatable
         entity.x += entity.deltaPosition.x
         entity.y += entity.deltaPosition.y
 
+        // Friction.
         if (entity.movementRestrictions.down)
         {
             if (entity.velocity.x != 0.0)
@@ -217,30 +240,27 @@ class GameWorld : Updatable
         for (entity in entities)
             entity.update()
 
-        runBlocking {
-            physicsUpdateLock.withLock {
+        for (entity in entities)
+        {
+            preResetUpdate(entity)
 
-                for (entity in entities)
-                {
-                    preResetUpdate(entity)
+            entity.movementRestrictions.reset()
+            entity.deltaPosition.set(0.0, 0.0)
 
-                    entity.movementRestrictions.reset()
-                    entity.deltaPosition.set(0.0, 0.0)
-
-                    tileResolution(entity)
-                }
-
-                quadTreeResolution()
-            }
+            tileResolution(entity)
         }
+
+        quadTreeResolution()
 
         portalResolution()
     }
 
     /**
-     * Loads the given room from the program resources and spawns the entities as described in the level metadata
+     * Loads the given room from the program resources and spawns the
+     * entities as described in the level metadata.
      *
-     * @param name Level resource folder relative to file location 'worlds/'
+     * @param name Level resource folder relative to file location
+     *     'worlds/'.
      */
     fun loadRoom(name: String)
     {
@@ -492,6 +512,9 @@ class GameWorld : Updatable
         room!!.rebuildMeshes()
     }
 
+    /**
+     * Removes all entities, portals, lights, and world data.
+     */
     fun reset()
     {
         entities.clear()
