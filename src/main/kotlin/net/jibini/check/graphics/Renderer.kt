@@ -105,8 +105,8 @@ class Renderer : EngineAware()
             }
 
             // Snap to pixel
-            val adjustX = x - x % (0.2f / 16)
-            val adjustY = y - y % (0.2f / 16)
+            val adjustX = x - x % (0.2f / 32)
+            val adjustY = y - y % (0.2f / 32)
 
             // Scale and transform to the requested size/position
             matrices.model.pushMatrix()

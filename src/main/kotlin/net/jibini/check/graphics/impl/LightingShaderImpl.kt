@@ -167,7 +167,7 @@ class LightingShaderImpl : Initializable
             worldSpace = Framebuffer(properWidth, properHeight, 2)
         }
 
-        properHeight = (2.0f / scale / 0.2f * 16.0f).toInt();
+        properHeight = (2.0f / scale / 0.2f * 32.0f).toInt();
         properWidth = (properHeight.toFloat() * (window.width.toFloat() / window.height)).toInt()
 
         properWidth -= properWidth % (16.0f * scale).toInt()
@@ -228,9 +228,9 @@ class LightingShaderImpl : Initializable
 
         // Snap to pixel
         var translateX = -playerX
-        translateX -= translateX % (0.2f / 16)
+        translateX -= translateX % (0.2f / 32)
         var translateY = -playerY - offset
-        translateY -= translateY % (0.2f / 16)
+        translateY -= translateY % (0.2f / 32)
 
         matrices.model.scale(scale)
         matrices.model.translate(translateX, translateY, 0.0f)
