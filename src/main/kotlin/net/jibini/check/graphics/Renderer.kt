@@ -2,6 +2,7 @@ package net.jibini.check.graphics
 
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
+import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.world.Room
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -20,6 +21,10 @@ class Renderer : EngineAware()
     // Required to access the current transformation matrices
     @EngineObject
     private lateinit var matrices: Matrices
+
+    // Required to access the framebuffer pixel snap
+    @EngineObject
+    private lateinit var lightingShader: LightingShaderImpl
 
     /**
      * The current render group. If non-null, any rendering will be
@@ -105,8 +110,8 @@ class Renderer : EngineAware()
             }
 
             // Snap to pixel
-            val adjustX = x - x % (0.2f / 32)
-            val adjustY = y - y % (0.2f / 32)
+            val adjustX = x - x % (0.2f / lightingShader.framebufferPixelsPerTile)
+            val adjustY = y - y % (0.2f / lightingShader.framebufferPixelsPerTile)
 
             // Scale and transform to the requested size/position
             matrices.model.pushMatrix()

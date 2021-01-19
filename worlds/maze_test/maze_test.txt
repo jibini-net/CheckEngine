@@ -8,6 +8,8 @@ tile 2 floor_tile1.png nonblocking
 tile 3 floor_tile1.png nonblocking
 
 spawn character gendrau 4.0 31.0 GendreauBehavior
+light 4.5 31.5 1.2 0.2 0.2
+
 spawn player forbes 5.0 30.0
 
 portal main_hub 57.0 51.0 3 5

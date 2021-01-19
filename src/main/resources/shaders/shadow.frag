@@ -44,7 +44,7 @@ void main()
     vec2 ref_vector = texture(tex, ref_coord).rg * ray_scale;
     vec2 restored = ref_vector * float(MAX_RADIUS) / PIXELS_PER_TILE * 0.2;
 
-    float mask = float(int(length(restored) > length(to_fragment) - 0.017));
+    float mask = float(int(length(restored) > length(to_fragment) - 0.022));
 
     frag_color = vec4(light_color * 0.5 / len * mask * (-1.0 * len + 1.4) +
             light_color * (-1.2 * len + 1.4 * 0.6), 1.0);

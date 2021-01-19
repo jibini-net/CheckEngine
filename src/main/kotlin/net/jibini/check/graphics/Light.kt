@@ -9,25 +9,25 @@ class Light(
     /**
      * Tile x-position of the light.
      */
-    val x: Float,
+    var x: Float,
 
     /**
      * Tile y-position of the light.
      */
-    val y: Float,
+    var y: Float,
 
     /**
      * Red component of the light color.
      */
-    val r: Float,
+    var r: Float,
 
     /**
      * Green component of the light color.
      */
-    val g: Float,
+    var g: Float,
 
     /**
      * Blue component of the light color.
      */
-    val b: Float
+    var b: Float
 )

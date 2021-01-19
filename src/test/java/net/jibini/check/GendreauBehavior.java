@@ -6,9 +6,13 @@ import net.jibini.check.engine.RegisterObject;
 import net.jibini.check.entity.ActionableEntity;
 import net.jibini.check.entity.Entity;
 import net.jibini.check.entity.behavior.EntityBehavior;
+import net.jibini.check.graphics.Light;
+import net.jibini.check.graphics.impl.LightingShaderImpl;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+
 import java.util.Random;
 
 @RegisterObject
@@ -20,6 +24,9 @@ public class GendreauBehavior extends EntityBehavior implements Initializable
 
     @EngineObject
     private PlayerTargetBehavior playerTarget;
+
+    @EngineObject
+    private LightingShaderImpl lightingShader;
 
     /**
      * Local random for randomizing the jump height.
@@ -37,6 +44,16 @@ public class GendreauBehavior extends EntityBehavior implements Initializable
             ((ActionableEntity)entity).setRenderTexture(leftYell);
         else
             ((ActionableEntity)entity).setRenderTexture(rightYell);
+
+        Light redLight = lightingShader.getLights().get(0);
+        redLight.setX((float)entity.getX() / 0.2f);
+        redLight.setY((float)(entity.getY() + ((ActionableEntity) entity).getFalseYOffset() + 0.2f) / 0.2f);
+
+        Vector3f color = new Vector3f(redLight.getR(), redLight.getG(), redLight.getB());
+        color.normalize().mul((float)((ActionableEntity) entity).getFalseYOffset() * 2.0f + 0.05f);
+        redLight.setR(color.x);
+        redLight.setG(color.y);
+        redLight.setB(color.z);
     }
 
     @Override

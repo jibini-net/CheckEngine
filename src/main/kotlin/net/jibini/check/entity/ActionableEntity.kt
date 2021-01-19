@@ -95,13 +95,13 @@ abstract class ActionableEntity(
      * The height of the false 3D effect applied to the top-down view of
      * a character.
      */
-    private var falseYOffset: Double = 0.0
+    var falseYOffset: Double = 0.0
 
     /**
      * The velocity of the false 3D effect applied to the top-down view
      * of a character.
      */
-    private var falseYVelocity: Double = 0.0
+    var falseYVelocity: Double = 0.0
 
     /**
      * Entity-specific delta time to coordinate movement.

@@ -2,6 +2,7 @@ package net.jibini.check;
 
 import net.jibini.check.entity.character.Attack;
 import net.jibini.check.engine.*;
+import net.jibini.check.graphics.impl.LightingShaderImpl;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
 import net.jibini.check.world.GameWorld;
@@ -14,6 +15,9 @@ public class TestGame implements CheckGame
 {
     @EngineObject
     private GameWorld gameWorld;
+
+    @EngineObject
+    private LightingShaderImpl lightingShader;
 
     /**
      * Application entry point; calls the engine boot method and hangs
@@ -57,6 +61,7 @@ public class TestGame implements CheckGame
 
         gameWorld.setVisible(true);
 
+        lightingShader.setFramebufferPixelsPerTile(16);
         GLFW.glfwSwapInterval(0);
     }
 

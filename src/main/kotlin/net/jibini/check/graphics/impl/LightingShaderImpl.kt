@@ -89,6 +89,8 @@ class LightingShaderImpl : Initializable
      */
     private val pixelsPerTile = 16
 
+    var framebufferPixelsPerTile = 32
+
     /**
      * The ray atlas will have this many rays across one edge of its
      * texture. The number of rays will be this number squared.
@@ -167,10 +169,10 @@ class LightingShaderImpl : Initializable
             worldSpace = Framebuffer(properWidth, properHeight, 2)
         }
 
-        properHeight = (2.0f / scale / 0.2f * 32.0f).toInt();
+        properHeight = (2.0f / scale / 0.2f * framebufferPixelsPerTile).toInt();
         properWidth = (properHeight.toFloat() * (window.width.toFloat() / window.height)).toInt()
 
-        properWidth -= properWidth % (16.0f * scale).toInt()
+        properWidth -= properWidth % (framebufferPixelsPerTile * scale).toInt()
 
         if (!this::screenSpace.isInitialized
             || screenSpace.width != properWidth
@@ -228,9 +230,9 @@ class LightingShaderImpl : Initializable
 
         // Snap to pixel
         var translateX = -playerX
-        translateX -= translateX % (0.2f / 32)
+        translateX -= translateX % (0.2f / framebufferPixelsPerTile)
         var translateY = -playerY - offset
-        translateY -= translateY % (0.2f / 32)
+        translateY -= translateY % (0.2f / framebufferPixelsPerTile)
 
         matrices.model.scale(scale)
         matrices.model.translate(translateX, translateY, 0.0f)
