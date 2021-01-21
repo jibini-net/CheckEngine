@@ -6,7 +6,6 @@ import net.jibini.check.input.Keyboard
 import net.jibini.check.texture.Texture
 import net.jibini.check.world.GameWorld
 import org.lwjgl.glfw.GLFW
-import kotlin.math.abs
 
 /**
  * Keyboard-controlled [actionable character][ActionableEntity] which is

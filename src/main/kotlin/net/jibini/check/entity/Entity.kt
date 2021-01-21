@@ -78,6 +78,11 @@ abstract class Entity(
     open val blocking = false
 
     /**
+     * Set this flag to true to render before the player.
+     */
+    open var renderBehind = false;
+
+    /**
      * When this flag is enabled, gravity and physics will not affect
      * the position and velocity of this object. The entity will sit
      * still.

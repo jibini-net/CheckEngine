@@ -38,7 +38,7 @@ class GameWorld : Updatable
     /**
      * Quad-tree index of entities in the world.
      */
-    var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
+    private var quadTree = QuadTree<Bounded>(0.0, 0.0, 1.0, 1.0)
 
     // Required to render the room with lighting
     @EngineObject
@@ -115,6 +115,7 @@ class GameWorld : Updatable
         matrices.model.pushMatrix()
 
         entities.sortByDescending { it.y }
+        entities.sortByDescending { it.renderBehind }
 
         for (entity in entities)
         {
