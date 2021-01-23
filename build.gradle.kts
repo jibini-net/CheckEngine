@@ -55,30 +55,30 @@ dependencies {
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
 
-    implementation(fileTree("lib") {
+    api(fileTree("lib") {
         include("*.jar")
     })
 
     // Kotlin coroutine multithreading utilities
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.4.2")
+    api("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.4.2")
 
     // SLF4J and Log4J libraries
-    implementation("org.slf4j", "slf4j-api", "1.7.30")
-    implementation("org.slf4j", "slf4j-log4j12", "1.7.30")
+    api("org.slf4j", "slf4j-api", "1.7.30")
+    api("org.slf4j", "slf4j-log4j12", "1.7.30")
 
     // JUnit 5 (Jupiter) test platform
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.7.0")
 
     // LWJGL core OpenGL and GLFW libraries
-    implementation(platform("org.lwjgl:lwjgl-bom:3.2.3"))
+    api(platform("org.lwjgl:lwjgl-bom:3.2.3"))
 
-    implementation("org.lwjgl", "lwjgl")
-    implementation("org.lwjgl", "lwjgl-openal")
-    implementation("org.lwjgl", "lwjgl-opengl")
-    implementation("org.lwjgl", "lwjgl-glfw")
+    api("org.lwjgl", "lwjgl")
+    api("org.lwjgl", "lwjgl-openal")
+    api("org.lwjgl", "lwjgl-opengl")
+    api("org.lwjgl", "lwjgl-glfw")
 
-    implementation("org.lwjgl", "lwjgl-opengles")
-    implementation("org.lwjgl", "lwjgl-egl")
+    api("org.lwjgl", "lwjgl-opengles")
+    api("org.lwjgl", "lwjgl-egl")
 
     // Runtime natives for current platform
     runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)
@@ -89,10 +89,10 @@ dependencies {
     runtimeOnly("org.lwjgl", "lwjgl-opengles", classifier = lwjglNatives)
 
     // Java Open Math Library for physics
-    implementation("org.joml", "joml", "1.10.0")
+    api("org.joml", "joml", "1.10.0")
 
     // Library for scanning classpath members
-    implementation("io.github.classgraph", "classgraph", "4.8.98")
+    api("io.github.classgraph", "classgraph", "4.8.98")
     // Library for loading and saving JSON-ified objects
-    implementation("com.google.code.gson", "gson", "2.8.6")
+    api("com.google.code.gson", "gson", "2.8.6")
 }

@@ -1,1 +1,3 @@
 rootProject.name = 'CheckEngine'
+
+include 'editor'
