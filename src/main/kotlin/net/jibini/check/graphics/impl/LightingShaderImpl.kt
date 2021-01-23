@@ -3,11 +3,18 @@ package net.jibini.check.graphics.impl
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
-import net.jibini.check.graphics.*
+import net.jibini.check.graphics.Framebuffer
+import net.jibini.check.graphics.Light
+import net.jibini.check.graphics.Matrices
+import net.jibini.check.graphics.Renderer
 import net.jibini.check.resource.Resource
+import net.jibini.check.graphics.Shader
+import net.jibini.check.graphics.Window
 import net.jibini.check.world.GameWorld
+
 import org.joml.Matrix4f
 import org.joml.Vector2d
+
 import org.lwjgl.opengles.GLES30
 
 /**

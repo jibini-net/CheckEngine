@@ -1,7 +1,9 @@
 package net.jibini.check.graphics
 
 import net.jibini.check.CheckGame
+
 import org.lwjgl.glfw.GLFW
+
 import java.io.File
 
 /**

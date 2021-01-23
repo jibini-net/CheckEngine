@@ -4,10 +4,14 @@ import imgui.ImGui
 import imgui.flag.ImGuiConfigFlags
 import imgui.gl3.ImGuiGLES30
 import imgui.glfw.ImGuiGLFW
+
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.jibini.check.engine.*
+
+import net.jibini.check.engine.Initializable
+import net.jibini.check.engine.LifeCycle
+import net.jibini.check.engine.Updatable
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.engine.timing.GlobalDeltaSync
 import net.jibini.check.graphics.Matrices
@@ -15,6 +19,7 @@ import net.jibini.check.graphics.Renderer
 import net.jibini.check.graphics.Window
 import net.jibini.check.graphics.impl.DestroyableRegistry
 import net.jibini.check.input.Keyboard
+
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.GL
@@ -22,8 +27,11 @@ import org.lwjgl.opengles.GLES
 import org.lwjgl.opengles.GLES30
 import org.lwjgl.system.Configuration
 import org.lwjgl.system.Library
+
 import org.slf4j.LoggerFactory
+
 import java.io.File
+
 import kotlin.concurrent.thread
 
 /**

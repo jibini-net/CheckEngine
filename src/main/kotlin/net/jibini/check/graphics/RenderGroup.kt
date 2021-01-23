@@ -3,12 +3,15 @@ package net.jibini.check.graphics
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.graphics.impl.StatefulShaderImpl
+
 import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.joml.Vector4f
+
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
+
 import java.nio.Buffer
 
 /**

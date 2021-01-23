@@ -31,7 +31,7 @@ repositories {
 }
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.21"
 
     `java-library`
 }
@@ -60,7 +60,7 @@ dependencies {
     })
 
     // Kotlin coroutine multithreading utilities
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.4.0")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.4.2")
 
     // SLF4J and Log4J libraries
     implementation("org.slf4j", "slf4j-api", "1.7.30")
@@ -89,13 +89,10 @@ dependencies {
     runtimeOnly("org.lwjgl", "lwjgl-opengles", classifier = lwjglNatives)
 
     // Java Open Math Library for physics
-    implementation("org.joml", "joml", "1.9.25")
-
-    // JUnit 5 (Jupiter) test platform library
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.7.0")
+    implementation("org.joml", "joml", "1.10.0")
 
     // Library for scanning classpath members
-    implementation("io.github.classgraph", "classgraph", "4.8.90")
+    implementation("io.github.classgraph", "classgraph", "4.8.98")
     // Library for loading and saving JSON-ified objects
     implementation("com.google.code.gson", "gson", "2.8.6")
 }

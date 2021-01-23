@@ -10,8 +10,10 @@ import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.physics.BoundingBox
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
+
 import org.joml.Math.clamp
 import org.joml.Vector4f
+
 import kotlin.math.sqrt
 
 /**

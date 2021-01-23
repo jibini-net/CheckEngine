@@ -3,6 +3,7 @@ package net.jibini.check.graphics
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.graphics.impl.StatefulShaderImpl
+
 import org.joml.Vector2f
 import org.joml.Vector4f
 

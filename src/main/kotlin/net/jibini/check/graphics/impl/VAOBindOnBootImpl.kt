@@ -2,6 +2,7 @@ package net.jibini.check.graphics.impl
 
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
+
 import org.lwjgl.opengles.GLES30
 
 /**

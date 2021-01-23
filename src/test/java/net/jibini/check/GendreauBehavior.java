@@ -10,7 +10,9 @@ import net.jibini.check.graphics.Light;
 import net.jibini.check.graphics.impl.LightingShaderImpl;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
+
 import org.jetbrains.annotations.NotNull;
+
 import org.joml.Vector3f;
 
 import java.util.Random;

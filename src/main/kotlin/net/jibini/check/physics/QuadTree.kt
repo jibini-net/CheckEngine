@@ -1,8 +1,10 @@
 package net.jibini.check.physics
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
 import net.jibini.check.engine.EngineAware
-import java.util.*
 
 /**
  * A branched tree structure where each node has four child nodes; nodes

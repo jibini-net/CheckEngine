@@ -5,6 +5,7 @@ import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.input.Keyboard
 import net.jibini.check.texture.Texture
 import net.jibini.check.world.GameWorld
+
 import org.lwjgl.glfw.GLFW
 
 /**

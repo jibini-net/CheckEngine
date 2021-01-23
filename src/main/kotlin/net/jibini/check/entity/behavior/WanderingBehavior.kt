@@ -4,8 +4,11 @@ import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.entity.Entity
+
 import org.joml.Vector2d
-import java.util.*
+
+import java.util.Random
+
 import kotlin.math.cos
 import kotlin.math.sin
 

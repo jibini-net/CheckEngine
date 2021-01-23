@@ -1,16 +1,23 @@
 package net.jibini.check.engine.impl
 
 import io.github.classgraph.ClassGraph
+
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.RegisterObject
+
 import org.slf4j.LoggerFactory
-import java.util.*
+
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
+
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.*
+import kotlin.reflect.full.allSuperclasses
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
 
 /**

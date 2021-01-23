@@ -3,6 +3,7 @@ package net.jibini.check.texture.impl
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.Texture.Companion.toUnsignedBytes
 import net.jibini.check.texture.TextureCoordinates
+
 import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
 

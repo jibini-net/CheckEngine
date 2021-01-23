@@ -3,7 +3,9 @@ package net.jibini.check.graphics
 import net.jibini.check.graphics.impl.ShaderImpl
 import net.jibini.check.graphics.impl.ShaderProgramImpl
 import net.jibini.check.resource.Resource
+
 import org.joml.Matrix4f
+
 import org.lwjgl.opengles.GLES30
 
 /**

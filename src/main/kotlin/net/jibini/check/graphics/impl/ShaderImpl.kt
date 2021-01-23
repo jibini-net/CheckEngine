@@ -1,7 +1,9 @@
 package net.jibini.check.graphics.impl
 
 import net.jibini.check.graphics.Pointer
+
 import org.lwjgl.opengles.GLES30
+
 import org.slf4j.LoggerFactory
 
 /**

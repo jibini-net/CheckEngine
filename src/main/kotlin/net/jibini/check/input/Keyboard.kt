@@ -1,9 +1,12 @@
 package net.jibini.check.input
 
 import net.jibini.check.graphics.Window
+
 import org.lwjgl.glfw.GLFW
+
 import org.slf4j.LoggerFactory
-import java.util.*
+
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
 /**

@@ -1,6 +1,7 @@
 package net.jibini.check.graphics
 
 import net.jibini.check.engine.RegisterObject
+
 import org.joml.Matrix4fStack
 
 /**

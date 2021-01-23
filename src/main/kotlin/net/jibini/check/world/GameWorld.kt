@@ -1,6 +1,9 @@
 package net.jibini.check.world
 
-import net.jibini.check.engine.*
+import net.jibini.check.engine.EngineObject
+import net.jibini.check.engine.Macro
+import net.jibini.check.engine.RegisterObject
+import net.jibini.check.engine.Updatable
 import net.jibini.check.entity.Entity
 import net.jibini.check.entity.character.NonPlayer
 import net.jibini.check.entity.character.Player
@@ -16,13 +19,18 @@ import net.jibini.check.physics.QuadTree
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
+
 import org.joml.Math
+
 import org.slf4j.LoggerFactory
+
 import java.io.FileNotFoundException
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+
 import javax.imageio.ImageIO
+
 import kotlin.math.abs
 
 /**

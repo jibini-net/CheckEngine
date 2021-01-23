@@ -6,7 +6,9 @@ import net.jibini.check.graphics.impl.AbstractAutoDestroyable
 import net.jibini.check.graphics.impl.PointerImpl
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.TextureCoordinates
+
 import org.lwjgl.opengles.GLES30
+
 import java.nio.ByteBuffer
 
 /**

@@ -4,6 +4,7 @@ import net.jibini.check.engine.EngineAware
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.world.Room
+
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.joml.Vector4f

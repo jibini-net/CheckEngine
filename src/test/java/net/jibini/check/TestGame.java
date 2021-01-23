@@ -1,12 +1,14 @@
 package net.jibini.check;
 
+import net.jibini.check.engine.EngineObject;
 import net.jibini.check.entity.character.Attack;
-import net.jibini.check.engine.*;
 import net.jibini.check.graphics.impl.LightingShaderImpl;
 import net.jibini.check.resource.Resource;
 import net.jibini.check.texture.Texture;
 import net.jibini.check.world.GameWorld;
+
 import org.jetbrains.annotations.NotNull;
+
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;

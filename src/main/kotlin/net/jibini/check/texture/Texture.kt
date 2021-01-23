@@ -7,11 +7,14 @@ import net.jibini.check.texture.impl.AnimatedTextureImpl
 import net.jibini.check.texture.impl.BitmapTextureImpl
 import net.jibini.check.texture.impl.FlippedTextureImpl
 import net.jibini.check.texture.impl.TextureRegistry
+
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
+
 import java.awt.image.BufferedImage
 import java.nio.Buffer
 import java.nio.ByteBuffer
+
 import javax.imageio.ImageIO
 
 /**

@@ -9,6 +9,7 @@ import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.Matrices
 import net.jibini.check.physics.Bounded
 import net.jibini.check.world.GameWorld
+
 import org.joml.Vector2d
 
 /**

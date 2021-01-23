@@ -3,8 +3,10 @@ package net.jibini.check.texture.impl
 import net.jibini.check.engine.timing.DeltaTimer
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.TextureCoordinates
+
 import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
+
 import javax.imageio.ImageIO
 import javax.imageio.metadata.IIOMetadataNode
 import javax.imageio.stream.ImageInputStream

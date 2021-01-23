@@ -2,6 +2,7 @@ package net.jibini.check.entity.behavior
 
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.entity.Entity
+
 import kotlin.math.abs
 
 /**

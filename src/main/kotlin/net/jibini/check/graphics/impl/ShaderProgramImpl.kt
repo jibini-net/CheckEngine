@@ -4,9 +4,12 @@ import net.jibini.check.engine.EngineObject
 import net.jibini.check.graphics.Pointer
 import net.jibini.check.graphics.Shader
 import net.jibini.check.graphics.Uniforms
+
 import org.joml.Matrix4f
+
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengles.GLES30
+
 import org.slf4j.LoggerFactory
 
 /**

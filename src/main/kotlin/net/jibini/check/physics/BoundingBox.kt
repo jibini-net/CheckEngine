@@ -2,7 +2,9 @@ package net.jibini.check.physics
 
 import net.jibini.check.engine.EngineAware
 import net.jibini.check.entity.Entity
+
 import org.joml.Vector2d
+
 import kotlin.math.abs
 
 /**

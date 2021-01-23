@@ -1,6 +1,7 @@
 package net.jibini.check.texture.impl
 
 import net.jibini.check.texture.Texture
+
 import org.slf4j.LoggerFactory
 
 /**

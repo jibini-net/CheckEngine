@@ -4,6 +4,7 @@ import net.jibini.check.graphics.impl.AbstractAutoDestroyable
 import net.jibini.check.graphics.impl.PointerImpl
 import net.jibini.check.texture.Texture
 import net.jibini.check.texture.impl.BitmapTextureImpl
+
 import org.lwjgl.opengles.GLES30
 
 /**

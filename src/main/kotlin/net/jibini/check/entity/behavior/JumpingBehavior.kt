@@ -7,6 +7,7 @@ import net.jibini.check.entity.ActionableEntity.Companion.LEFT
 import net.jibini.check.entity.ActionableEntity.Companion.RIGHT
 import net.jibini.check.entity.Entity
 import net.jibini.check.world.GameWorld
+
 import kotlin.random.Random
 
 /**

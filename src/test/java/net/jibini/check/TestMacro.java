@@ -4,6 +4,7 @@ import net.jibini.check.engine.EngineObject;
 import net.jibini.check.engine.Macro;
 import net.jibini.check.engine.RegisterObject;
 import net.jibini.check.world.GameWorld;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

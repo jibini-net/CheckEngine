@@ -3,8 +3,8 @@ package net.jibini.check;
 import imgui.ImGui;
 import imgui.flag.ImGuiCond;
 import imgui.type.ImBoolean;
-
 import imgui.type.ImString;
+
 import net.jibini.check.engine.RegisterObject;
 import net.jibini.check.engine.Updatable;
 

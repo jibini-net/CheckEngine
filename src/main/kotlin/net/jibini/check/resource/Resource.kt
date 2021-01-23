@@ -3,6 +3,7 @@ package net.jibini.check.resource
 import net.jibini.check.resource.impl.ClasspathResource
 import net.jibini.check.resource.impl.FileResource
 import net.jibini.check.resource.impl.ResourceImpl
+
 import java.io.File
 import java.io.InputStream
 
