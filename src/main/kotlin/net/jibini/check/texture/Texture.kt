@@ -121,6 +121,7 @@ interface Texture : Pointer<Int>
                 val texture = AnimatedTextureImpl(stream)
 
                 registry.cache[resource.uniqueIdentifier] = texture
+
                 texture
             } else
             {

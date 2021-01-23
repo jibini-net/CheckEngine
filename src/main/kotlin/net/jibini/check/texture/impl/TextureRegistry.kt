@@ -3,9 +3,11 @@ package net.jibini.check.texture.impl
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.graphics.Uniforms
+import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import org.joml.Vector2f
 import org.lwjgl.opengles.GLES30
+import java.lang.IllegalStateException
 
 /**
  * Maintains cached textures and stateful data about bound textures.
@@ -34,6 +36,17 @@ class TextureRegistry
      * their resources' unique identifiers.
      */
     val cache = mutableMapOf<String, Texture>()
+
+    fun reverseLookup(texture: Texture): String
+    {
+        for ((key, value) in cache)
+        {
+            if (value == texture)
+                return key
+        }
+
+        throw IllegalStateException("Reverse lookup failed; texture is not cached")
+    }
 
     /**
      * Binds the given texture in the current thread.

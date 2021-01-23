@@ -96,4 +96,6 @@ dependencies {
 
     // Library for scanning classpath members
     implementation("io.github.classgraph", "classgraph", "4.8.90")
+    // Library for loading and saving JSON-ified objects
+    implementation("com.google.code.gson", "gson", "2.8.6")
 }

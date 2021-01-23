@@ -225,8 +225,8 @@ class LightingShaderImpl : Initializable
             )
         matrices.model.identity()
 
-        val playerX = gameWorld.player!!.x.toFloat()
-        val playerY = gameWorld.player!!.y.toFloat()
+        val playerX = gameWorld.player?.x?.toFloat() ?: 0.0f
+        val playerY = gameWorld.player?.y?.toFloat() ?: 0.0f
 
         // Snap to pixel
         var translateX = -playerX
@@ -313,8 +313,8 @@ class LightingShaderImpl : Initializable
             .flip(horizontal = false, vertical = true)
             .bind()
 
-        val playerX = gameWorld.player!!.x.toFloat()
-        val playerY = gameWorld.player!!.y.toFloat()
+        val playerX = gameWorld.player?.x?.toFloat() ?: 0.0f
+        val playerY = gameWorld.player?.y?.toFloat() ?: 0.0f
 
         val matrix = Matrix4f()
             .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
@@ -349,8 +349,8 @@ class LightingShaderImpl : Initializable
         for (light in lights)
         {
             if (Vector2d(
-                    gameWorld.player!!.x,
-                    gameWorld.player!!.y
+                    gameWorld.player?.x ?: 0.0,
+                    gameWorld.player?.y ?: 0.0
                 ).distance(Vector2d(
                     light.x.toDouble() * 0.2,
                     light.y.toDouble() * 0.2)

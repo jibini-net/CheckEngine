@@ -263,7 +263,8 @@ class GameWorld : Updatable
      * @param name Level resource folder relative to file location
      *     'worlds/'.
      */
-    fun loadRoom(name: String)
+    @Deprecated("This room file format has been replaced by the JSON world file")
+    fun loadRoom(name: String): Map<Int, Tile>
     {
         reset()
 
@@ -511,6 +512,8 @@ class GameWorld : Updatable
             }
 
         room!!.rebuildMeshes()
+
+        return roomTiles
     }
 
     /**
