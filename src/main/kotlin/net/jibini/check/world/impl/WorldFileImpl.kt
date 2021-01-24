@@ -74,11 +74,15 @@ class WorldFile
             val gson = GsonBuilder()
                 .setPrettyPrinting()
                 .create()
-            val file = File(path)
 
+            val file = File(path)
             file.parentFile?.mkdirs()
             file.createNewFile()
-            file.writeText(gson.toJson(worldFile))
+
+            file.writeText(
+                gson.toJson(worldFile)
+                    .replace(Regex("\n         *"), replacement = " ")
+            )
         }
     }
 }

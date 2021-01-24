@@ -6,6 +6,7 @@ import net.jibini.check.texture.impl.TextureRegistry
 import net.jibini.check.world.GameWorld
 import net.jibini.check.world.impl.TileDescriptor
 import net.jibini.check.world.impl.TileTexturing
+import net.jibini.check.world.impl.TileUsage
 import net.jibini.check.world.impl.WorldFile
 
 import java.lang.IllegalStateException
@@ -24,6 +25,32 @@ class LegacyWorldImportImpl
     fun import(world: String): WorldFile
     {
         val tiles = gameWorld.loadRoom(world)
+            .values
+        val descriptors = tiles
+            .map()
+            {
+                TileDescriptor()
+                    .apply()
+                    {
+                        blocksLight = it.lightBlocking
+                        blocksPlayer = it.blocking
+
+                        texturing = TileTexturing().apply()
+                        {
+                            type = "resource"
+
+                            path = try
+                            {
+                                textureRegistry
+                                    .reverseLookup(it.texture)
+                                    .split("; ", limit = 2)[1]
+                            } catch (ex: IllegalStateException)
+                            {
+                                "tiles/black.png"
+                            }
+                        }
+                    }
+            }
 
         val result =  WorldFile()
             .apply()
@@ -33,33 +60,25 @@ class LegacyWorldImportImpl
 
                 sideScroller = gameWorld.room!!.isSideScroller
 
-                tileDescriptors = tiles
-                    .map()
-                    {
-                        TileDescriptor()
-                            .apply()
-                            {
-                                blocksLight = it.value.lightBlocking
-                                blocksPlayer = it.value.blocking
-
-                                texturing = TileTexturing().apply()
-                                {
-                                    type = "resource"
-
-                                    path = try
-                                    {
-                                        textureRegistry
-                                            .reverseLookup(it.value.texture)
-                                            .split("; ", limit = 2)[1]
-                                    } catch (ex: IllegalStateException)
-                                    {
-                                        "tiles/black.png"
-                                    }
-                                }
-                            }
-                    }
-                    .toMutableList()
+                tileDescriptors = descriptors.toMutableList()
             }
+
+        val tileToDescriptor = tiles
+            .zip(descriptors)
+            .toMap()
+
+        for (x in gameWorld.room!!.tiles.indices)
+        {
+            for (y in gameWorld.room!!.tiles[0].indices)
+                if (gameWorld.room!!.tiles[x][y] == null)
+                    continue
+                else
+                    tileToDescriptor[gameWorld.room!!.tiles[x][y]]!!
+                        .usages
+                        .add(TileUsage(x, y))
+        }
+
+        WorldFile.writeToFile(result, "example.json")
 
         gameWorld.reset()
 
