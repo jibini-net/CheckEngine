@@ -53,7 +53,7 @@ class WorldFileLoadImpl
                 descriptor.usages
                     .forEach()
                     { usage ->
-                        gameWorld.room!!.tiles[usage.x][usage.y] = tile
+                        gameWorld.room!!.tiles[usage[0]][usage[1]] = tile
                     }
             }
 

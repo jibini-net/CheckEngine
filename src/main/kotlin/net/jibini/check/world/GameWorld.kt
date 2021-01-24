@@ -535,5 +535,7 @@ class GameWorld : Updatable
         visible = false
 
         lightingShader.lights.clear()
+
+        player = null
     }
 }

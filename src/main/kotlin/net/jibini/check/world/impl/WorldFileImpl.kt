@@ -70,19 +70,13 @@ class WorldFile
          */
         fun writeToFile(worldFile: WorldFile, path: String)
         {
-            // Create a pretty-printing JSON codec
-            val gson = GsonBuilder()
+            val json = GsonBuilder()
                 .setPrettyPrinting()
                 .create()
+                .toJson(worldFile)
+                .replace(Regex("\n {8,}"), " ")
 
-            val file = File(path)
-            file.parentFile?.mkdirs()
-            file.createNewFile()
-
-            file.writeText(
-                gson.toJson(worldFile)
-                    .replace(Regex("\n         *"), replacement = " ")
-            )
+            File(path).writeText(json)
         }
     }
 }
@@ -118,7 +112,7 @@ class TileDescriptor
      * in the world. For further explanation for this choice, see
      * [WorldFile.tileDescriptors].
      */
-    var usages = mutableListOf<TileUsage>()
+    var usages = mutableListOf<IntArray>()
 }
 
 /**
@@ -150,13 +144,3 @@ class TileTexturing
      */
     var path = "tiles/black.png"
 }
-
-/**
- * A tile coordinate in a world at which a tile occurs.
- *
- * @author Zach Goethel
- */
-class TileUsage(
-    var x: Int,
-    var y: Int
-)

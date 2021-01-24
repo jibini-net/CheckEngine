@@ -6,7 +6,6 @@ import net.jibini.check.texture.impl.TextureRegistry
 import net.jibini.check.world.GameWorld
 import net.jibini.check.world.impl.TileDescriptor
 import net.jibini.check.world.impl.TileTexturing
-import net.jibini.check.world.impl.TileUsage
 import net.jibini.check.world.impl.WorldFile
 
 import java.lang.IllegalStateException
@@ -75,9 +74,10 @@ class LegacyWorldImportImpl
                 else
                     tileToDescriptor[gameWorld.room!!.tiles[x][y]]!!
                         .usages
-                        .add(TileUsage(x, y))
+                        .add(intArrayOf(x, y))
         }
 
+        //TODO DEBUG, REMOVE
         WorldFile.writeToFile(result, "example.json")
 
         gameWorld.reset()
