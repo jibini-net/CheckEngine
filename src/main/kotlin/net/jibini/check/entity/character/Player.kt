@@ -17,7 +17,7 @@ import org.lwjgl.glfw.GLFW
  *
  * @author Zach Goethel
  */
-class Player(
+open class Player(
     /**
      * Character's right-facing idle texture.
      */

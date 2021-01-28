@@ -1,6 +1,5 @@
 package net.jibini.check.physics
 
-import net.jibini.check.engine.EngineAware
 import net.jibini.check.entity.Entity
 
 import org.joml.Vector2d
@@ -33,7 +32,7 @@ class BoundingBox(
      * Height of the bounding box.
      */
     var height: Double
-) : EngineAware()
+)
 {
     /**
      * @return Whether the given box overlaps this one.

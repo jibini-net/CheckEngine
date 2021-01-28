@@ -77,6 +77,9 @@ class Attack(
      */
     var effectiveMovementModifier: Double = 1.0
 
+    var onTrigger: Runnable? = null
+    var onTriggeredUpdate: Runnable? = null
+
     override fun update()
     {
         // Only update if the attacker isn't null
@@ -98,6 +101,8 @@ class Attack(
 
             // Change movement speed modifier
             effectiveMovementModifier = movementModifier
+
+            onTriggeredUpdate?.run()
         }
     }
 
@@ -124,6 +129,8 @@ class Attack(
 
             // Re-trigger animation time
             attackTimer.reset();
+
+            onTrigger?.run()
         }
 
         // Store the character so the correct textures can be bound
