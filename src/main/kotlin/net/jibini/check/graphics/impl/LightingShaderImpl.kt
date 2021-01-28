@@ -488,11 +488,5 @@ class LightingShaderImpl : Initializable
             .bind()
 
         renderer.drawRectangle(-windowRatio - 0.1f, -1.1f, windowRatio * 2.2f, 2.2f)
-
-        rays.renderAttachments[0]
-            .flip(horizontal = false, vertical = true)
-            .bind()
-
-        renderer.drawRectangle(-windowRatio + 0.075f, -0.925f, 0.5f, 0.5f)
     }
 }
