@@ -3,6 +3,7 @@ package net.jibini.check.graphics.impl
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.Initializable
 import net.jibini.check.engine.RegisterObject
+import net.jibini.check.entity.Entity
 import net.jibini.check.graphics.Framebuffer
 import net.jibini.check.graphics.Light
 import net.jibini.check.graphics.Matrices
@@ -274,6 +275,9 @@ class LightingShaderImpl : Initializable
         Framebuffer.release()
     }
 
+    private var playerX = 0.0f
+    private var playerY = 0.0f
+
     /**
      * Applies a scale and translation to correctly center the player on
      * the screen and the world around the player.
@@ -291,8 +295,14 @@ class LightingShaderImpl : Initializable
             )
         matrices.model.identity()
 
-        val playerX = gameWorld.player?.x?.toFloat() ?: translation.x
-        val playerY = gameWorld.player?.y?.toFloat() ?: translation.y
+        playerX = gameWorld.player?.x?.toFloat() ?: translation.x
+        playerY = gameWorld.player?.y?.toFloat() ?: translation.y
+
+        if (Entity.frozen)
+        {
+            playerX = translation.x
+            playerY = translation.y
+        }
 
         // Snap to pixel
         var translateX = -playerX
@@ -382,9 +392,6 @@ class LightingShaderImpl : Initializable
             .flip(horizontal = false, vertical = true)
             .bind()
 
-        val playerX = gameWorld.player?.x?.toFloat() ?: translation.x
-        val playerY = gameWorld.player?.y?.toFloat() ?: translation.y
-
         val matrix = Matrix4f()
             .ortho(-windowRatio, windowRatio, -1.0f, 1.0f, -1.0f, 1.0f)
             .invertOrtho()
@@ -417,10 +424,7 @@ class LightingShaderImpl : Initializable
 
         for (light in lights)
         {
-            if (Vector2d(
-                    gameWorld.player?.x ?: translation.x.toDouble(),
-                    gameWorld.player?.y ?: translation.y.toDouble()
-                ).distance(Vector2d(
+            if (Vector2d(playerX.toDouble(), playerY.toDouble()).distance(Vector2d(
                     light.x.toDouble() * 0.2,
                     light.y.toDouble() * 0.2)
                 ) > windowRatio * 1.6f

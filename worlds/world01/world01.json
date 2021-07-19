@@ -1,0 +1,81 @@
+{
+  "tileDescriptors": [
+    {
+      "texturing": { "type": "resource", "path": "tiles/platform_mid.png"
+      },
+      "blocksLight": true,
+      "blocksPlayer": true,
+      "usages": [ [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 5, 0 ], [ 16, 1 ], [ 26, 0 ], [ 27, 0 ], [ 28, 0 ], [ 29, 0 ]
+      ]
+    },
+    {
+      "texturing": { "type": "resource", "path": "tiles/black.png"
+      },
+      "blocksLight": true,
+      "blocksPlayer": true,
+      "usages": [ [ 0, 0 ], [ 0, 1 ], [ 0, 2 ], [ 0, 3 ], [ 0, 4 ], [ 0, 5 ], [ 0, 6 ], [ 0, 7 ], [ 31, 0 ], [ 31, 1 ], [ 31, 2 ], [ 31, 3 ], [ 31, 4 ], [ 31, 5 ], [ 31, 6 ], [ 31, 7 ]
+      ]
+    },
+    {
+      "texturing": { "type": "resource", "path": "tiles/platform_left_cap.png"
+      },
+      "blocksLight": true,
+      "blocksPlayer": true,
+      "usages": [ [ 1, 0 ], [ 15, 1 ], [ 25, 0 ]
+      ]
+    },
+    {
+      "texturing": { "type": "resource", "path": "tiles/platform_right_cap.png"
+      },
+      "blocksLight": true,
+      "blocksPlayer": true,
+      "usages": [ [ 6, 0 ], [ 17, 1 ], [ 30, 0 ]
+      ]
+    },
+    {
+      "texturing": { "type": "resource", "path": "tiles/exit_top.png"
+      },
+      "blocksLight": false,
+      "blocksPlayer": true,
+      "usages": [ [ 29, 2 ]
+      ]
+    },
+    {
+      "texturing": { "type": "resource", "path": "tiles/exit_bottom.png"
+      },
+      "blocksLight": false,
+      "blocksPlayer": true,
+      "usages": [ [ 29, 1 ]
+      ]
+    }
+  ],
+  "width": 32,
+  "height": 8,
+  "sideScroller": true,
+  "lights": [
+    {
+      "x": 3.0,
+      "y": 3.0,
+      "r": 1.0,
+      "g": 1.0,
+      "b": 1.0
+    }
+  ],
+  "spawnList": [
+    {
+      "spawnerName": "CharacterSpawner",
+      "args": [ 5.7, 0.2, "gendreau", "JumpingBehavior"
+      ]
+    },
+    {
+      "spawnerName": "CharacterSpawner",
+      "args": [ 0.4, 0.2, "forbes", "PlayerBehavior"
+      ]
+    },
+    {
+      "spawnerName": "CharacterSpawner",
+      "args": [ 1.4000000208616257, 0.20000000298023224, "forbes", "LeftRightBehavior"
+      ]
+    }
+  ]
+}

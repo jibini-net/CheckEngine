@@ -16,6 +16,9 @@ import net.jibini.check.entity.Entity
  */
 abstract class EntityBehavior
 {
+    open fun prepare(entity: Entity)
+    {  }
+
     /**
      * Updates the behavior and movement of the given entity according
      * to the instructions of this behavior.

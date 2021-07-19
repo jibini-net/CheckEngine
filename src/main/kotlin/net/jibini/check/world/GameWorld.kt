@@ -6,8 +6,8 @@ import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.Updatable
 import net.jibini.check.entity.Entity
 import net.jibini.check.entity.character.NonPlayer
-import net.jibini.check.entity.character.Player
 import net.jibini.check.engine.impl.EngineObjectsImpl
+import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.entity.Platform
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.graphics.Light
@@ -74,7 +74,6 @@ class GameWorld : Updatable
     /**
      * Entities in the world; can be directly added to by the game.
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     val entities: MutableList<Entity> = CopyOnWriteArrayList()
 
     /**
@@ -87,7 +86,7 @@ class GameWorld : Updatable
      * A controllable character on which the renderer will center the
      * screen.
      */
-    var player: Player? = null
+    var player: ActionableEntity? = null
         set(value)
         {
             if (field != null)
@@ -368,12 +367,19 @@ class GameWorld : Updatable
                         {
                             // TODO SUPPORT PLAYING AS MULTIPLE CHARACTERS
                             if (player == null)
-                                player = Player(
+                                player = NonPlayer(
                                     Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_right.gif")),
                                     Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_stand_left.gif")),
 
                                     Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_right.gif")),
-                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_left.gif"))
+                                    Texture.load(Resource.fromClasspath("characters/${split[2]}/${split[2]}_walk_left.gif")),
+
+                                    split[2],
+
+                                    if (split.size >= 6)
+                                        split[5]
+                                    else
+                                        "NoBehavior"
                                 )
 
                             player!!.x = split[3].toDouble() * 0.2
@@ -416,7 +422,10 @@ class GameWorld : Updatable
                                 } catch (ex: FileNotFoundException)
                                 {
                                     walkRight.flip()
-                                }
+                                },
+
+                                split[2],
+                                if (split.size >= 6) split[5] else "NoBehavior"
                             )
 
                             if (split.size > 5)

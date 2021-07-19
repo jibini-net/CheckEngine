@@ -28,5 +28,15 @@ class NonPlayer(
     /**
      * Character's left-facing walking texture.
      */
-    walkLeft: Texture = idleRight.flip()
+    walkLeft: Texture = idleRight.flip(),
+
+    /**
+     * Entity's classifier name (such as an NPC's name).
+     */
+    val typeName: String,
+
+    /**
+     * Name of the behavior in case of null state of behavior.
+     */
+    val behaviorName: String
 ) : ActionableEntity(idleRight, idleLeft, walkRight, walkLeft)

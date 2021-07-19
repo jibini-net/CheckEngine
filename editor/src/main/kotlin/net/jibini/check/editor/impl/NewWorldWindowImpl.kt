@@ -66,7 +66,16 @@ class NewWorldWindowImpl : Updatable
                     ImGuiCond.Always
                 )
             } else
+            {
                 ImGui.setNextWindowPos(25.0f, 20.0f, ImGuiCond.Always)
+
+                ImGui.setNextWindowSize(
+                    300.0f,
+                    320.0f,
+
+                    ImGuiCond.Always
+                )
+            }
 
             ImGui.setNextWindowCollapsed(worldEditor.current != null, ImGuiCond.Always)
         }
@@ -166,11 +175,11 @@ class NewWorldWindowImpl : Updatable
 
     private fun save()
     {
-        fileChooser.resetChoosableFileFilters()
+        fileChooser.fileFilter = FileNameExtensionFilter("World JSON file", "json")
         fileChooser.grabFocus()
         fileChooser.fileSelectionMode = JFileChooser.FILES_ONLY
 
-        val result = fileChooser.showDialog(null, "Export")
+        val result = fileChooser.showDialog(null, "Save")
 
         if (result == JFileChooser.APPROVE_OPTION)
             WorldFile.writeToFile(worldEditor.current!!, fileChooser.selectedFile.path)

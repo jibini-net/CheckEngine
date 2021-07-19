@@ -1,47 +1,24 @@
 package net.jibini.check.entity.character
 
 import net.jibini.check.engine.EngineObject
+import net.jibini.check.engine.Initializable
+import net.jibini.check.engine.RegisterObject
 import net.jibini.check.entity.ActionableEntity
+import net.jibini.check.entity.Entity
+import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.input.Keyboard
-import net.jibini.check.texture.Texture
 import net.jibini.check.world.GameWorld
 
 import org.lwjgl.glfw.GLFW
 
-/**
- * Keyboard-controlled [actionable character][ActionableEntity] which is
- * likely a human sprite-set.
- *
- * There should only ever be one instance of this type. The instance can
- * be accessed via the [GameWorld] engine object.
- *
- * @author Zach Goethel
- */
-@Deprecated("Use a NonPlayer with a PlayerBehavior setting")
-class Player(
-    /**
-     * Character's right-facing idle texture.
-     */
-    idleRight: Texture,
-
-    /**
-     * Character's left-facing idle texture.
-     */
-    idleLeft: Texture = idleRight.flip(),
-
-    /**
-     * Character's right-facing walking texture.
-     */
-    walkRight: Texture,
-
-    /**
-     * Character's left-facing walking texture.
-     */
-    walkLeft: Texture = idleRight.flip()
-) : ActionableEntity(idleRight, idleLeft, walkRight, walkLeft)
+@RegisterObject
+class PlayerBehavior : EntityBehavior(), Initializable
 {
     @EngineObject
     private lateinit var keyboard: Keyboard
+
+    @EngineObject
+    private lateinit var gameWorld: GameWorld
 
     /**
      * Flag set to true if the jump key has been pressed since the last
@@ -49,24 +26,41 @@ class Player(
      */
     private var queueJump = false
 
-    init
+    /**
+     * Flag set to true if the attack key has been pressed.
+     */
+    private var queueAttack = false
+
+    override fun initialize()
     {
         // Listen to space to trigger attack
-        keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE, this::attack)
-
+        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_CONTROL) { queueAttack = true }
         // Listen to left shift to trigger jump
-        keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_SHIFT) { queueJump = true }
+        keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE) { queueJump = true }
     }
 
-    override fun update()
+    override fun prepare(entity: Entity)
     {
-        // Call super's rendering and physics
-        super.update()
+        if (entity !is ActionableEntity) return
+        gameWorld.player = entity
+    }
+
+    override fun update(entity: Entity)
+    {
+        if (entity !is ActionableEntity) return
+
         // Jump if the jump flag is set
         if (queueJump)
         {
             queueJump = false
-            jump(0.55)
+            entity.jump(0.55)
+        }
+
+        // Attack if the attack flag is set
+        if (queueAttack)
+        {
+            queueAttack = false
+            entity.attack()
         }
 
         // Check WASD keys
@@ -80,15 +74,15 @@ class Player(
         val y = (if (s) -1 else 0) + (if (w) 1 else 0).toDouble()
 
         // Walk based on previous movement
-        this.walk(x, y)
+        entity.walk(x, y)
 
-        if (this.y < -0.4)
+        if (entity.y < -0.4)
         {
             //TODO FANCIER DEATH
             gameWorld.loadRoom("main_hub")
             gameWorld.visible = true
 
-            velocity.y = 0.0
+            entity.y = 0.0
         }
     }
 }

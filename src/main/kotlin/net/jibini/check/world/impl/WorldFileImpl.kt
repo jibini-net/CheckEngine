@@ -3,6 +3,7 @@ package net.jibini.check.world.impl
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 
+import net.jibini.check.graphics.Light
 import net.jibini.check.resource.Resource
 
 import java.io.File
@@ -50,6 +51,17 @@ class WorldFile
      * Whether this world is a side-scroller.
      */
     var sideScroller = false
+
+    /**
+     * Collection of lights in the world.
+     */
+    var lights = mutableListOf<Light>()
+
+    /**
+     * List of pairs of spawner object names and the arguments which will be passed
+     * upon invocation.
+     */
+    var spawnList = mutableListOf<SpawnEntry>()
 
     companion object
     {
@@ -144,3 +156,8 @@ class TileTexturing
      */
     var path = "tiles/black.png"
 }
+
+data class SpawnEntry(
+    var spawnerName: String,
+    val args: MutableList<Any?>
+)

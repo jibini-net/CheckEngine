@@ -154,17 +154,7 @@
   "spawnList": [
     {
       "spawnerName": "CharacterSpawner",
-      "args": [ 0.8, 0.5, "allie", "WanderingBehavior"
-      ]
-    },
-    {
-      "spawnerName": "CharacterSpawner",
-      "args": [ 1.8, 0.5, "becky", "WanderingBehavior"
-      ]
-    },
-    {
-      "spawnerName": "CharacterSpawner",
-      "args": [ 2.8000000000000003, 0.5, "foley", "WanderingBehavior"
+      "args": [ 2.8000000000000003, 0.5, "forbes", "ProclivityLobbyIntroBehavior"
       ]
     },
     {

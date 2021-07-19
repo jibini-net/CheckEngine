@@ -2,6 +2,9 @@ package net.jibini.check.world.impl
 
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.RegisterObject
+import net.jibini.check.engine.impl.EngineObjectsImpl
+import net.jibini.check.entity.EntitySpawner
+import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.world.GameWorld
@@ -16,6 +19,9 @@ class WorldFileLoadImpl
     @EngineObject
     private lateinit var gameWorld: GameWorld
 
+    @EngineObject
+    private lateinit var lightingShader: LightingShaderImpl
+
     fun load(worldFile: WorldFile)
     {
         // Reset the world and create a correctly-sized empty room
@@ -26,6 +32,8 @@ class WorldFileLoadImpl
 
             isSideScroller = worldFile.sideScroller
         )
+
+        lightingShader.lights.addAll(worldFile.lights)
 
         // Read and set up world tiles in the current room
         worldFile.tileDescriptors
@@ -56,6 +64,12 @@ class WorldFileLoadImpl
                         gameWorld.room!!.tiles[usage[0]][usage[1]] = tile
                     }
             }
+
+        worldFile.spawnList.forEach {
+            EngineObjectsImpl.get<EntitySpawner>()
+                .find { element -> element::class.simpleName == it.spawnerName }
+                ?.spawn(gameWorld, *it.args.toTypedArray())
+        }
 
         // Rebuild room meshes with loaded tiles
         gameWorld.room!!.rebuildMeshes()

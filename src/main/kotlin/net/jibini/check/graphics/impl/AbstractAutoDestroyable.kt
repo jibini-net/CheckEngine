@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory
  *
  * @author Zach Goethel
  */
-//TODO RUNTIME DESTROYABLE ALLOCATION AND DESTRUCTION STACK
 @Suppress("LeakingThis")
 abstract class AbstractAutoDestroyable : EngineAware(), Destroyable
 {

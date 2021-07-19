@@ -5,7 +5,6 @@ import net.jibini.check.engine.RegisterObject;
 import net.jibini.check.engine.timing.DeltaTimer;
 import net.jibini.check.entity.ActionableEntity;
 import net.jibini.check.entity.Entity;
-import net.jibini.check.entity.character.Player;
 import net.jibini.check.physics.BoundingBox;
 import net.jibini.check.world.GameWorld;
 import net.jibini.check.world.Tile;
@@ -88,7 +87,7 @@ public class PlayerTargetBehavior extends EntityBehavior
     /**
      * A convenience reference to the player instance.  This reference is reset every update.
      */
-    public Player target = null;
+    public ActionableEntity target = null;
 
     /**
      * Performs a scheduled reset to the vector field.  This triggers the start of a new breadth-first search radiating
@@ -98,6 +97,8 @@ public class PlayerTargetBehavior extends EntityBehavior
      */
     private void reset()
     {
+        if (gameWorld.getPlayer() == null) return;
+
         // Check if this was called too soon, or the last search hasn't yet finished
         if (updateTimer.getDelta() < 0.3 || !visitQueue.isEmpty())
         {
@@ -128,6 +129,8 @@ public class PlayerTargetBehavior extends EntityBehavior
      */
     private void visit(Vector3i location)
     {
+        if (gameWorld.getPlayer() == null) return;
+
         // Maintain potential neighbors which can access this tile
         Vector2i[] neighbors =
         {
@@ -161,6 +164,8 @@ public class PlayerTargetBehavior extends EntityBehavior
      */
     private void evaluateField()
     {
+        if (gameWorld.getPlayer() == null) return;
+
         // Iterate through the queue until empty (max 2048 per frame)
         for (int i = 0; i < 2048 && !visitQueue.isEmpty(); i++)
             visit(visitQueue.poll());
@@ -191,6 +196,8 @@ public class PlayerTargetBehavior extends EntityBehavior
     @Override
     public void update(@NotNull Entity entity)
     {
+        if (gameWorld.getPlayer() == null) return;
+
         // Only update actionable entities
         if (!(entity instanceof ActionableEntity))
             return;

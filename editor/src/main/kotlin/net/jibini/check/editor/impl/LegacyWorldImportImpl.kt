@@ -2,8 +2,13 @@ package net.jibini.check.editor.impl
 
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.RegisterObject
+import net.jibini.check.entity.ActionableEntity
+import net.jibini.check.entity.character.CharacterSpawner
+import net.jibini.check.entity.character.NonPlayer
+import net.jibini.check.graphics.impl.LightingShaderImpl
 import net.jibini.check.texture.impl.TextureRegistry
 import net.jibini.check.world.GameWorld
+import net.jibini.check.world.impl.SpawnEntry
 import net.jibini.check.world.impl.TileDescriptor
 import net.jibini.check.world.impl.TileTexturing
 import net.jibini.check.world.impl.WorldFile
@@ -20,6 +25,9 @@ class LegacyWorldImportImpl
     // Required to modify and open a new room
     @EngineObject
     private lateinit var gameWorld: GameWorld
+
+    @EngineObject
+    private lateinit var lightingShader: LightingShaderImpl
 
     fun import(world: String): WorldFile
     {
@@ -77,6 +85,28 @@ class LegacyWorldImportImpl
                         .add(intArrayOf(x, y))
         }
 
+        for (entity in gameWorld.entities)
+        {
+            val args: MutableList<Any?> = mutableListOf(
+                entity.x,
+                entity.y,
+
+                if (entity is NonPlayer) entity.typeName else "forbes",
+
+                when (entity)
+                {
+                    gameWorld.player -> "PlayerBehavior"
+                    is NonPlayer -> entity.behaviorName
+
+                    else -> entity.behavior?.javaClass?.simpleName ?: "NoBehavior"
+                }
+            )
+
+            val spawnerName = CharacterSpawner::class.simpleName!!
+            result.spawnList.add(SpawnEntry(spawnerName, args))
+        }
+
+        result.lights.addAll(lightingShader.lights)
         gameWorld.reset()
 
         return result

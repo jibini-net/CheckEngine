@@ -30,4 +30,9 @@ dependencies {
 
     // Include root project and inherit API libs
     api(project(":"))
+
+    if (findProject(":Proclivity") != null)
+        implementation(project(":Proclivity"))
+    if (findProject(":MakeShift") != null)
+        implementation(project(":MakeShift"))
 }

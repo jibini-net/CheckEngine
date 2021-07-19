@@ -126,6 +126,7 @@ class Window(
      */
     fun swapBuffers()
     {
+        GLFW.glfwSwapInterval(GLFW.GLFW_TRUE)
         GLFW.glfwSwapBuffers(pointer)
     }
 

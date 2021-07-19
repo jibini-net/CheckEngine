@@ -111,7 +111,8 @@ abstract class Entity(
 
     open fun update()
     {
-        behavior?.update(this)
+        if (!frozen)
+            behavior?.update(this)
     }
 
     /**
@@ -176,5 +177,10 @@ abstract class Entity(
          * Keeps track of how many entity IDs have been assigned so far.
          */
         private var nextId = 0
+
+        /**
+         * Disables entity behaviors.
+         */
+        var frozen = false
     }
 }
