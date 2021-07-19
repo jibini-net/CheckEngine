@@ -94,6 +94,16 @@ class NewWorldWindowImpl : Updatable
         if (ImGui.button("Import legacy world", 280.0f, 30.0f))
             import()
 
+        if (worldEditor.current != null)
+        {
+            ImGui.spacing()
+            ImGui.separator()
+            ImGui.spacing()
+
+            if (ImGui.button("Save world JSON", 280.0f, 30.0f))
+                save()
+        }
+
         ImGui.end()
     }
 
@@ -152,5 +162,17 @@ class NewWorldWindowImpl : Updatable
             val basePath = File("${System.getProperty("user.dir")}/worlds")
             worldEditor.current = legacyWorldImport.import(fileChooser.selectedFile.relativeTo(basePath).path)
         }
+    }
+
+    private fun save()
+    {
+        fileChooser.resetChoosableFileFilters()
+        fileChooser.grabFocus()
+        fileChooser.fileSelectionMode = JFileChooser.FILES_ONLY
+
+        val result = fileChooser.showDialog(null, "Export")
+
+        if (result == JFileChooser.APPROVE_OPTION)
+            WorldFile.writeToFile(worldEditor.current!!, fileChooser.selectedFile.path)
     }
 }

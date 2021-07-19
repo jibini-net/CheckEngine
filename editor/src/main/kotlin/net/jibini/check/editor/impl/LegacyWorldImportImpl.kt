@@ -77,9 +77,6 @@ class LegacyWorldImportImpl
                         .add(intArrayOf(x, y))
         }
 
-        //TODO DEBUG, REMOVE
-        WorldFile.writeToFile(result, "example.json")
-
         gameWorld.reset()
 
         return result

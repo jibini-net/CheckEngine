@@ -59,7 +59,7 @@ class WorldFile
          * @param resource Resource pointing to the world JSON file.
          * @return Parsed world file loaded from the given resource.
          */
-        fun read(resource: Resource) = Gson().fromJson(resource.textContents, WorldFile::class.java)
+        fun read(resource: Resource): WorldFile = Gson().fromJson(resource.textContents, WorldFile::class.java)
 
         /**
          * Writes the world file to the working directory at the given
