@@ -253,7 +253,7 @@ object Check
                 }
             }
 
-            Thread.sleep(1000 / 60)
+            Thread.sleep(1000L / 60)
         }
 
         // All instances are closed
