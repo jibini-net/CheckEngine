@@ -1,7 +1,6 @@
 package net.jibini.check.entity.behavior;
 
 import net.jibini.check.engine.EngineObject;
-import net.jibini.check.engine.Initializable;
 import net.jibini.check.engine.RegisterObject;
 import net.jibini.check.engine.timing.DeltaTimer;
 import net.jibini.check.entity.ActionableEntity;
@@ -42,7 +41,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * @author Zach Goethel
  */
 @RegisterObject
-public class PlayerTargetBehavior extends EntityBehavior implements Initializable
+public class PlayerTargetBehavior extends EntityBehavior
 {
     // Local class logger instance
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -249,12 +248,10 @@ public class PlayerTargetBehavior extends EntityBehavior implements Initializabl
         // Make the sum vector be of length 1.0
         if (direction.length() > 0.0f)
             direction.normalize();
+        direction.mul(0.8f);
 
         // Update the actionable entity movement
-        ((ActionableEntity)entity).walk(direction.x, direction.y);
+        if (!bb.overlaps(target.getBoundingBox()))
+            ((ActionableEntity)entity).walk(direction.x, direction.y);
     }
-
-    @Override
-    public void initialize()
-    {  }
 }

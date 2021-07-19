@@ -6,6 +6,7 @@ import net.jibini.check.engine.RegisterObject;
 import net.jibini.check.entity.ActionableEntity;
 import net.jibini.check.entity.Entity;
 import net.jibini.check.entity.behavior.EntityBehavior;
+import net.jibini.check.entity.behavior.PlayerTargetBehavior;
 import net.jibini.check.graphics.Light;
 import net.jibini.check.graphics.impl.LightingShaderImpl;
 import net.jibini.check.resource.Resource;
@@ -62,7 +63,7 @@ public class GendreauBehavior extends EntityBehavior implements Initializable
     public void initialize()
     {
         // Load the yelling texture
-        rightYell = Texture.load(Resource.fromClasspath("characters/gendrau/gendrau_yell_right.gif"));
+        rightYell = Texture.load(Resource.fromClasspath("characters/gendreau/gendreau_yell_right.gif"));
         leftYell = rightYell.flip(true, false);
     }
 }
