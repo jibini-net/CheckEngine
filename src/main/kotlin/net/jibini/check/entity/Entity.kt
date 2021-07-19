@@ -81,7 +81,17 @@ abstract class Entity(
     /**
      * Set this flag to true to render before the player.
      */
-    open var renderBehind = false;
+    open var renderBehind = false
+
+    /**
+     * This entity's max HP value when it first spawns.
+     */
+    open val maxHealth = 20
+
+    /**
+     * This entity's current health level.
+     */
+    open var health = 20
 
     /**
      * When this flag is enabled, gravity and physics will not affect

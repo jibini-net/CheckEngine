@@ -1,0 +1,34 @@
+game_type top_down
+
+spawn character forbes 14 2.5 ProclivityLobbyIntroBehavior
+
+spawn player forbes 1 2
+
+tile 0 floor_tile0.png nonblocking
+tile 1 floor_tile1.png nonblocking
+tile 2 wall_tile.png nonblocking
+tile 3 name_tag_tile.png nlblocking
+tile 4 floor_tile0.png nlblocking
+tile 5 floor_tile1.png nlblocking
+tile 6 wall_tile.png nlblocking
+tile 7 base_board_tile.png nonblocking
+tile 8 door_top_tile.png nonblocking
+tile 9 door_bottom_tile.png nonblocking
+tile 10 base_board_tile.png nlblocking
+tile 11 black.png blocking
+
+portal maze_test 3 4.7 1 0.3
+portal world01 8 4.7 1 0.3
+portal world01 13 4.7 1 0.3
+portal world01 18 4.7 1 0.3
+portal world01 23 4.7 1 0.3
+portal world01 28 4.7 1 0.3
+portal world01 33 4.7 1 0.3
+
+light 3.5 4.5 1 0.7 0.7 0.2
+light 8.5 4.5 1 0.9 0.7 0.2
+light 13.5 4.5 0.9 0.7 0.7 0.2
+light 18.5 4.5 1.1 0.45 0.7 0.2
+light 23.5 4.5 1 0.5 0.7 0.2
+light 28.5 4.5 1.1 0.4 0.7 0.2
+light 33.5 4.5 1 0.7 0.7 0.2
