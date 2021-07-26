@@ -12,6 +12,7 @@ import net.jibini.check.world.impl.SpawnEntry
 import net.jibini.check.world.impl.TileDescriptor
 import net.jibini.check.world.impl.TileTexturing
 import net.jibini.check.world.impl.WorldFile
+import net.jibini.check.world.loadRoom
 
 import java.lang.IllegalStateException
 

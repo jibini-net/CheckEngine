@@ -5,6 +5,7 @@ import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.EntitySpawner
 import net.jibini.check.graphics.impl.LightingShaderImpl
+import net.jibini.check.physics.QuadTree
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
 import net.jibini.check.world.GameWorld
@@ -71,9 +72,17 @@ class WorldFileLoadImpl
                 ?.spawn(gameWorld, *it.args.toTypedArray())
         }
 
+        gameWorld.quadTree = QuadTree(
+            0.0,
+            0.0,
+            maxOf(gameWorld.room!!.width, gameWorld.room!!.height) * 0.2,
+            maxOf(gameWorld.room!!.width, gameWorld.room!!.height) * 0.2
+        )
+        for (entity in gameWorld.entities)
+            gameWorld.quadTree.place(entity)
+
         // Rebuild room meshes with loaded tiles
         gameWorld.room!!.rebuildMeshes()
-
         gameWorld.visible = true
     }
 }

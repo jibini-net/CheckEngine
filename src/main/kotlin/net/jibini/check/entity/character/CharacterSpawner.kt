@@ -3,6 +3,7 @@ package net.jibini.check.entity.character
 import net.jibini.check.engine.RegisterObject
 import net.jibini.check.engine.impl.EngineObjectsImpl
 import net.jibini.check.entity.EntitySpawner
+import net.jibini.check.entity.Inventory
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.resource.Resource
 import net.jibini.check.texture.Texture
@@ -65,7 +66,9 @@ class CharacterSpawner : EntitySpawner
             },
 
             characterName,
-            behavior
+            behavior,
+
+            Inventory(2)
         )
 
         val behaviorLoaded = EngineObjectsImpl.get<EntityBehavior>()
@@ -83,6 +86,9 @@ class CharacterSpawner : EntitySpawner
         entity.y = y
 
         if (!gameWorld.entities.contains(entity))
+        {
             gameWorld.entities += entity
+            gameWorld.quadTree.place(entity)
+        }
     }
 }

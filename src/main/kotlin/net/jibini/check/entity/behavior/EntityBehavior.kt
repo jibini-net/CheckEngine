@@ -26,4 +26,10 @@ abstract class EntityBehavior
      * @param entity Entity to update with this behavior.
      */
     abstract fun update(entity: Entity)
+
+    open fun entityCollideFrame(main: Entity, other: Entity)
+    {  }
+
+    open fun onDeath(main: Entity, killer: Entity?)
+    {  }
 }

@@ -1,6 +1,7 @@
 package net.jibini.check.entity.character
 
 import net.jibini.check.entity.ActionableEntity
+import net.jibini.check.entity.Inventory
 import net.jibini.check.texture.Texture
 
 /**
@@ -38,5 +39,11 @@ class NonPlayer(
     /**
      * Name of the behavior in case of null state of behavior.
      */
-    val behaviorName: String
+    val behaviorName: String,
+
+    /**
+     * The player's starting inventory; they will keep this inventory and any
+     * references to it will reflect inventory changes.
+     */
+    override val inventory: Inventory
 ) : ActionableEntity(idleRight, idleLeft, walkRight, walkLeft)

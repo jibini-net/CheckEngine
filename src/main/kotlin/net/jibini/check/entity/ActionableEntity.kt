@@ -2,8 +2,6 @@ package net.jibini.check.entity
 
 import net.jibini.check.engine.EngineObject
 import net.jibini.check.engine.timing.DeltaTimer
-import net.jibini.check.entity.character.Attack
-import net.jibini.check.entity.character.Player
 import net.jibini.check.graphics.Matrices
 import net.jibini.check.graphics.Uniforms
 import net.jibini.check.graphics.impl.LightingShaderImpl
@@ -69,16 +67,16 @@ abstract class ActionableEntity(
     private lateinit var lightingShader: LightingShaderImpl
 
     /**
+     * A status effect on this entity which can speed up or slow down its
+     * movement.
+     */
+    var speedMultiplier = 1.0
+
+    /**
      * Character directional state (RIGHT and LEFT, or 0 and 1
      * respectively).
      */
     var characterState = RIGHT
-
-    /**
-     * Currently bound attack which will be triggered when the entity
-     * attacks.
-     */
-    var attack: Attack? = null
 
     /**
      * Two-dimensional array of textures by animation and direction.
@@ -114,6 +112,12 @@ abstract class ActionableEntity(
      * Entity-specific timer to coordinate movement.
      */
     private val secondaryDeltaTimer = DeltaTimer()
+
+    /**
+     * A default inventory and the inventory which this entity carries through
+     * its lifespan in the game world.
+     */
+    abstract val inventory: Inventory
 
     /**
      * Sets the vertical velocity in order to jump (only if currently on
@@ -162,7 +166,7 @@ abstract class ActionableEntity(
         // Bind render texture
         renderTexture.bind()
         // Update attack; this may override previous texture
-        attack?.update()
+        //attack?.update()
 
         // The whole body blocks light in side-scroller mode, or if the
         // non-light blocking override flag is set (to hide  shadows over
@@ -213,7 +217,7 @@ abstract class ActionableEntity(
     {
         // Get movement speed based on delta time and attack
         // speed modifier
-        val movement = delta / 1.5 * (attack?.effectiveMovementModifier ?: 1.0)
+        val movement = delta / 1.5 * this.speedMultiplier
 
         // Default to idle animation
         var characterAnim: Int = stand
@@ -251,9 +255,9 @@ abstract class ActionableEntity(
     /**
      * Trigger the bound attack; has no effect if no attack is bound.
      */
-    fun attack()
+    fun attack(primary: Boolean = true)
     {
-        attack?.trigger(this)
+        TODO("INVENTORY-BASED ITEM ATTACKS ARE NOT YET IMPLEMENTED")
     }
 
     companion object

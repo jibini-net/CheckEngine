@@ -57,7 +57,7 @@ class QuadTree<E : Bounded>(
          * Do not branch out a node if it would create nodes smaller
          * than this size.
          */
-        const val MIN_BUCKET_SIZE = 0.1
+        const val MIN_BUCKET_SIZE = 2.0
 
         /**
          * The width of the array of child nodes; the number of child

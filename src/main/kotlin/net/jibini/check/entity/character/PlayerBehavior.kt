@@ -7,13 +7,23 @@ import net.jibini.check.entity.ActionableEntity
 import net.jibini.check.entity.Entity
 import net.jibini.check.entity.behavior.EntityBehavior
 import net.jibini.check.input.Keyboard
+import net.jibini.check.resource.Resource
 import net.jibini.check.world.GameWorld
+import net.jibini.check.world.impl.WorldFile
+import net.jibini.check.world.impl.WorldFileLoadImpl
 
 import org.lwjgl.glfw.GLFW
+
+import org.slf4j.LoggerFactory
 
 @RegisterObject
 class PlayerBehavior : EntityBehavior(), Initializable
 {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    @EngineObject
+    private lateinit var worldFileLoad: WorldFileLoadImpl
+
     @EngineObject
     private lateinit var keyboard: Keyboard
 
@@ -30,11 +40,13 @@ class PlayerBehavior : EntityBehavior(), Initializable
      * Flag set to true if the attack key has been pressed.
      */
     private var queueAttack = false
+    private var queueSecondary = false
 
     override fun initialize()
     {
         // Listen to space to trigger attack
         keyboard.addKeyListener(GLFW.GLFW_KEY_LEFT_CONTROL) { queueAttack = true }
+        keyboard.addKeyListener(GLFW.GLFW_KEY_Z) { queueSecondary = true }
         // Listen to left shift to trigger jump
         keyboard.addKeyListener(GLFW.GLFW_KEY_SPACE) { queueJump = true }
     }
@@ -49,7 +61,7 @@ class PlayerBehavior : EntityBehavior(), Initializable
     {
         if (entity !is ActionableEntity) return
 
-        // Jump if the jump flag is set
+        // Jump if the jump flag is set to true
         if (queueJump)
         {
             queueJump = false
@@ -61,6 +73,13 @@ class PlayerBehavior : EntityBehavior(), Initializable
         {
             queueAttack = false
             entity.attack()
+        }
+
+        // Secondary attack if that flag is set
+        if (queueSecondary)
+        {
+            queueSecondary = false
+            entity.attack(primary = false)
         }
 
         // Check WASD keys
@@ -75,14 +94,16 @@ class PlayerBehavior : EntityBehavior(), Initializable
 
         // Walk based on previous movement
         entity.walk(x, y)
+    }
 
-        if (entity.y < -0.4)
-        {
-            //TODO FANCIER DEATH
-            gameWorld.loadRoom("main_hub")
-            gameWorld.visible = true
+    override fun onDeath(main: Entity, killer: Entity?)
+    {
+        //TODO FANCIER DEATHS
+        worldFileLoad.load(WorldFile.read(Resource.fromFile("worlds/lobby/lobby.json")))
+        gameWorld.visible = true
 
-            entity.y = 0.0
-        }
+        main.y = 0.0
+
+        log.info("The player was killed; killer is set to '$killer'")
     }
 }

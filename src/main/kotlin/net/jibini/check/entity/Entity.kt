@@ -113,6 +113,10 @@ abstract class Entity(
     {
         if (!frozen)
             behavior?.update(this)
+
+        if (this.y < -0.4 || this.health <= 0)
+            //TODO FANCIER DEATH
+            this.behavior?.onDeath(this, null)
     }
 
     /**
