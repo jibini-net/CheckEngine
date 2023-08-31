@@ -1,3 +1,17 @@
+__Key notes for running this circa 2023:__
+- Set `JAVA_HOME` to an installation of JDK 11
+- Set IntelliJ "Build, Execution, Deployment -> Build Tools -> Gradle -> Build and run using" to "IntelliJ IDEA"
+- Run from `TestGame.java` in the test sources
+
+__To make a fat runnable jar,__
+- Check out `fat-jar` branch
+    - All Java source was converted to Kotlin
+    - Mixed Java/Kotlin content was removed to fix Gradle builds
+- Run `.\gradlew fatJar`, which creates a standalone JAR in `build\libs`
+- Copy the `worlds` folder adjacent to the JAR
+
+-----
+
 # Check Engine <img width="20px" src="https://i.imgur.com/zCbt199.png" />
 
 A simple 2D game engine developed for the Makeshift group at University of 
